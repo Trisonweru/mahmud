@@ -4,7 +4,7 @@ import { Globe2, Mail, Shield, MapPin, Headphones, Phone } from "lucide-react";
 export const SiteFooter = () => {
   return (
     <footer className="bg-primary text-primary-foreground mt-24">
-      <div className="container py-16 grid gap-12 md:grid-cols-5">
+      <div className="container py-16 grid gap-12 md:grid-cols-6">
         <div className="md:col-span-2 max-w-sm">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-sm border border-accent/30">
@@ -50,6 +50,15 @@ export const SiteFooter = () => {
             <Headphones className="h-4 w-4 text-accent mt-0.5 shrink-0" />
             <p className="leading-relaxed">We are committed to excellent customer service. All support requests and inquiries will be attended to within 2 working days.</p>
           </div>
+        </div>
+
+        <div>
+          <h4 className="text-xs uppercase tracking-[0.2em] text-accent mb-4">Legal</h4>
+          <ul className="space-y-3 text-sm text-primary-foreground/80">
+            <li><Link to="/terms" className="hover:text-accent transition-smooth">Terms of Service</Link></li>
+            <li><Link to="/privacy" className="hover:text-accent transition-smooth">Privacy Policy</Link></li>
+            <li><Link to="/refund" className="hover:text-accent transition-smooth">Refund Policy</Link></li>
+          </ul>
         </div>
       </div>
 
