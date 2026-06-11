@@ -485,7 +485,7 @@ const Index = () => {
             The total cost for the Somalia eVisa application service is <strong className="text-foreground">$94 USD</strong>,
             all-inclusive. This fee covers our specialist application assistance, document review,
             and submission through the official Somalia eTAS portal — operated by{" "}
-            <strong className="text-foreground">PassKey Technologies Ltd</strong> (Company No. 16877709,
+            <strong className="text-foreground">eVisa Somalia</strong> (Company No. 16877709,
             registered in England &amp; Wales).
           </p>
           <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
