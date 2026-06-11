@@ -24,12 +24,12 @@ const Refund = () => (
         Our total fee is <strong>$94 USD</strong> (all-inclusive) per application. This includes:
         <ul className="list-disc pl-6 mt-2 space-y-1">
           <li>The official government eTAS fee of $64 USD (forwarded 100% to the official government portal)</li>
-          <li>Our private service fee of $86 USD for form review, error-checking, document preparation, and submission assistance.</li>
+          <li>Our private service fee of $30 USD for form review, error-checking, document preparation, and submission assistance.</li>
         </ul>
       </Block>
 
       <Block n="2" title="Refund Eligibility">
-        You are eligible for a refund of our private service fee ($86 USD) only if we are unable to
+        You are eligible for a refund of our private service fee ($30 USD) only if we are unable to
         submit your application due to a technical issue on our side. <strong>No other refunds will
         be issued.</strong>
       </Block>
