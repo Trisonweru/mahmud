@@ -15,7 +15,7 @@ const Terms = () => (
 
     <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground/85">
       <Block n="1" title="Service Provider">
-        This service is provided by <strong>PassKey Technologies Ltd</strong> ("we," "us," or "our"),
+        This service is provided by <strong>eVisa Somalia</strong> ("we," "us," or "our"),
         a private third-party company registered in England &amp; Wales (Company No. 16877709),
         registered office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom.
         We are not affiliated with, endorsed by,
@@ -96,6 +96,8 @@ const Terms = () => (
           <a href="mailto:support@evisasomali.com" className="text-accent underline">
             support@evisasomali.com
           </a>
+          <br />
+          Phone / WhatsApp: +252 61 3886027
           <br />
           Registered Office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom
           <br />

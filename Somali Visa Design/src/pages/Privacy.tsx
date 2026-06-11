@@ -14,7 +14,7 @@ const Privacy = () => (
     <p className="mt-6 text-sm text-muted-foreground">Last Updated: 10 March 2026</p>
 
     <p className="mt-8 text-sm leading-relaxed text-foreground/85">
-      This Privacy Policy explains how <strong>PassKey Technologies Ltd</strong> ("we," "us," or
+      This Privacy Policy explains how <strong>eVisa Somalia</strong> ("we," "us," or
       "our") collects, uses, and protects your personal information when you use our website and
       related visa assistance services ("Services"). By using our Website, you agree to the
       practices described in this Privacy Policy.
@@ -22,7 +22,7 @@ const Privacy = () => (
 
     <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground/85">
       <Block n="1" title="Data Controller">
-        <strong>PassKey Technologies Ltd</strong> — a private company registered in England &amp;
+        <strong>eVisa Somalia</strong> — a private company registered in England &amp;
         Wales (Company No. 16877709), registered office: 71–75 Shelton Street, Covent Garden,
         London WC2H 9JQ, United Kingdom. We are an
         independent third-party service provider and are not affiliated with, endorsed by, or
@@ -94,6 +94,8 @@ const Privacy = () => (
           <a href="mailto:support@evisasomali.com" className="text-accent underline">
             support@evisasomali.com
           </a>
+          <br />
+          Phone / WhatsApp: +252 61 3886027
           <br />
           Registered Office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom
           <br />

@@ -14,7 +14,7 @@ const Refund = () => (
     <p className="mt-6 text-sm text-muted-foreground">Last Updated: 10 March 2026</p>
 
     <p className="mt-8 text-sm leading-relaxed text-foreground/85">
-      At <strong>PassKey Technologies Ltd</strong>, we strive to provide high-quality visa
+      At <strong>eVisa Somalia</strong>, we strive to provide high-quality visa
       application assistance. This Refund Policy explains the conditions under which refunds are
       issued for our services on evisasomali.com.
     </p>
@@ -71,6 +71,8 @@ const Refund = () => (
           <a href="mailto:refunds@evisasomali.com" className="text-accent underline">
             refunds@evisasomali.com
           </a>
+          <br />
+          Phone / WhatsApp: +252 61 3886027
           <br />
           Registered Office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom
           <br />
