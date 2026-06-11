@@ -33,19 +33,22 @@ const Terms = () => (
       </Block>
 
       <Block n="3" title="Refund Policy">
-        This service is provided by Passkey Technologies Limited (Company No. 16877709),
-        registered in England &amp; Wales. All refunds are issued by Passkey Technologies Limited.
         Refunds are governed by our separate{" "}
         <Link to="/refund" className="text-accent underline">Refund Policy</Link>.
         No refunds are available except as expressly stated in that policy.
       </Block>
 
-      <Block n="4" title="No Guarantee of Approval">
+      <Block n="4" title="Refund Provider">
+        This service is provided by Passkey Technologies Limited (Company No. 16877709),
+        registered in England &amp; Wales. All refunds are issued by Passkey Technologies Limited.
+      </Block>
+
+      <Block n="5" title="No Guarantee of Approval">
         We do <strong>not</strong> guarantee visa approval or entry into your destination. All decisions are
         made solely by the the destination government through the official eTAS system.
       </Block>
 
-      <Block n="5" title="Your Responsibilities">
+      <Block n="6" title="Your Responsibilities">
         You agree to:
         <ul className="list-disc pl-6 mt-2 space-y-1">
           <li>Provide accurate, complete, and truthful information.</li>
@@ -56,7 +59,7 @@ const Terms = () => (
         omissions, or false information provided by you.
       </Block>
 
-      <Block n="6" title="Cancellation Rights">
+      <Block n="7" title="Cancellation Rights">
         By proceeding with payment, you request immediate performance of our service. Once your
         application is submitted to the official government portal, you waive your right to cancel the service.
         You will be required to check a box stating "I request immediate performance of services"
@@ -64,13 +67,13 @@ const Terms = () => (
         right of withdrawal under the UK Consumer Rights Act 2015.
       </Block>
 
-      <Block n="7" title="Data Protection">
+      <Block n="8" title="Data Protection">
         Your personal data is handled in accordance with our{" "}
         <Link to="/privacy" className="text-accent underline">Privacy Policy</Link> and the
         applicable data protection laws of the United Kingdom.
       </Block>
 
-      <Block n="8" title="Limitation of Liability">
+      <Block n="9" title="Limitation of Liability">
         Our total liability for any claim arising from the use of our services is limited to the
         amount you paid us ($94 USD). We are not liable for:
         <ul className="list-disc pl-6 mt-2 space-y-1">
@@ -80,13 +83,13 @@ const Terms = () => (
         </ul>
       </Block>
 
-      <Block n="9" title="Governing Law">
+      <Block n="10" title="Governing Law">
         These Terms are governed by and construed in accordance with the laws of England and
         Wales. Any disputes shall be subject to the exclusive jurisdiction of the courts of
         England and Wales.
       </Block>
 
-      <Block n="10" title="Changes to These Terms">
+      <Block n="11" title="Changes to These Terms">
         We may update these Terms from time to time. The latest version will be posted here with an
         updated "Last Updated" date. Continued use of our Services constitutes acceptance.
       </Block>
