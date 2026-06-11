@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     q: "Is this an official government website?",
-    a: "No. eVisa Somalia is an independent specialist service that assists travellers with preparing and submitting their eVisa applications. We are not affiliated with the Somali government. Applications are submitted to the official immigration authority on your behalf.",
+    a: "No. eVisaSomali is an independent specialist service that assists travellers with preparing and submitting their eVisa applications. We are not affiliated with the Somali government. Applications are submitted to the official immigration authority on your behalf.",
   },
   {
     q: "How will I receive my Somalia eVisa?",

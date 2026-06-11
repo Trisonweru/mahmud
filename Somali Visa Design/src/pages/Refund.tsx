@@ -14,7 +14,7 @@ const Refund = () => (
     <p className="mt-6 text-sm text-muted-foreground">Last Updated: 10 March 2026</p>
 
     <p className="mt-8 text-sm leading-relaxed text-foreground/85">
-      At <strong>eVisa Somalia</strong>, we strive to provide high-quality visa
+      At <strong>eVisaSomali</strong>, we strive to provide high-quality visa
       application assistance. This Refund Policy explains the conditions under which refunds are
       issued for our services on evisasomali.com.
     </p>
@@ -29,7 +29,7 @@ const Refund = () => (
       </Block>
 
       <Block n="2" title="Refund Eligibility">
-        You are eligible for a refund of our private service fee ($30 USD) only if we are unable to
+        You are eligible for a refund of our private service fee ($94 USD) only if we are unable to
         submit your application due to a technical issue on our side. <strong>No other refunds will
         be issued.</strong>
       </Block>
@@ -75,6 +75,8 @@ const Refund = () => (
           Phone / WhatsApp: +252 61 3886027
           <br />
           Registered Office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom
+          <br />
+          Company Name: eVisaSomali
           <br />
           Company No.: 16877709
         </p>

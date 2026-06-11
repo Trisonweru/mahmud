@@ -14,7 +14,7 @@ export const visaCountries: VisaCountryInfo[] = [
     demonym: "American",
     flag: "🇺🇸",
     intro:
-      "U.S. passport holders need an approved eVisa before travelling to Somalia. eVisa Somalia helps American applicants complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      "U.S. passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps American applicants complete the official Somalia eTAS application accurately, with specialist review before submission.",
     highlight:
       "We support tourist, business, and family-visit applications for U.S. citizens, including return visits for the Somali-American diaspora.",
   },
@@ -34,7 +34,7 @@ export const visaCountries: VisaCountryInfo[] = [
     demonym: "Swedish",
     flag: "🇸🇪",
     intro:
-      "Swedish passport holders need an approved eVisa to enter Somalia. eVisa Somalia assists applicants across Sweden with document preparation and submission to the official portal.",
+      "Swedish passport holders need an approved eVisa to enter Somalia. eVisaSomali assists applicants across Sweden with document preparation and submission to the official portal.",
     highlight:
       "We regularly help members of the large Somali community in Sweden travelling home to visit family or attend to personal matters.",
   },
@@ -44,7 +44,7 @@ export const visaCountries: VisaCountryInfo[] = [
     demonym: "Kenyan",
     flag: "🇰🇪",
     intro:
-      "Kenyan citizens require an electronic visa to travel to Somalia. eVisa Somalia helps applicants in Kenya — including the wider East African Somali diaspora — prepare a complete, accurate application.",
+      "Kenyan citizens require an electronic visa to travel to Somalia. eVisaSomali helps applicants in Kenya — including the wider East African Somali diaspora — prepare a complete, accurate application.",
     highlight:
       "Given the close ties and frequent travel between Kenya and Somalia, we pay special attention to getting documentation right the first time to help avoid delays at the border.",
   },
@@ -64,7 +64,7 @@ export const visaCountries: VisaCountryInfo[] = [
     demonym: "Canadian",
     flag: "🇨🇦",
     intro:
-      "Canadian citizens need a valid eVisa to enter Somalia. eVisa Somalia provides a straightforward online application process for travellers across Canada, with updates sent directly to your email and WhatsApp.",
+      "Canadian citizens need a valid eVisa to enter Somalia. eVisaSomali provides a straightforward online application process for travellers across Canada, with updates sent directly to your email and WhatsApp.",
     highlight:
       "We support both first-time travellers and returning members of the Somali-Canadian community.",
   },
@@ -84,7 +84,7 @@ export const visaCountries: VisaCountryInfo[] = [
     demonym: "German",
     flag: "🇩🇪",
     intro:
-      "German citizens must hold an approved eVisa to enter Somalia. eVisa Somalia assists applicants based in Germany with document review and submission to the official Somalia eTAS system.",
+      "German citizens must hold an approved eVisa to enter Somalia. eVisaSomali assists applicants based in Germany with document review and submission to the official Somalia eTAS system.",
     highlight:
       "We regularly support the Somali-German community travelling for family visits, business, and community events.",
   },
@@ -104,7 +104,7 @@ export const visaCountries: VisaCountryInfo[] = [
     demonym: "South African",
     flag: "🇿🇦",
     intro:
-      "South African citizens are required to obtain an eVisa before entering Somalia. eVisa Somalia supports applicants across South Africa with a simple online process and specialist document checks.",
+      "South African citizens are required to obtain an eVisa before entering Somalia. eVisaSomali supports applicants across South Africa with a simple online process and specialist document checks.",
     highlight:
       "We help travellers from South Africa's Somali business and diaspora communities prepare complete applications quickly.",
   },

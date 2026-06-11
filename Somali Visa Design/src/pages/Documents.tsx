@@ -29,7 +29,7 @@ const documentsJsonLd = {
 const Documents = () => (
   <>
     <PageSEO
-      title="Somalia eVisa Requirements — Documents You Need | eVisa Somalia"
+      title="Somalia eVisa Requirements — Documents You Need | eVisaSomali"
       description="Find out exactly what documents you need for a Somalia eVisa: valid passport, digital photo, flight ticket, accommodation proof and travel dates. Apply online in minutes."
       canonical="https://www.evisasomali.com/documents"
       jsonLd={documentsJsonLd}

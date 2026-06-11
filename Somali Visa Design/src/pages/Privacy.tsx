@@ -6,7 +6,7 @@ const Privacy = () => (
   <>
   <PageSEO
     title="Privacy Policy — Somalia eVisa Application Service"
-    description="How eVisa Somalia collects, uses and protects your personal data when you apply for a Somalia eVisa. Bank-grade encryption. Never shared with third parties."
+    description="How eVisaSomali collects, uses and protects your personal data when you apply for a Somalia eVisa. Bank-grade encryption. Never shared with third parties."
     canonical="https://www.evisasomali.com/privacy"
   />
   <section className="container py-20 max-w-3xl">
@@ -14,7 +14,7 @@ const Privacy = () => (
     <p className="mt-6 text-sm text-muted-foreground">Last Updated: 10 March 2026</p>
 
     <p className="mt-8 text-sm leading-relaxed text-foreground/85">
-      This Privacy Policy explains how <strong>eVisa Somalia</strong> ("we," "us," or
+      This Privacy Policy explains how <strong>eVisaSomali</strong> ("we," "us," or
       "our") collects, uses, and protects your personal information when you use our website and
       related visa assistance services ("Services"). By using our Website, you agree to the
       practices described in this Privacy Policy.
@@ -22,7 +22,7 @@ const Privacy = () => (
 
     <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground/85">
       <Block n="1" title="Data Controller">
-        <strong>eVisa Somalia</strong> — a private company registered in England &amp;
+        <strong>eVisaSomali</strong> — a private company registered in England &amp;
         Wales (Company No. 16877709), registered office: 71–75 Shelton Street, Covent Garden,
         London WC2H 9JQ, United Kingdom. We are an
         independent third-party service provider and are not affiliated with, endorsed by, or
@@ -98,6 +98,8 @@ const Privacy = () => (
           Phone / WhatsApp: +252 61 3886027
           <br />
           Registered Office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom
+          <br />
+          Company Name: eVisaSomali
           <br />
           Company No.: 16877709
         </p>

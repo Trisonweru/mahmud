@@ -6,19 +6,19 @@ import { PageSEO } from "@/components/PageSEO";
 const About = () => (
   <>
     <PageSEO
-      title="About eVisa Somalia — Trusted Visa Application Specialists"
+      title="About eVisaSomali — Trusted Visa Application Specialists"
       description="We are an independent Somalia eVisa service helping diaspora travellers and international visitors apply accurately and with confidence. Specialist-assisted, secure, 24/7."
       canonical="https://www.evisasomali.com/about"
       jsonLd={{
         "@context": "https://schema.org",
         "@type": "AboutPage",
         "url": "https://www.evisasomali.com/about",
-        "name": "About eVisa Somalia",
+        "name": "About eVisaSomali",
         "description": "An independent Somalia eVisa application service helping diaspora travellers and international visitors apply accurately and with confidence.",
         "publisher": {
           "@type": "Organization",
           "@id": "https://www.evisasomali.com/#org",
-          "name": "eVisa Somalia",
+          "name": "eVisaSomali",
           "url": "https://www.evisasomali.com",
           "email": "support@evisasomali.com",
         }
@@ -43,7 +43,7 @@ const About = () => (
       <SectionHeading eyebrow="Who We Are" title="Independent specialists, not a government agency." />
       <div className="mt-8 space-y-5 text-foreground/85 leading-relaxed">
         <p>
-          <strong>eVisa Somalia</strong> is an independent visa application assistance service,
+          <strong>eVisaSomali</strong> is an independent visa application assistance service,
           a private company registered in England &amp; Wales
           (Company No. 16877709), with its registered office at 71–75 Shelton Street, Covent Garden,
           London WC2H 9JQ, United Kingdom.

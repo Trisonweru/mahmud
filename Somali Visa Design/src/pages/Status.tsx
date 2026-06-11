@@ -72,7 +72,7 @@ const Status = () => {
   return (
     <>
       <PageSEO
-        title="Check Somalia eVisa Application Status | eVisa Somalia"
+        title="Check Somalia eVisa Application Status | eVisaSomali"
         description="Track your Somalia eVisa application status. Enter your email address and reference number to check where your application stands."
         canonical="https://www.evisasomali.com/status"
       />

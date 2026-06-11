@@ -113,7 +113,7 @@ const Index = () => {
     {
       "@type": "Organization",
       "@id": "https://www.evisasomali.com/#org",
-      "name": "eVisa Somalia",
+      "name": "eVisaSomali",
       "url": "https://www.evisasomali.com",
       "logo": { "@type": "ImageObject", "url": "https://www.evisasomali.com/og-image.jpg", "width": 1200, "height": 630 },
       "email": "support@evisasomali.com",
@@ -124,7 +124,7 @@ const Index = () => {
     {
       "@type": "WebSite",
       "@id": "https://www.evisasomali.com/#website",
-      "name": "eVisa Somalia",
+      "name": "eVisaSomali",
       "url": "https://www.evisasomali.com",
       "publisher": { "@id": "https://www.evisasomali.com/#org" }
     },
@@ -142,7 +142,7 @@ const Index = () => {
   return (
     <>
       <PageSEO
-        title="Apply for Somalia eVisa Online | Fast & Secure | eVisa Somalia"
+        title="Apply for Somalia eVisa Online | Fast & Secure | eVisaSomali"
         description="Get your Somalia eVisa in 60 seconds. Upload your passport, photo and ticket — our specialists handle the rest. $94 USD. WhatsApp updates. 24/7 support."
         canonical="https://www.evisasomali.com/"
         jsonLd={homepageJsonLd}
@@ -484,9 +484,7 @@ const Index = () => {
           <p className="mt-6 text-sm text-muted-foreground leading-relaxed">
             The total cost for the Somalia eVisa application service is <strong className="text-foreground">$94 USD</strong>,
             all-inclusive. This fee covers our specialist application assistance, document review,
-            and submission through the official Somalia eTAS portal — operated by{" "}
-            <strong className="text-foreground">eVisa Somalia</strong> (Company No. 16877709,
-            registered in England &amp; Wales).
+            and submission through the official Somalia eTAS portal.
           </p>
           <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
             All fees are displayed clearly before payment is completed. Applicants are advised to

@@ -6,7 +6,7 @@ import { UploadCloud, FileText, Camera, ArrowRight, CheckCircle2, ShieldCheck, X
 import { toast } from "sonner";
 import { setPending } from "@/lib/pendingApplication";
 import { FUNCTIONS_URL, fnHeaders } from "@/lib/api";
-import { extractPassport, UnsupportedImageError } from "@/lib/passportOcr";
+import { extractPassport, hasExtractedData, UnsupportedImageError } from "@/lib/passportOcr";
 import { isEmail } from "@/lib/validation";
 
 const Express = () => {
@@ -31,24 +31,29 @@ const Express = () => {
       const data = await extractPassport(file, (p) => setOcrProgress(p));
       const extractedName = [data.givenNames, data.surname].filter(Boolean).join(" ").trim();
       if (extractedName && !fullName) setFullName(extractedName);
-      setOcrPreview({
-        name: extractedName || "—",
-        passport: data.passportNumber || "—",
-        expiry: data.expiryDate
-          ? new Date(data.expiryDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
-          : "—",
-      });
-      setOcrData({
-        passportNumber: data.passportNumber || "",
-        passportExpiry: data.expiryDate ? new Date(data.expiryDate).toISOString().slice(0, 10) : "",
-        dob: data.dateOfBirth ? new Date(data.dateOfBirth).toISOString().slice(0, 10) : "",
-        nationality: data.nationality || "",
-      });
-      toast.success("Passport scanned — please verify the details below.");
+      if (hasExtractedData(data)) {
+        setOcrPreview({
+          name: extractedName || "—",
+          passport: data.passportNumber || "—",
+          expiry: data.expiryDate
+            ? new Date(data.expiryDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+            : "—",
+        });
+        setOcrData({
+          passportNumber: data.passportNumber || "",
+          passportExpiry: data.expiryDate ? new Date(data.expiryDate).toISOString().slice(0, 10) : "",
+          dob: data.dateOfBirth ? new Date(data.dateOfBirth).toISOString().slice(0, 10) : "",
+          nationality: data.nationality || "",
+        });
+        toast.success("Passport scanned — please verify the details below.");
+      } else {
+        toast.info("We couldn't read the details from this scan automatically. Our specialists will handle it from your uploaded document.");
+      }
     } catch (e) {
       if (e instanceof UnsupportedImageError) {
         toast.info("Auto-scan isn't supported for this file type. Please upload a JPG or PNG photo — our specialists will handle the rest.");
       } else {
+        console.error(e);
         toast.info("Could not auto-read passport. Our specialists will handle it.");
       }
     } finally {
@@ -106,7 +111,7 @@ const Express = () => {
   return (
     <>
     <PageSEO
-      title="Somalia eVisa Express Service — Skip the Form | eVisa Somalia"
+      title="Somalia eVisa Express Service — Skip the Form | eVisaSomali"
       description="Don't want to fill out the application? Send us your passport page and photo — our specialists prepare your Somalia eVisa application for you. $94 USD, 24/7 support."
       canonical="https://www.evisasomali.com/express"
     />

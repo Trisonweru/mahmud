@@ -22,7 +22,7 @@ const VisaCountry = () => {
   const faqs = [
     {
       q: `Do ${data.demonym} citizens need a visa for Somalia?`,
-      a: `Yes. ${data.demonym} passport holders must obtain an approved eVisa before travelling to Somalia. eVisa Somalia helps you prepare and submit this application online.`,
+      a: `Yes. ${data.demonym} passport holders must obtain an approved eVisa before travelling to Somalia. eVisaSomali helps you prepare and submit this application online.`,
     },
     {
       q: "How long does processing take?",
@@ -41,7 +41,7 @@ const VisaCountry = () => {
   return (
     <>
       <PageSEO
-        title={`Somalia eVisa for ${data.demonym} Citizens | eVisa Somalia`}
+        title={`Somalia eVisa for ${data.demonym} Citizens | eVisaSomali`}
         description={`Apply for your Somalia eVisa from ${data.country}. ${data.intro}`}
         canonical={`https://www.evisasomali.com/visa/${data.slug}`}
         jsonLd={{
