@@ -16,7 +16,9 @@ const Terms = () => (
     <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground/85">
       <Block n="1" title="Service Provider">
         This service is provided by <strong>PassKey Technologies Ltd</strong> ("we," "us," or "our"),
-        a private third-party company registered in Kenya. We are not affiliated with, endorsed by,
+        a private third-party company registered in England &amp; Wales (Company No. 16877709),
+        registered office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom.
+        We are not affiliated with, endorsed by,
         or part of the the destination government or the official eTAS portal (the official government portal).
         We offer paid assistance to help you prepare and submit your eVisa application
         through the only official portal: the official government portal.
@@ -57,13 +59,13 @@ const Terms = () => (
         application is submitted to the official government portal, you waive your right to cancel the service.
         You will be required to check a box stating "I request immediate performance of services"
         before completing payment. Once your application is submitted to the official government portal, you waive any
-        right of withdrawal under the Kenyan Consumer Protection Act.
+        right of withdrawal under the UK Consumer Rights Act 2015.
       </Block>
 
       <Block n="7" title="Data Protection">
         Your personal data is handled in accordance with our{" "}
         <Link to="/privacy" className="text-accent underline">Privacy Policy</Link> and the
-        applicable data protection laws of Kenya.
+        applicable data protection laws of the United Kingdom.
       </Block>
 
       <Block n="8" title="Limitation of Liability">
@@ -77,14 +79,29 @@ const Terms = () => (
       </Block>
 
       <Block n="9" title="Governing Law">
-        These Terms are governed by and construed in accordance with the laws of the Republic of
-        Kenya. Any disputes shall be subject to the exclusive jurisdiction of the courts of Kenya.
+        These Terms are governed by and construed in accordance with the laws of England and
+        Wales. Any disputes shall be subject to the exclusive jurisdiction of the courts of
+        England and Wales.
       </Block>
 
       <Block n="10" title="Changes to These Terms">
         We may update these Terms from time to time. The latest version will be posted here with an
         updated "Last Updated" date. Continued use of our Services constitutes acceptance.
       </Block>
+
+      <div className="border-t border-border pt-8 text-center text-muted-foreground">
+        <h2 className="font-serif text-2xl text-primary">Contact Us</h2>
+        <p className="mt-3">
+          Email:{" "}
+          <a href="mailto:support@evisasomali.com" className="text-accent underline">
+            support@evisasomali.com
+          </a>
+          <br />
+          Registered Office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom
+          <br />
+          Company No.: 16877709
+        </p>
+      </div>
     </div>
   </section>
   </>

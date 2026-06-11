@@ -117,7 +117,7 @@ const Index = () => {
       "url": "https://www.evisasomali.com",
       "logo": { "@type": "ImageObject", "url": "https://www.evisasomali.com/og-image.jpg", "width": 1200, "height": 630 },
       "email": "support@evisasomali.com",
-      "address": { "@type": "PostalAddress", "streetAddress": "Yare Tower, 3rd Floor, First Avenue", "addressLocality": "Nairobi", "addressCountry": "KE" },
+      "address": { "@type": "PostalAddress", "streetAddress": "71-75 Shelton Street, Covent Garden", "addressLocality": "London", "postalCode": "WC2H 9JQ", "addressCountry": "GB" },
       "contactPoint": { "@type": "ContactPoint", "email": "support@evisasomali.com", "contactType": "customer support", "availableLanguage": ["English", "Somali"] },
       "sameAs": []
     },

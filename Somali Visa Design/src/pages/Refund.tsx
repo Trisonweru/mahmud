@@ -64,6 +64,20 @@ const Refund = () => (
         website with the updated date.
       </Block>
 
+      <div className="border-t border-border pt-8 text-center text-muted-foreground">
+        <h2 className="font-serif text-2xl text-primary">Contact Us</h2>
+        <p className="mt-3">
+          Email:{" "}
+          <a href="mailto:refunds@evisasomali.com" className="text-accent underline">
+            refunds@evisasomali.com
+          </a>
+          <br />
+          Registered Office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom
+          <br />
+          Company No.: 16877709
+        </p>
+      </div>
+
       <p className="text-sm text-muted-foreground">
         See also: <Link to="/terms" className="text-accent underline">Terms of Service</Link> ·{" "}
         <Link to="/privacy" className="text-accent underline">Privacy Policy</Link>

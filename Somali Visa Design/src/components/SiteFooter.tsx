@@ -39,7 +39,7 @@ export const SiteFooter = () => {
           <h4 className="text-xs uppercase tracking-[0.2em] text-accent mb-4">Contact</h4>
           <ul className="space-y-3 text-sm text-primary-foreground/80">
             <li className="flex items-center gap-2"><Mail className="h-4 w-4 text-accent" /> support@evisasomali.com</li>
-            <li className="flex items-start gap-2"><MapPin className="h-4 w-4 text-accent mt-0.5 shrink-0" /> <span>Yare Tower, 3rd Floor<br />First Avenue<br />Nairobi, Kenya</span></li>
+            <li className="flex items-start gap-2"><MapPin className="h-4 w-4 text-accent mt-0.5 shrink-0" /> <span>71–75 Shelton Street<br />Covent Garden<br />London WC2H 9JQ, United Kingdom</span></li>
           </ul>
         </div>
 
@@ -61,7 +61,7 @@ export const SiteFooter = () => {
 
       <div className="border-t border-primary-foreground/10">
         <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-primary-foreground/50">
-          <div>© {new Date().getFullYear()} eVisa Application Service. All rights reserved.</div>
+          <div>© {new Date().getFullYear()} PassKey Technologies Ltd. Company No. 16877709 · Registered in England &amp; Wales.</div>
           <div className="flex gap-6">
             <Link to="/privacy" className="hover:text-accent">Privacy</Link>
             <Link to="/terms" className="hover:text-accent">Terms</Link>

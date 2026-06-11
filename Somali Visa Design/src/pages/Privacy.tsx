@@ -22,7 +22,9 @@ const Privacy = () => (
 
     <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground/85">
       <Block n="1" title="Data Controller">
-        <strong>PassKey Technologies Ltd</strong> — a private company registered in Kenya. We are an
+        <strong>PassKey Technologies Ltd</strong> — a private company registered in England &amp;
+        Wales (Company No. 16877709), registered office: 71–75 Shelton Street, Covent Garden,
+        London WC2H 9JQ, United Kingdom. We are an
         independent third-party service provider and are not affiliated with, endorsed by, or
         connected to the the Somali government or any of its departments.
       </Block>
@@ -38,7 +40,7 @@ const Privacy = () => (
       </Block>
 
       <Block n="3" title="How We Use Your Data (Lawful Basis)">
-        We process your data under the Kenya Data Protection Act, 2018:
+        We process your data under the UK General Data Protection Regulation (UK GDPR):
         <ul className="list-disc pl-6 mt-2 space-y-1">
           <li><strong>Contract Performance:</strong> To prepare and submit your eTAS application to the official Somali eTAS portal.</li>
           <li><strong>Explicit Consent:</strong> For processing your passport photo (special category / biometric data).</li>
@@ -63,16 +65,16 @@ const Privacy = () => (
       <Block n="6" title="Data Retention">
         <ul className="list-disc pl-6 space-y-1">
           <li>Passport images and application documents: deleted within 7 days after submission to the official Somali eTAS portal</li>
-          <li>Transaction records: retained for up to 7 years as required by Kenyan law</li>
+          <li>Transaction records: retained for up to 7 years as required by UK law</li>
         </ul>
       </Block>
 
-      <Block n="7" title="Your Rights under the Kenya Data Protection Act">
+      <Block n="7" title="Your Rights under UK GDPR">
         You have the right to access, correct, request deletion of, object to or restrict
         processing, and withdraw consent for your data. Contact us at{" "}
         <a href="mailto:support@evisasomali.com" className="text-accent underline">
           support@evisasomali.com
-        </a>. You may also lodge a complaint with the Office of the Data Protection Commissioner (ODPC).
+        </a>. You may also lodge a complaint with the Information Commissioner's Office (ICO).
       </Block>
 
       <Block n="8" title="Cookies & Tracking">
@@ -84,6 +86,20 @@ const Privacy = () => (
         We may update this Privacy Policy from time to time. The latest version will be posted on
         this page with an updated "Last Updated" date.
       </Block>
+
+      <div className="border-t border-border pt-8 text-center text-muted-foreground">
+        <h2 className="font-serif text-2xl text-primary">Contact Us</h2>
+        <p className="mt-3">
+          Email:{" "}
+          <a href="mailto:support@evisasomali.com" className="text-accent underline">
+            support@evisasomali.com
+          </a>
+          <br />
+          Registered Office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom
+          <br />
+          Company No.: 16877709
+        </p>
+      </div>
 
       <p className="text-sm text-muted-foreground">
         See also: <Link to="/terms" className="text-accent underline">Terms of Service</Link> ·{" "}
