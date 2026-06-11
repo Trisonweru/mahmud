@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Globe2, Mail, Shield, MapPin, Headphones, Phone } from "lucide-react";
+import { visaCountries } from "@/data/visaCountries";
 
 export const SiteFooter = () => {
   return (
@@ -59,6 +60,19 @@ export const SiteFooter = () => {
             <li><Link to="/privacy" className="hover:text-accent transition-smooth">Privacy Policy</Link></li>
             <li><Link to="/refund" className="hover:text-accent transition-smooth">Refund Policy</Link></li>
           </ul>
+        </div>
+      </div>
+
+      <div className="border-t border-primary-foreground/10">
+        <div className="container py-10">
+          <h4 className="text-xs uppercase tracking-[0.2em] text-accent mb-4">Visas by Nationality</h4>
+          <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm text-primary-foreground/70">
+            {visaCountries.map((c) => (
+              <Link key={c.slug} to={`/visa/${c.slug}`} className="hover:text-accent transition-smooth">
+                Somalia Visa for {c.country}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
 

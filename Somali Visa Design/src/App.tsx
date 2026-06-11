@@ -17,6 +17,7 @@ import PaymentReturn from "./pages/PaymentReturn.tsx";
 import Terms from "./pages/Terms.tsx";
 import Privacy from "./pages/Privacy.tsx";
 import Refund from "./pages/Refund.tsx";
+import VisaCountry from "./pages/VisaCountry.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/refund" element={<Refund />} />
+            <Route path="/visa/:country" element={<VisaCountry />} />
             <Route path="/application" element={<Navigate to="/apply" replace />} />
             <Route path="/application_status" element={<Navigate to="/status" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
