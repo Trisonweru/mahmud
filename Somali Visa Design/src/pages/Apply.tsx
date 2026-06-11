@@ -5,7 +5,7 @@ import { DateDropdown } from "@/components/DateDropdown";
 import { ArrowRight, ArrowLeft, ShieldCheck, UploadCloud, Loader2, Check, AlertCircle, FileText, Camera, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { COUNTRIES } from "@/data/countries";
-import { extractPassport, UnsupportedImageError } from "@/lib/passportOcr";
+import { extractPassport, hasExtractedData, UnsupportedImageError } from "@/lib/passportOcr";
 import { setPending } from "@/lib/pendingApplication";
 import { FUNCTIONS_URL, fnHeaders } from "@/lib/api";
 import { isEmail, monthsBetween, todayStr } from "@/lib/validation";
@@ -129,12 +129,16 @@ const Apply = () => {
         surname: data.surname || f.surname,
         givenNames: data.givenNames || f.givenNames,
         dob: data.dateOfBirth || f.dob,
-        sex: data.sex || f.sex,
+        sex: data.sex === "M" ? "Male" : data.sex === "F" ? "Female" : f.sex,
         nationality: matchCountry(data.nationality) || f.nationality,
         passportNumber: data.passportNumber || f.passportNumber,
         passportExpiryDate: data.expiryDate || f.passportExpiryDate,
       }));
-      toast.success("Passport scanned — please review the auto-filled details.");
+      if (hasExtractedData(data)) {
+        toast.success("Passport scanned — please review the auto-filled details.");
+      } else {
+        toast.info("We couldn't read the details from this scan automatically. Please fill them in manually.");
+      }
     } catch (e) {
       if (e instanceof UnsupportedImageError) {
         toast.info("Auto-scan isn't supported for this file type. Please fill the details manually, or re-upload as a JPG or PNG photo.");

@@ -22,6 +22,14 @@ export type PassportData = {
   rawText: string;
 };
 
+// True if the scan yielded at least one usable field beyond the raw OCR text.
+export function hasExtractedData(data: PassportData): boolean {
+  return !!(
+    data.surname || data.givenNames || data.passportNumber
+    || data.nationality || data.dateOfBirth || data.expiryDate || data.sex
+  );
+}
+
 const MONTHS: Record<string, string> = {
   JAN: "01", FEB: "02", MAR: "03", APR: "04", MAY: "05", JUN: "06",
   JUL: "07", AUG: "08", SEP: "09", OCT: "10", NOV: "11", DEC: "12",
@@ -51,33 +59,75 @@ export function _parseHumanDate(s: string): string | undefined {
   return undefined;
 }
 
-async function preprocess(file: File): Promise<HTMLCanvasElement> {
+// MRZ date fields (DOB/expiry) are strictly 6 digits, but small/blurry scans
+// often get OCR'd with letters that look like digits. Since these positions
+// can never legitimately contain letters, it's safe to normalize them.
+export function _fixMrzDigits(s: string): string {
+  return s
+    .replace(/O/g, "0")
+    .replace(/[IL]/g, "1")
+    .replace(/S/g, "5")
+    .replace(/B/g, "8")
+    .replace(/Z/g, "2")
+    .replace(/G/g, "6");
+}
+
+function applyGrayscaleContrast(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const id = ctx.getImageData(0, 0, w, h);
+  const d = id.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+    const v = Math.max(0, Math.min(255, (g - 128) * 1.4 + 128));
+    d[i] = d[i + 1] = d[i + 2] = v;
+  }
+  ctx.putImageData(id, 0, 0);
+}
+
+// Full-page scan, downsized for speed, used for visual-zone fallback fields.
+function buildFullCanvas(img: HTMLImageElement): HTMLCanvasElement {
+  const maxW = 1600;
+  const scale = Math.min(1, maxW / img.width);
+  const w = Math.round(img.width * scale);
+  const h = Math.round(img.height * scale);
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const ctx = c.getContext("2d")!;
+  ctx.drawImage(img, 0, 0, w, h);
+  applyGrayscaleContrast(ctx, w, h);
+  return c;
+}
+
+// Crops the bottom strip of the photo page (where the MRZ lives) and upscales
+// it. The MRZ text is tiny relative to the full page, so a dedicated,
+// enlarged pass on just that strip reads far more reliably than the full image.
+function buildMrzCanvas(img: HTMLImageElement): HTMLCanvasElement {
+  const cropFraction = 0.32;
+  const srcY = Math.round(img.height * (1 - cropFraction));
+  const srcW = img.width;
+  const srcH = img.height - srcY;
+  const targetW = 2200;
+  const scale = Math.min(4, Math.max(1, targetW / srcW));
+  const w = Math.round(srcW * scale);
+  const h = Math.round(srcH * scale);
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const ctx = c.getContext("2d")!;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(img, 0, srcY, srcW, srcH, 0, 0, w, h);
+  applyGrayscaleContrast(ctx, w, h);
+  return c;
+}
+
+async function loadImage(file: File): Promise<HTMLImageElement> {
   const url = URL.createObjectURL(file);
   try {
-    const img = await new Promise<HTMLImageElement>((res, rej) => {
+    return await new Promise<HTMLImageElement>((res, rej) => {
       const i = new Image();
       i.onload = () => res(i);
       i.onerror = () => rej(new UnsupportedImageError());
       i.src = url;
     });
-    const maxW = 1600;
-    const scale = Math.min(1, maxW / img.width);
-    const w = Math.round(img.width * scale);
-    const h = Math.round(img.height * scale);
-    const c = document.createElement("canvas");
-    c.width = w; c.height = h;
-    const ctx = c.getContext("2d")!;
-    ctx.drawImage(img, 0, 0, w, h);
-    const id = ctx.getImageData(0, 0, w, h);
-    const d = id.data;
-    // grayscale + contrast boost
-    for (let i = 0; i < d.length; i += 4) {
-      const g = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
-      const v = Math.max(0, Math.min(255, (g - 128) * 1.4 + 128));
-      d[i] = d[i+1] = d[i+2] = v;
-    }
-    ctx.putImageData(id, 0, 0);
-    return c;
   } finally {
     URL.revokeObjectURL(url);
   }
@@ -92,22 +142,44 @@ export async function extractPassport(
   if (!file.type.startsWith("image/")) {
     throw new UnsupportedImageError();
   }
-  const input = await preprocess(file);
-  const { data } = await Tesseract.recognize(input as any, "eng", {
-    logger: (m) => {
-      if (m.status === "recognizing text" && onProgress) onProgress(m.progress);
-    },
-  } as any);
-  const text = data.text || "";
+  const img = await loadImage(file);
+  const fullCanvas = buildFullCanvas(img);
+  const mrzCanvas = buildMrzCanvas(img);
+
+  const recognize = (canvas: HTMLCanvasElement, weight: number, offset: number) =>
+    Tesseract.recognize(canvas as any, "eng", {
+      logger: (m) => {
+        if (m.status === "recognizing text" && onProgress) onProgress(offset + m.progress * weight);
+      },
+    } as any);
+
+  const [mrzPass, fullPass] = await Promise.all([
+    recognize(mrzCanvas, 0.5, 0),
+    recognize(fullCanvas, 0.5, 0.5),
+  ]);
+
+  const mrzPassText = mrzPass.data.text || "";
+  const fullText = fullPass.data.text || "";
+  const text = `${fullText}\n${mrzPassText}`;
   const upper = text.toUpperCase();
-  const lines = upper.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  // MRZ-crop lines are checked first since the upscaled, dedicated pass is
+  // far more reliable for the MRZ than the full-page pass.
+  const lines = [mrzPassText, fullText]
+    .map((t) => t.toUpperCase().split(/\r?\n/))
+    .flat()
+    .map((l) => l.trim())
+    .filter(Boolean);
 
   const result: PassportData = { rawText: text };
 
   // --- Try MRZ (TD3 passport: two 44-char lines starting with P) ---
+  // Take the longest leading run of valid MRZ characters per line, since OCR
+  // often appends a stray character (e.g. a misread check digit) that would
+  // otherwise fail a strict whole-line match.
   const mrzLines = lines
     .map((l) => l.replace(/\s+/g, ""))
-    .filter((l) => /^[A-Z0-9<]{30,}$/.test(l));
+    .map((l) => l.match(/^[A-Z0-9<]+/)?.[0] || "")
+    .filter((l) => l.length >= 30);
   let mrz1 = mrzLines.find((l) => l.startsWith("P"));
   let mrz2 = mrz1 ? mrzLines.find((l) => l !== mrz1 && /\d/.test(l)) : undefined;
 
@@ -122,12 +194,12 @@ export async function extractPassport(
 
     const passNum = mrz2.substring(0, 9).replace(/</g, "");
     if (passNum) result.passportNumber = passNum;
-    const dob = mrz2.substring(13, 19);
+    const dob = _fixMrzDigits(mrz2.substring(13, 19));
     const dobIso = _mrzDate(dob, false);
     if (dobIso) result.dateOfBirth = dobIso;
     const sex = mrz2.substring(20, 21);
     if (sex === "M" || sex === "F") result.sex = sex;
-    const exp = mrz2.substring(21, 27);
+    const exp = _fixMrzDigits(mrz2.substring(21, 27));
     const expIso = _mrzDate(exp, true);
     if (expIso) result.expiryDate = expIso;
   }
