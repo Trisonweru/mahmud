@@ -45,6 +45,8 @@ RewriteRule ^ /index.html [QSA,L]
   # Annotations:
   #  - script-src 'unsafe-inline': required by Tawk.to inline bootstrap (see index.html).
   #    Hardening path: extract the snippet into a file or add a nonce to the inline script.
+  #  - script-src/connect-src cdn.jsdelivr.net: Tesseract.js OCR engine loads its worker,
+  #    WASM core, and language data from jsDelivr at runtime.
   #  - worker-src blob: required by Tesseract.js OCR engine.
   #  - frame-src paypal: PayPal Buttons render inside cross-origin iframes.
   #  - frame-ancestors 'none': blocks all framing of this site (equivalent to X-Frame-Options DENY).
@@ -56,6 +58,7 @@ script-src 'self' 'unsafe-inline' 'unsafe-eval' \
   https://www.paypalobjects.com \
   https://www.sandbox.paypal.com \
   https://c.paypal.com \
+  https://cdn.jsdelivr.net \
   blob:; \
 style-src 'self' 'unsafe-inline' \
   https://*.tawk.to \
@@ -70,7 +73,8 @@ connect-src 'self' \
   wss://*.tawk.to https://*.tawk.to \
   https://api-m.paypal.com \
   https://www.paypal.com \
-  https://www.sandbox.paypal.com; \
+  https://www.sandbox.paypal.com \
+  https://cdn.jsdelivr.net; \
 frame-src \
   https://*.paypal.com \
   https://www.sandbox.paypal.com \
