@@ -33,6 +33,8 @@ const Terms = () => (
       </Block>
 
       <Block n="3" title="Refund Policy">
+        This service is provided by Passkey Technologies Limited (Company No. 16877709),
+        registered in England &amp; Wales. All refunds are issued by Passkey Technologies Limited.
         Refunds are governed by our separate{" "}
         <Link to="/refund" className="text-accent underline">Refund Policy</Link>.
         No refunds are available except as expressly stated in that policy.
