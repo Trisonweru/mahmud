@@ -470,6 +470,31 @@ const Index = () => {
         </div>
       </section>
 
+      {/* TRANSPARENT PRICING */}
+      <section className="container py-20">
+        <SectionHeading
+          eyebrow="Pricing"
+          title="Transparent Pricing"
+          description="No hidden fees. One simple, all-inclusive price for your Somalia eVisa application."
+        />
+        <div className="mt-12 max-w-2xl mx-auto bg-card border border-border rounded-sm p-10 md:p-12 text-center shadow-card">
+          <div className="font-serif text-5xl md:text-6xl font-bold bg-gradient-gold bg-clip-text text-transparent">
+            $94 <span className="text-3xl md:text-4xl">USD</span>
+          </div>
+          <p className="mt-6 text-sm text-muted-foreground leading-relaxed">
+            The total cost for the Somalia eVisa application service is <strong className="text-foreground">$94 USD</strong>,
+            all-inclusive. This fee covers our specialist application assistance, document review,
+            and submission through the official Somalia eTAS portal — operated by{" "}
+            <strong className="text-foreground">PassKey Technologies Ltd</strong> (Company No. 16877709,
+            registered in England &amp; Wales).
+          </p>
+          <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
+            All fees are displayed clearly before payment is completed. Applicants are advised to
+            review the information provided carefully before submitting their application.
+          </p>
+        </div>
+      </section>
+
       {/* HOW IT WORKS */}
       <section className="container py-20">
         <SectionHeading
