@@ -5,7 +5,7 @@ import { DateDropdown } from "@/components/DateDropdown";
 import { ArrowRight, ArrowLeft, ShieldCheck, UploadCloud, Loader2, Check, AlertCircle, FileText, Camera, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { COUNTRIES } from "@/data/countries";
-import { extractPassport } from "@/lib/passportOcr";
+import { extractPassport, UnsupportedImageError } from "@/lib/passportOcr";
 import { setPending } from "@/lib/pendingApplication";
 import { FUNCTIONS_URL, fnHeaders } from "@/lib/api";
 import { isEmail, monthsBetween, todayStr } from "@/lib/validation";
@@ -136,8 +136,12 @@ const Apply = () => {
       }));
       toast.success("Passport scanned — please review the auto-filled details.");
     } catch (e) {
-      console.error(e);
-      toast.error("Could not read the passport. Please fill the details manually.");
+      if (e instanceof UnsupportedImageError) {
+        toast.info("Auto-scan isn't supported for this file type. Please fill the details manually, or re-upload as a JPG or PNG photo.");
+      } else {
+        console.error(e);
+        toast.error("Could not read the passport. Please fill the details manually.");
+      }
     } finally {
       setOcrLoading(false);
     }

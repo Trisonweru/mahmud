@@ -6,7 +6,7 @@ import { UploadCloud, FileText, Camera, ArrowRight, CheckCircle2, ShieldCheck, X
 import { toast } from "sonner";
 import { setPending } from "@/lib/pendingApplication";
 import { FUNCTIONS_URL, fnHeaders } from "@/lib/api";
-import { extractPassport } from "@/lib/passportOcr";
+import { extractPassport, UnsupportedImageError } from "@/lib/passportOcr";
 import { isEmail } from "@/lib/validation";
 
 const Express = () => {
@@ -45,8 +45,12 @@ const Express = () => {
         nationality: data.nationality || "",
       });
       toast.success("Passport scanned — please verify the details below.");
-    } catch {
-      toast.info("Could not auto-read passport. Our specialists will handle it.");
+    } catch (e) {
+      if (e instanceof UnsupportedImageError) {
+        toast.info("Auto-scan isn't supported for this file type. Please upload a JPG or PNG photo — our specialists will handle the rest.");
+      } else {
+        toast.info("Could not auto-read passport. Our specialists will handle it.");
+      }
     } finally {
       setOcrLoading(false);
     }

@@ -1,5 +1,15 @@
 import Tesseract from "tesseract.js";
 
+// Thrown when a file can't be decoded as a raster image in-browser (e.g. PDF or
+// HEIC/HEIF on some devices). Tesseract cannot read these formats directly, and
+// passing them through causes an uncaught worker error, so we bail out early.
+export class UnsupportedImageError extends Error {
+  constructor() {
+    super("UNSUPPORTED_IMAGE_FORMAT");
+    this.name = "UnsupportedImageError";
+  }
+}
+
 export type PassportData = {
   surname?: string;
   givenNames?: string;
@@ -41,14 +51,13 @@ export function _parseHumanDate(s: string): string | undefined {
   return undefined;
 }
 
-async function preprocess(file: File): Promise<HTMLCanvasElement | File> {
-  if (!file.type.startsWith("image/")) return file;
+async function preprocess(file: File): Promise<HTMLCanvasElement> {
   const url = URL.createObjectURL(file);
   try {
     const img = await new Promise<HTMLImageElement>((res, rej) => {
       const i = new Image();
       i.onload = () => res(i);
-      i.onerror = rej;
+      i.onerror = () => rej(new UnsupportedImageError());
       i.src = url;
     });
     const maxW = 1600;
@@ -69,8 +78,6 @@ async function preprocess(file: File): Promise<HTMLCanvasElement | File> {
     }
     ctx.putImageData(id, 0, 0);
     return c;
-  } catch {
-    return file;
   } finally {
     URL.revokeObjectURL(url);
   }
@@ -80,6 +87,11 @@ export async function extractPassport(
   file: File,
   onProgress?: (p: number) => void,
 ): Promise<PassportData> {
+  // PDFs (and other non-raster files) can't be decoded to a canvas in-browser,
+  // and feeding their raw bytes to Tesseract causes an uncaught worker error.
+  if (!file.type.startsWith("image/")) {
+    throw new UnsupportedImageError();
+  }
   const input = await preprocess(file);
   const { data } = await Tesseract.recognize(input as any, "eng", {
     logger: (m) => {
