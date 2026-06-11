@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /payment
+Disallow: /payment/return
+Disallow: /apply/start
+Disallow: /application
+
+Sitemap: https://www.evisasomali.com/sitemap.xml

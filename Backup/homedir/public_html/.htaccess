@@ -1,0 +1,9 @@
+RewriteEngine On
+
+Options -Indexes
+
+RewriteRule ^about?$ about.php
+
+RewriteRule ^application?$ index.html
+
+RewriteRule ^application_status?$ status.html

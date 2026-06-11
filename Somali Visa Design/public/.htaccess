@@ -1,0 +1,111 @@
+Options -MultiViews
+
+# ── Force HTTPS ───────────────────────────────────────────────────────────────
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ── Enforce www canonical ─────────────────────────────────────────────────────
+RewriteCond %{HTTP_HOST} !^www\. [NC]
+RewriteCond %{HTTP_HOST} !^localhost [NC]
+RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+RewriteBase /
+
+# ── Canonical 301 redirects (before SPA fallback) ────────────────────────────
+RewriteRule ^index\.html$ / [R=301,L]
+RewriteRule ^application/?$ /apply [R=301,L]
+RewriteRule ^apply\.html?$ / [R=301,L]
+RewriteRule ^application_status/?$ /status [R=301,L]
+
+# ── SPA fallback ──────────────────────────────────────────────────────────────
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ /index.html [QSA,L]
+
+# ── Security headers ──────────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+
+  # HSTS – 2 years, include subdomains, eligible for preload list
+  Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+
+  # Prevent embedding on external origins (CSP frame-ancestors below also enforces this)
+  Header always set X-Frame-Options "DENY"
+
+  # Stop MIME-type sniffing
+  Header always set X-Content-Type-Options "nosniff"
+
+  # Send full URL only for same-origin requests; origin only for cross-origin HTTPS
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Restrict browser API access; allow payment API on PayPal origins
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(self https://www.paypal.com https://www.sandbox.paypal.com)"
+
+  # Content-Security-Policy
+  # Annotations:
+  #  - script-src 'unsafe-inline': required by Tawk.to inline bootstrap (see index.html).
+  #    Hardening path: extract the snippet into a file or add a nonce to the inline script.
+  #  - worker-src blob: required by Tesseract.js OCR engine.
+  #  - frame-src paypal: PayPal Buttons render inside cross-origin iframes.
+  #  - frame-ancestors 'none': blocks all framing of this site (equivalent to X-Frame-Options DENY).
+  Header always set Content-Security-Policy "\
+default-src 'self'; \
+script-src 'self' 'unsafe-inline' 'unsafe-eval' \
+  https://*.tawk.to \
+  https://www.paypal.com \
+  https://www.paypalobjects.com \
+  https://www.sandbox.paypal.com \
+  https://c.paypal.com \
+  blob:; \
+style-src 'self' 'unsafe-inline' \
+  https://*.tawk.to \
+  https://fonts.googleapis.com; \
+font-src 'self' \
+  https://*.tawk.to \
+  https://fonts.gstatic.com; \
+img-src 'self' data: blob: https:; \
+connect-src 'self' \
+  https://yqhzkjrwdsdlsslvmsbe.supabase.co \
+  https://tanstack-start-app.evisasomali.workers.dev \
+  wss://*.tawk.to https://*.tawk.to \
+  https://api-m.paypal.com \
+  https://www.paypal.com \
+  https://www.sandbox.paypal.com; \
+frame-src \
+  https://*.paypal.com \
+  https://www.sandbox.paypal.com \
+  https://*.tawk.to; \
+worker-src 'self' blob:; \
+object-src 'none'; \
+base-uri 'self'; \
+form-action 'self'; \
+frame-ancestors 'none'; \
+upgrade-insecure-requests"
+
+  # Remove server fingerprinting
+  Header always unset X-Powered-By
+  Header always unset Server
+
+  # X-XSS-Protection is deprecated and can introduce vulnerabilities in older IE — omit it
+
+</IfModule>
+
+# ── Static asset caching ──────────────────────────────────────────────────────
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html              "access plus 0 seconds"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType text/css               "access plus 1 year"
+  ExpiresByType image/jpeg             "access plus 1 year"
+  ExpiresByType image/png              "access plus 1 year"
+  ExpiresByType image/webp             "access plus 1 year"
+  ExpiresByType image/svg+xml          "access plus 1 year"
+  ExpiresByType image/x-icon           "access plus 1 year"
+  ExpiresByType font/woff2             "access plus 1 year"
+</IfModule>
+
+# ── Block direct access to sensitive file types ───────────────────────────────
+<FilesMatch "\.(env|log|bak|sql|htpasswd|DS_Store)$">
+  Order deny,allow
+  Deny from all
+</FilesMatch>

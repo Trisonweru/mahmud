@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Somalia eVisa — Apply Online | Trusted Diaspora Service</title>
+<meta name="description" content="Somali diaspora: send your passport, photo, WhatsApp and email — we prepare your Somalia eVisa application. Secure, fast, 24/7 support." />
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div id="siteHeader"></div>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <img src="assets/hero-somalia.jpg" alt="Airplane taking off at sunset" />
+  <div class="overlay"></div>
+  <div class="container py-14" style="position:relative">
+    <div class="content">
+      <span class="pill">Somalia eVisa · Apply Online</span>
+      <h1>Choose your <em>application</em> type</h1>
+      <p class="font-serif italic" style="margin-top:.75rem;font-size:1.25rem;color:hsl(var(--primary-foreground)/.95)">Dooro nooca codsigaaga</p>
+      <p style="margin-top:1.25rem;color:hsl(var(--primary-foreground)/.95);font-size:1rem">Two clear paths — pick the one that matches your passport, then continue. <span class="italic">Laba waddo oo cad — dooro tan kugu habboon.</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- CHOICE CARDS -->
+<section class="container py-12">
+  <div class="choice-grid">
+    <button type="button" id="qurbaCard" class="choice-card gold">
+      <span class="tag gold">Option 1 · Express</span>
+      <span class="icon-square" data-icon="users" data-icon-class="svg-icon lg"></span>
+      <h2 class="font-serif text-2xl text-primary" style="margin-top:1.25rem;line-height:1.25">I am a Somali-foreigner (Qurba-Joog)</h2>
+      <p class="font-serif italic" style="margin-top:.25rem;color:hsl(var(--primary)/.8)">Waxaan ahay Soomaali Qurba-Joog ah</p>
+      <p class="text-sm text-muted" style="margin-top:.75rem;line-height:1.625">Somali diaspora holding a foreign passport. Skip the form — just send your passport page, photo, WhatsApp and email. Our specialists prepare and submit everything for you.</p>
+      <ul class="list-check" style="margin-top:1.25rem">
+        <li><span data-icon="check"></span> No form to fill</li>
+        <li><span data-icon="check"></span> Specialists prepare it for you</li>
+        <li><span data-icon="check"></span> Updates via WhatsApp & email</li>
+      </ul>
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid hsl(var(--border));display:flex;align-items:center;justify-content:space-between">
+        <div class="fee-box gold"><div class="label">Applicable fee</div><div class="price">$94 <span style="font-size:.75rem;font-family:Inter;color:hsl(var(--primary)/.7)">USD</span></div></div>
+        <span class="btn btn-gold">Use Express <span data-icon="arrow"></span></span>
+      </div>
+    </button>
+
+    <a href="apply.html" class="choice-card">
+      <span class="tag navy">Option 2</span>
+      <span class="icon-square" data-icon="globe2" data-icon-class="svg-icon lg"></span>
+      <h2 class="font-serif text-2xl text-primary" style="margin-top:1.25rem;line-height:1.25">I am a Foreigner (Ajnabi)</h2>
+      <p class="font-serif italic" style="margin-top:.25rem;color:hsl(var(--primary)/.8)">Waxaan ahay Ajnabi</p>
+      <p class="text-sm text-muted" style="margin-top:.75rem;line-height:1.625">Non-Somali travellers holding a foreign passport. A Somalia-based sponsor is required, so you'll complete the official application yourself with our step-by-step guidance.</p>
+      <ul class="list-check" style="margin-top:1.25rem">
+        <li><span data-icon="check"></span> Sponsor details required</li>
+        <li><span data-icon="check"></span> Guided form</li>
+        <li><span data-icon="check"></span> Same official Somalia eVisa</li>
+      </ul>
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid hsl(var(--border));display:flex;align-items:center;justify-content:space-between">
+        <div class="fee-box gray"><div class="label">Applicable fee</div><div class="price">$94 <span style="font-size:.75rem;font-family:Inter;color:hsl(var(--primary)/.7)">USD</span></div></div>
+        <span class="btn btn-navy">Start Form <span data-icon="arrow"></span></span>
+      </div>
+    </a>
+  </div>
+
+  <!-- Express form (toggled) -->
+  <form id="qurbaForm" class="bg-card" style="display:none;margin-top:2.5rem;max-width:42rem;margin-left:auto;margin-right:auto;border:1px solid hsl(var(--accent)/.4);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow-elegant)">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div class="eyebrow">Express · Qurba-Joog</div>
+        <h3 class="font-serif text-2xl text-primary" style="margin-top:.25rem;line-height:1.25">Apply in 60 seconds<span class="block text-sm text-muted italic" style="margin-top:.25rem">Codso 60 ilbiriqsi gudahood</span></h3>
+      </div>
+      <span class="icon-square" data-icon="zap" data-icon-class="svg-icon lg"></span>
+    </div>
+
+    <div class="grid-2" style="margin-top:1.25rem">
+      <div>
+        <div class="text-xs uppercase" style="letter-spacing:.18em;color:hsl(var(--muted-foreground));margin-bottom:.5rem">Passport <span class="italic" style="text-transform:none;letter-spacing:0;color:hsl(var(--muted-foreground)/.8)">· Baasaboor</span></div>
+        <label class="dropzone"><span data-icon="upload" data-icon-class="svg-icon lg text-accent"></span><div style="margin-top:.5rem;font-weight:500;color:hsl(var(--primary));font-size:.75rem">Upload</div><div class="text-xs italic text-muted">Soo gudbi</div><input type="file" name="passport" accept="image/*,application/pdf" required></label>
+      </div>
+      <div>
+        <div class="text-xs uppercase" style="letter-spacing:.18em;color:hsl(var(--muted-foreground));margin-bottom:.5rem">Photo <span class="italic" style="text-transform:none;letter-spacing:0;color:hsl(var(--muted-foreground)/.8)">· Sawir</span></div>
+        <label class="dropzone"><span data-icon="upload" data-icon-class="svg-icon lg text-accent"></span><div style="margin-top:.5rem;font-weight:500;color:hsl(var(--primary));font-size:.75rem">Upload</div><div class="text-xs italic text-muted">Soo gudbi</div><input type="file" name="photo" accept="image/*" required></label>
+      </div>
+    </div>
+
+    <label class="field input-icon" style="margin-top:1.25rem;display:block">
+      <span class="text-xs uppercase" style="letter-spacing:.18em;color:hsl(var(--muted-foreground))">WhatsApp number <span class="italic" style="text-transform:none;letter-spacing:0;color:hsl(var(--muted-foreground)/.8)">· Lambarka WhatsApp</span></span>
+      <span class="input-icon" style="display:block;margin-top:.5rem"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <input type="tel" name="whatsapp" placeholder="+252 61 234 5678" required>
+      </span>
+    </label>
+    <label class="field input-icon" style="margin-top:1.25rem;display:block">
+      <span class="text-xs uppercase" style="letter-spacing:.18em;color:hsl(var(--muted-foreground))">Email address <span class="italic" style="text-transform:none;letter-spacing:0;color:hsl(var(--muted-foreground)/.8)">· Cinwaanka email-ka</span></span>
+      <span class="input-icon" style="display:block;margin-top:.5rem"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+        <input type="email" name="email" placeholder="you@email.com" required>
+      </span>
+    </label>
+
+    <label style="display:flex;gap:.75rem;align-items:flex-start;font-size:.75rem;color:hsl(var(--foreground)/.85);cursor:pointer;margin-top:1.25rem">
+      <input type="checkbox" required style="margin-top:.25rem;accent-color:hsl(var(--accent))">
+      <span>I request immediate performance of services and consent to the processing of my passport photo (biometric data) for my eTAS application.<span class="block italic text-muted" style="margin-top:.25rem">By checking this box, you agree to our <a href="terms.html" class="text-accent underline">Terms</a>, <a href="privacy.html" class="text-accent underline">Privacy</a>, and <a href="refund.html" class="text-accent underline">Refund Policy</a>.</span></span>
+    </label>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding-top:1rem;margin-top:1rem;border-top:1px solid hsl(var(--border))">
+      <div class="fee-box gold"><div class="label">Applicable fee · Qiimaha</div><div class="price">$94 <span style="font-size:.75rem;font-family:Inter;color:hsl(var(--primary)/.7)">USD</span></div></div>
+      <button type="submit" class="btn btn-gold btn-lg">Continue <span data-icon="arrow"></span></button>
+    </div>
+    <p style="margin-top:1rem;font-size:11px;color:hsl(var(--muted-foreground));display:flex;gap:.375rem;align-items:flex-start"><span data-icon="lock" data-icon-class="svg-icon text-accent" style="margin-top:2px"></span>Encrypted & only seen by our application team. · Waa la sireeyay.</p>
+  </form>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="container py-20">
+  <div class="section-heading">
+    <div><span class="gold-divider"></span> <span class="eyebrow">How it works</span> <span class="gold-divider"></span></div>
+    <h2>Simple, transparent, professional.</h2>
+    <p class="desc">Whether you fill the form yourself or use our Express service, we make the Somalia eVisa journey effortless from start to finish.</p>
+  </div>
+  <div class="grid-3" style="margin-top:3rem">
+    <div class="kpi-card"><span class="icon" data-icon="cloud" data-icon-class="svg-icon lg"></span><h3>Choose & submit</h3><p>Pick the path that matches your passport, then submit your details or documents.</p></div>
+    <div class="kpi-card"><span class="icon" data-icon="pen" data-icon-class="svg-icon lg"></span><h3>We review & process</h3><p>Our specialists review every document and prepare a complete, accurate application.</p></div>
+    <div class="kpi-card"><span class="icon" data-icon="badge" data-icon-class="svg-icon lg"></span><h3>eVisa to your inbox</h3><p>Once approved, your Somalia eVisa arrives by email and WhatsApp — ready to travel.</p></div>
+  </div>
+</section>
+
+<!-- TRUSTED PARTNER -->
+<section class="container py-20 grid-2-lg" style="align-items:center">
+  <div style="position:relative">
+    <img src="assets/passport.jpg" alt="Somalia passport" class="aspect-portrait" style="border-radius:var(--radius);box-shadow:var(--shadow-elegant);width:100%" loading="lazy" />
+  </div>
+  <div>
+    <div class="section-heading left">
+      <div><span class="gold-divider"></span> <span class="eyebrow">Why choose us</span></div>
+      <h2>A partner you can trust for Somalia visas.</h2>
+      <p class="desc">We make your visa effortless — clear instructions, careful review, and a team ready to help when you need it.</p>
+    </div>
+    <ul class="list-check" style="margin-top:2rem">
+      <li><span data-icon="check" data-icon-class="svg-icon lg"></span><span style="color:hsl(var(--foreground)/.85)">Personal review by an expert</span></li>
+      <li><span data-icon="check" data-icon-class="svg-icon lg"></span><span style="color:hsl(var(--foreground)/.85)">Step-by-step guidance at every stage</span></li>
+      <li><span data-icon="check" data-icon-class="svg-icon lg"></span><span style="color:hsl(var(--foreground)/.85)">Priority, fast-track processing</span></li>
+      <li><span data-icon="check" data-icon-class="svg-icon lg"></span><span style="color:hsl(var(--foreground)/.85)">Bank-grade security for your data</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section style="background:hsl(var(--secondary)/.6);padding:5rem 0">
+  <div class="container">
+    <div class="section-heading">
+      <div><span class="gold-divider"></span> <span class="eyebrow">Our Services</span> <span class="gold-divider"></span></div>
+      <h2>Everything you need, from start to finish.</h2>
+      <p class="desc">A careful service that lifts the burden of the Somalia eVisa application off your shoulders.</p>
+    </div>
+    <div class="tile-grid" style="margin-top:4rem">
+      <div class="tile"><span class="icon" data-icon="fileCheck" data-icon-class="svg-icon lg"></span><h3>Document Preparation</h3><p>We make sure every document meets the requirements.</p></div>
+      <div class="tile"><span class="icon" data-icon="sparkles" data-icon-class="svg-icon lg"></span><h3>Step-by-Step Guidance</h3><p>Clear instructions tailored to your country and travel purpose.</p></div>
+      <div class="tile"><span class="icon" data-icon="clock" data-icon-class="svg-icon lg"></span><h3>Fast Processing</h3><p>Priority review designed for urgent travel.</p></div>
+      <div class="tile"><span class="icon" data-icon="headphones" data-icon-class="svg-icon lg"></span><h3>24/7 Support</h3><p>Talk to a real specialist any time, day or night.</p></div>
+      <div class="tile"><span class="icon" data-icon="lock" data-icon-class="svg-icon lg"></span><h3>Secure Data</h3><p>Bank-grade encryption protects every detail you share.</p></div>
+      <div class="tile"><span class="icon" data-icon="plane" data-icon-class="svg-icon lg"></span><h3>Ready to Travel</h3><p>Receive your eVisa with a concise travel-ready summary.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="container" style="padding-bottom:5rem;padding-top:5rem">
+  <div class="cta">
+    <div class="glow"></div>
+    <div style="position:relative">
+      <span class="gold-divider"></span>
+      <h2 style="margin-top:1.5rem;font-size:2.25rem">Ready for your journey?</h2>
+      <p class="font-serif italic" style="margin-top:.75rem;font-size:1.25rem;color:hsl(var(--primary-foreground)/.8)">Diyaar ma u tahay safarkaaga?</p>
+      <p style="margin-top:1rem;color:hsl(var(--primary-foreground)/.7);max-width:36rem;margin-left:auto;margin-right:auto">Submit your Somalia eVisa application today and travel with complete confidence.</p>
+      <a href="#top" class="btn btn-gold btn-lg" style="margin-top:2.5rem">Apply Now <span data-icon="arrow"></span></a>
+    </div>
+  </div>
+</section>
+
+<div id="siteFooter"></div>
+<script src="js/site.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const card = document.getElementById('qurbaCard');
+  const form = document.getElementById('qurbaForm');
+  card.addEventListener('click', function(){
+    const showing = form.style.display === 'block';
+    form.style.display = showing ? 'none' : 'block';
+    card.classList.toggle('active', !showing);
+    if(!showing) setTimeout(()=>form.scrollIntoView({behavior:'smooth',block:'center'}), 60);
+  });
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    const fd = new FormData(form);
+    toast('Documents received — redirecting to payment.', 'success');
+    setTimeout(()=>{
+      const params = new URLSearchParams({type:'express', email:fd.get('email')||'', name:fd.get('whatsapp')||''});
+      location.href = 'payment.html?' + params.toString();
+    }, 800);
+  });
+});
+</script>
+
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/69a714eae2f23c1c34acc2ad/1jiqajdbf';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+</body>
+</html>

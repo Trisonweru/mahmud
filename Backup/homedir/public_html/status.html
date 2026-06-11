@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Application Status — Somalia eVisa</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div id="siteHeader"></div>
+<section class="container py-20" style="max-width:48rem">
+  <div class="section-heading">
+    <div><span class="gold-divider"></span> <span class="eyebrow">Track</span> <span class="gold-divider"></span></div>
+    <h2>Check your application status</h2>
+    <p class="desc">Enter your reference number to see the latest update on your eVisa.</p>
+  </div>
+  <form id="trackForm" style="margin-top:3rem;display:flex;gap:.75rem;flex-direction:column">
+    <div class="input-icon" style="flex:1"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="ref" required placeholder="e.g. SOM-123456" style="width:100%;border-radius:var(--radius);border:1px solid hsl(var(--input));background:hsl(var(--card));padding:1rem 1rem 1rem 2.75rem;font-size:.875rem">
+    </div>
+    <button class="btn btn-navy btn-lg" style="justify-content:center">Track Application</button>
+  </form>
+
+  <div id="result" style="display:none;margin-top:3rem" class="bg-card">
+    <div style="border:1px solid hsl(var(--border));border-radius:var(--radius);box-shadow:var(--shadow-card);padding:2rem">
+      <div class="eyebrow">Reference <span id="refOut"></span></div>
+      <h3 class="font-serif text-2xl text-primary" style="margin-top:.5rem">Your application is being processed</h3>
+      <div style="margin-top:2rem">
+        <div class="timeline-row"><div class="timeline-dot" data-icon="fileCheck"></div><div style="flex:1"><div style="font-weight:500;color:hsl(var(--primary))">Received</div><div class="text-sm text-muted" style="margin-top:.25rem">Your application has been received and queued for review.</div></div></div>
+        <div class="timeline-row"><div class="timeline-dot" data-icon="clock"></div><div style="flex:1"><div style="font-weight:500;color:hsl(var(--primary))">Under Review</div><div class="text-sm text-muted" style="margin-top:.25rem">Our specialists are verifying your documents.</div></div></div>
+        <div class="timeline-row"><div class="timeline-dot muted" data-icon="check"></div><div style="flex:1"><div style="font-weight:500;color:hsl(var(--muted-foreground))">Approved</div><div class="text-sm text-muted" style="margin-top:.25rem">Your eVisa has been issued and emailed to you.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<div id="siteFooter"></div>
+<script src="js/site.js"></script>
+<script>
+document.getElementById('trackForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  document.getElementById('refOut').textContent = document.getElementById('ref').value;
+  document.getElementById('result').style.display = 'block';
+});
+</script>
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/69a714eae2f23c1c34acc2ad/1jiqajdbf';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+RewriteEngine On
+
+Options -Indexes
+
+RewriteRule ^about?$ about.php
+
+RewriteRule ^application?$ application.php
+
+RewriteRule ^about?$ about.php
+
+RewriteRule ^contact?$ contact.php
+
+RewriteRule ^documents?$ documents.php
+
+RewriteRule ^faqs?$ faqs.php
+
+RewriteRule ^instructions?$ instructions.php
+
+RewriteRule ^services?$ services.php
+
+RewriteRule ^application_status?$ status.php
+
+RewriteRule ^about?$ about.php
+
+RewriteRule ^privacy?$ privacy.php
+
+RewriteRule ^terms?$ terms.php
+
+RewriteRule ^refund_policy?$ refund_policy.php
+
+RewriteRule ^formassist?$ formassist.php

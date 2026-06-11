@@ -1,0 +1,282 @@
+<?php
+session_start();
+$bof_main_url = '/home/evisnglv/admin.evisasomali.com';
+
+require_once $bof_main_url.'/config.php';
+
+// ---------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------
+function generateReferenceNumber() {
+    $prefix = 'EVISA';
+    $year   = date('Y');
+    $random = strtoupper(substr(uniqid(), -6));
+    return $prefix . '-' . $year . '-' . $random;
+}
+
+function generateApplicationId() {
+    $prefix = 'VISA';
+    $year   = date('Y');
+    $random = strtoupper(substr(uniqid(), -6));
+    return $prefix . '-' . $year . '-' . $random;
+}
+
+function uploadFile($file, $uploadDir = 'uploads/') {
+    if (!is_dir($uploadDir)) {
+        if (!mkdir($uploadDir, 0755, true)) {
+            error_log("Failed to create upload directory: $uploadDir");
+            return null;
+        }
+    }
+    $fileName   = uniqid() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', basename($file['name']));
+    $targetPath = $uploadDir . $fileName;
+    if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+        return $fileName;
+    }
+    return null;
+}
+
+// ---------------------------------------------------------------
+// Verify Paystack payment server-side (IMPORTANT: always verify)
+// ---------------------------------------------------------------
+function verifyPaystackPayment($reference) {
+    $secretKey = 'YOUR_PAYSTACK_LIVE_SECRET_KEY'; // ← your live SECRET key
+    $url       = 'https://api.paystack.co/transaction/verify/' . rawurlencode($reference);
+
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $secretKey,
+        'Content-Type: application/json',
+    ]);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    $body = curl_exec($ch);
+    $err  = curl_error($ch);
+    curl_close($ch);
+
+    if ($err) {
+        error_log("Paystack verify cURL error: $err");
+        return null;
+    }
+
+    $result = json_decode($body, true);
+    return $result; // ['status'=>true, 'data'=>['status'=>'success', 'amount'=>5000, 'currency'=>'USD', ...]]
+}
+
+// ---------------------------------------------------------------
+// Main handler
+// ---------------------------------------------------------------
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $response = ['success' => false, 'message' => '', 'reference' => ''];
+
+    try {
+        // ----------------------------------------------------------
+        // 1. Verify payment FIRST before saving anything
+        // ----------------------------------------------------------
+        $paymentReference   = $_POST['payment_reference']   ?? '';
+        $paymentTransaction = $_POST['payment_transaction'] ?? '';
+        $paymentAmountPost  = floatval($_POST['payment_amount'] ?? 0);
+        $paymentCurrency    = $_POST['payment_currency']    ?? 'USD';
+
+        if (empty($paymentReference)) {
+            $response['message'] = 'Payment reference missing. Please complete payment first.';
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            exit;
+        }
+
+        // Server-side verification
+        $verification = verifyPaystackPayment($paymentReference);
+
+        if (
+            !$verification ||
+            !isset($verification['status']) ||
+            $verification['status'] !== true ||
+            !isset($verification['data']['status']) ||
+            $verification['data']['status'] !== 'success'
+        ) {
+            $response['message'] = 'Payment could not be verified. Please contact support with your payment reference: ' . $paymentReference;
+            error_log("Paystack verification failed for ref: $paymentReference — Response: " . json_encode($verification));
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            exit;
+        }
+
+        // Confirmed amount in smallest unit (cents for USD)
+        $verifiedAmountKobo = $verification['data']['amount'];   // e.g. 5000 = $50.00
+        $verifiedAmountUSD  = $verifiedAmountKobo / 100;
+        $verifiedCurrency   = $verification['data']['currency']; // USD
+
+        // Optional: enforce minimum fee
+        $expectedFeeUSD = 50;
+        if ($verifiedAmountUSD < $expectedFeeUSD) {
+            $response['message'] = "Payment amount insufficient. Expected USD $expectedFeeUSD, received USD $verifiedAmountUSD.";
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            exit;
+        }
+
+        // ----------------------------------------------------------
+        // 2. Collect form fields
+        // ----------------------------------------------------------
+
+        // Step 1
+        $readyCheckbox = isset($_POST['ready_checkbox']) ? 'yes' : 'no';
+
+        // Step 2: Personal
+        $applicantType    = $_POST['applicant_type']    ?? '';
+        $nationalityBirth = $_POST['nationality_birth'] ?? '';
+        $countryResidence = $_POST['country_residence'] ?? '';
+        $cityResidence    = $_POST['city_residence']    ?? '';
+        $physicalAddress  = $_POST['physical_address']  ?? '';
+        $maritalStatus    = $_POST['marital_status']    ?? '';
+        $contact          = $_POST['contact']           ?? '';
+        $email            = $_POST['email']             ?? '';
+        $passportType     = $_POST['passport_type']     ?? '';
+        $passportNumber   = $_POST['passport_number']   ?? '';
+        $dateOfIssue      = $_POST['date_of_issue']     ?? '';
+        $expiryDate       = $_POST['expiry_date']       ?? '';
+
+        // Upload dirs
+        $selfieDir   = $bof_main_url . '/uploads/selfies/';
+        $passportDir = $bof_main_url . '/uploads/passports/';
+        $ticketDir   = $bof_main_url . '/uploads/tickets/';
+        $sponsorDir  = $bof_main_url . '/uploads/sponsors/';
+
+        // Step 3: Selfie
+        $selfiePhoto = null;
+        if (isset($_FILES['selfie']) && $_FILES['selfie']['error'] === UPLOAD_ERR_OK) {
+            $selfiePhoto = '/uploads/selfies/' . uploadFile($_FILES['selfie'], $selfieDir);
+        }
+
+        // Step 2: Passport upload
+        $passportUpload = null;
+        if (isset($_FILES['passport_upload']) && $_FILES['passport_upload']['error'] === UPLOAD_ERR_OK) {
+            $passportUpload = '/uploads/passports/' . uploadFile($_FILES['passport_upload'], $passportDir);
+        }
+
+        // Step 4: Travel — common
+        $ticketUpload = null;
+        if (isset($_FILES['ticket_upload']) && $_FILES['ticket_upload']['error'] === UPLOAD_ERR_OK) {
+            $ticketUpload = '/uploads/tickets/' . uploadFile($_FILES['ticket_upload'], $ticketDir);
+        }
+
+        $sponsorLetter  = null;
+        $sponsorCode    = null;
+        $purposeOfVisit = null;
+        $travelDate     = null;
+        $durationOfStay = null;
+
+        if ($applicantType === 'foreigner') {
+            $sponsorCode    = $_POST['sponsor_code']     ?? '';
+            $purposeOfVisit = $_POST['purpose_of_visit'] ?? '';
+            $travelDate     = $_POST['travel_date']      ?? '';
+            $durationOfStay = $_POST['duration_of_stay'] ?? '';
+            if (isset($_FILES['sponsor_letter']) && $_FILES['sponsor_letter']['error'] === UPLOAD_ERR_OK) {
+                $sponsorLetter = '/uploads/sponsors/' . uploadFile($_FILES['sponsor_letter'], $sponsorDir);
+            }
+        } elseif ($applicantType === 'somali_foreign') {
+            $purposeOfVisit = $_POST['purpose_of_visit_somali']  ?? '';
+            $durationOfStay = $_POST['duration_of_stay_somali']  ?? '';
+            $travelDate     = $_POST['travel_date_somali']        ?? '';
+        }
+
+        // Step 5: Somalia address
+        $addressSomalia = $_POST['address']       ?? '';
+        $placeSomalia   = $_POST['place']         ?? '';
+        $hostContact    = $_POST['host_contact']  ?? '';
+        $hostEmail      = $_POST['email_host']    ?? '';
+
+        // Step 6
+        $visitedSomalia = $_POST['visited'] ?? '';
+
+        // Step 7: Security
+        $convicted       = $_POST['convicted']        ?? '';
+        $refusedEntry    = $_POST['refused_entry']    ?? '';
+        $seriousCrimes   = $_POST['serious_crimes']   ?? '';
+        $terrorism       = $_POST['terrorism']         ?? '';
+        $glorifyTerrorism= $_POST['glorify_terrorism'] ?? '';
+        $falseInfo       = $_POST['false_info']        ?? '';
+        $cybercrime      = $_POST['cybercrime']        ?? '';
+
+        // Step 8: Declaration
+        $agreeTerms = isset($_POST['agree']) ? 'yes' : 'no';
+
+        // ----------------------------------------------------------
+        // 3. Generate IDs
+        // ----------------------------------------------------------
+        $applicationId   = generateApplicationId();
+        $referenceNumber = generateReferenceNumber();
+
+        // ----------------------------------------------------------
+        // 4. Insert into DB — now includes payment columns
+        // ----------------------------------------------------------
+        $stmt = $con->prepare("
+            INSERT INTO visa_applications (
+                application_id, reference_number, ready_checkbox, applicant_type, nationality_birth,
+                country_residence, city_residence, physical_address, marital_status, contact,
+                email, passport_type, passport_number, date_of_issue, expiry_date, passport_upload,
+                selfie_photo, ticket_upload, sponsor_letter, address_somalia, place_somalia,
+                host_contact, host_email, visited_somalia, convicted, refused_entry,
+                serious_crimes, terrorism, glorify_terrorism, false_info, cybercrime, agree_terms,
+                sponsor_code, purpose_of_visit, travel_date, duration_of_stay,
+                paid, payment_amount, payment_reference, payment_transaction, payment_currency
+            ) VALUES (
+                ?, ?, ?, ?, ?,
+                ?, ?, ?, ?, ?,
+                ?, ?, ?, ?, ?, ?,
+                ?, ?, ?, ?, ?,
+                ?, ?, ?, ?, ?,
+                ?, ?, ?, ?, ?, ?,
+                ?, ?, ?, ?,
+                'yes', ?, ?, ?, ?
+            )
+        ");
+
+        // 36 strings + 1 decimal + 3 strings = 40 params
+        $stmt->bind_param(
+            "ssssssssssssssssssssssssssssssssssssdssss",
+            $applicationId,     $referenceNumber,   $readyCheckbox,    $applicantType,    $nationalityBirth,
+            $countryResidence,  $cityResidence,     $physicalAddress,  $maritalStatus,    $contact,
+            $email,             $passportType,      $passportNumber,   $dateOfIssue,      $expiryDate,
+            $passportUpload,    $selfiePhoto,       $ticketUpload,     $sponsorLetter,    $addressSomalia,
+            $placeSomalia,      $hostContact,       $hostEmail,        $visitedSomalia,   $convicted,
+            $refusedEntry,      $seriousCrimes,     $terrorism,        $glorifyTerrorism, $falseInfo,
+            $cybercrime,        $agreeTerms,        $sponsorCode,      $purposeOfVisit,   $travelDate,
+            $durationOfStay,    // ← s (36)
+            $verifiedAmountUSD, // ← d (37)
+            $paymentReference, $paymentTransaction, $paymentCurrency   // ← s s s (38,39,40)
+        );
+
+        if ($stmt->execute()) {
+            // Log the submission
+            $logStmt = $con->prepare("
+                INSERT INTO application_logs (application_id, reference_number, action, performed_by, ip_address)
+                VALUES (?, ?, 'Application submitted with payment', 'Applicant', ?)
+            ");
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+            $logStmt->bind_param("sss", $applicationId, $referenceNumber, $ip);
+            $logStmt->execute();
+            $logStmt->close();
+
+            $response['success']   = true;
+            $response['message']   = 'Application submitted successfully!';
+            $response['reference'] = $referenceNumber;
+        } else {
+            $response['message'] = 'Database error: ' . $stmt->error;
+            error_log('DB insert error: ' . $stmt->error);
+        }
+
+        $stmt->close();
+
+    } catch (Exception $e) {
+        $response['message'] = 'Error: ' . $e->getMessage();
+        error_log('Application submission error: ' . $e->getMessage());
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;
+}
+?>

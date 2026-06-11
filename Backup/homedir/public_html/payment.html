@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Secure Payment — Somalia eVisa</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div id="siteHeader"></div>
+<section class="container py-20" style="max-width:64rem" id="payRoot">
+  <div class="section-heading">
+    <div><span class="gold-divider"></span> <span class="eyebrow">Secure Payment</span> <span class="gold-divider"></span></div>
+    <h2>Complete your application</h2>
+  </div>
+
+  <div style="margin-top:3rem;display:grid;gap:2rem;grid-template-columns:1fr" id="payGrid">
+    <form id="payForm" style="background:hsl(var(--card));border:1px solid hsl(var(--border));border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-card)">
+      <div style="display:flex;align-items:center;gap:.5rem;font-size:.875rem;color:hsl(var(--accent))"><span data-icon="lock"></span> Encrypted payment, PCI-compliant</div>
+      <label class="field" style="margin-top:1.5rem;display:block"><span class="label">Cardholder name *</span><input required name="name" id="cardName" placeholder="Name on card"></label>
+      <label class="field" style="margin-top:1rem;display:block"><span class="label">Card number *</span><input required name="card" inputmode="numeric" placeholder="1234 5678 9012 3456"></label>
+      <div class="grid-2" style="margin-top:1rem">
+        <label class="field"><span class="label">Expiry (MM/YY) *</span><input required name="exp" placeholder="08 / 28"></label>
+        <label class="field"><span class="label">CVC *</span><input required name="cvc" inputmode="numeric" placeholder="•••"></label>
+      </div>
+      <label class="field" style="margin-top:1rem;display:block"><span class="label">Receipt email *</span><input required type="email" id="cardEmail" name="email" placeholder="you@email.com"></label>
+
+      <label style="display:flex;gap:.75rem;margin-top:1.25rem;padding-top:1rem;border-top:1px solid hsl(var(--border));font-size:.875rem;color:hsl(var(--foreground)/.85);cursor:pointer">
+        <input type="checkbox" id="agree" style="margin-top:.25rem;accent-color:hsl(var(--accent))">
+        <span>I confirm that I have read and agree to the <a href="terms.html" class="text-accent underline">Terms</a>, <a href="privacy.html" class="text-accent underline">Privacy</a>, and <a href="refund.html" class="text-accent underline">Refund Policy</a>. *</span>
+      </label>
+      <button id="payBtn" disabled class="btn btn-gold btn-lg" style="margin-top:1.25rem;width:100%;justify-content:center"><span data-icon="cc"></span> Pay $94 USD</button>
+    </form>
+
+    <aside style="background:hsl(var(--primary));color:hsl(var(--primary-foreground));border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-elegant);height:fit-content">
+      <div class="eyebrow">Order Summary</div>
+      <div class="font-serif text-2xl" style="margin-top:1.5rem" id="orderTitle">Somalia eVisa Application</div>
+      <p class="text-sm" style="margin-top:.5rem;color:hsl(var(--primary-foreground)/.7)">Single entry · Valid up to 180 days</p>
+      <div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid hsl(var(--primary-foreground)/.1);font-size:.875rem">
+        <div style="display:flex;justify-content:space-between;color:hsl(var(--primary-foreground)/.8);margin-bottom:.75rem"><span>Applicable fee</span><span>$94.00</span></div>
+        <div style="display:flex;justify-content:space-between;color:hsl(var(--primary-foreground)/.8)"><span>Processing</span><span>Included</span></div>
+      </div>
+      <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid hsl(var(--primary-foreground)/.1);display:flex;justify-content:space-between;align-items:flex-end">
+        <span class="text-xs uppercase" style="letter-spacing:.2em;color:hsl(var(--primary-foreground)/.6)">Total</span>
+        <span class="font-serif text-3xl text-accent">$94</span>
+      </div>
+      <div style="margin-top:2rem;display:flex;gap:.5rem;align-items:flex-start;font-size:.75rem;color:hsl(var(--primary-foreground)/.6)"><span data-icon="shield" data-icon-class="svg-icon text-accent"></span> Your details are encrypted and never shared with third parties.</div>
+    </aside>
+  </div>
+
+  <div id="paid" style="display:none;text-align:center;padding:5rem 0;max-width:36rem;margin:0 auto">
+    <div style="margin:0 auto;height:4rem;width:4rem;display:flex;align-items:center;justify-content:center;border-radius:9999px;background:hsl(var(--accent-soft));color:hsl(var(--accent))"><span data-icon="check" data-icon-class="svg-icon xl"></span></div>
+    <h1 class="font-serif" style="margin-top:2rem;font-size:2.25rem;color:hsl(var(--primary))">Payment Successful</h1>
+    <p class="text-muted" style="margin-top:1rem">Reference <span style="font-family:monospace;color:hsl(var(--primary))" id="refCode"></span> · A receipt has been emailed to you. Our team will begin processing right away.</p>
+    <a href="status.html" class="btn btn-navy btn-lg" style="margin-top:2.5rem">Track your application</a>
+  </div>
+</section>
+<div id="siteFooter"></div>
+<script src="js/site.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const type = qp('type'), email = qp('email'), name = qp('name');
+  if(type === 'express') document.getElementById('orderTitle').textContent = 'Express eVisa Application';
+  if(email) document.getElementById('cardEmail').value = email;
+  if(name) document.getElementById('cardName').value = name;
+  const agree = document.getElementById('agree'), btn = document.getElementById('payBtn');
+  agree.addEventListener('change', ()=> btn.disabled = !agree.checked);
+  document.getElementById('payForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!agree.checked) return;
+    document.getElementById('refCode').textContent = 'SOM-' + Math.floor(100000 + Math.random()*900000);
+    document.getElementById('payGrid').style.display = 'none';
+    document.querySelector('.section-heading').style.display = 'none';
+    document.getElementById('paid').style.display = 'block';
+    toast('Payment processed', 'success');
+  });
+  // 2-column when wide
+  const grid = document.getElementById('payGrid');
+  function layout(){ grid.style.gridTemplateColumns = window.innerWidth >= 1024 ? '1fr 400px' : '1fr'; }
+  layout(); window.addEventListener('resize', layout);
+});
+</script>
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/69a714eae2f23c1c34acc2ad/1jiqajdbf';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+</body>
+</html>

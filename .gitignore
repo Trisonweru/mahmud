@@ -1,0 +1,38 @@
+# OS
+.DS_Store
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+.output/
+.vinxi/
+.nitro/
+
+# Environment variables
+.env
+.env.*
+*.local
+
+# Editor history
+.history/
+
+# Cloudflare
+.wrangler/
+.dev.vars
+.tanstack/
+
+# Lovable
+.lovable/
+
+# Supabase local CLI state
+supabase/.temp/
+
+# Claude local settings
+.claude/settings.local.json
+
+# Logs
+*.log
+*.gz

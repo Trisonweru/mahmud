@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Apply — Somalia eVisa (Foreigner)</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div id="siteHeader"></div>
+<section class="container py-16" style="max-width:48rem">
+  <div class="section-heading">
+    <div><span class="gold-divider"></span> <span class="eyebrow">Application · Ajnabi (Foreigner)</span> <span class="gold-divider"></span></div>
+    <h2>Start your Somalia eVisa application</h2>
+  </div>
+
+  <form id="applyForm" style="margin-top:2.5rem;background:hsl(var(--card));border:1px solid hsl(var(--border));border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow-card)">
+    <div class="alert-gold" style="margin-bottom:1.5rem"><span data-icon="shield" data-icon-class="svg-icon lg"></span>
+      <span>Have your <strong>passport biodata page</strong>, <strong>passport-size photo</strong>, <strong>sponsor details</strong>, and <strong>flight booking</strong> ready before you begin.</span>
+    </div>
+
+    <h3 class="font-serif text-2xl text-primary">Personal Information</h3>
+    <div class="grid-2" style="margin-top:1rem">
+      <label class="field"><span class="label">Surname *</span><input required name="surname"></label>
+      <label class="field"><span class="label">Given Names *</span><input required name="given"></label>
+    </div>
+    <div class="grid-2" style="margin-top:1rem">
+      <label class="field"><span class="label">Date of Birth *</span><input required type="date" name="dob"></label>
+      <label class="field"><span class="label">Sex</span>
+        <select name="sex"><option value="">—</option><option>Male</option><option>Female</option></select>
+      </label>
+    </div>
+    <div class="grid-2" style="margin-top:1rem">
+      <label class="field"><span class="label">Nationality *</span><input required name="nationality"></label>
+      <label class="field"><span class="label">Country of Residence *</span><input required name="residence"></label>
+    </div>
+    <div class="grid-2" style="margin-top:1rem">
+      <label class="field"><span class="label">City of Residence *</span><input required name="city"></label>
+      <label class="field"><span class="label">Marital Status *</span>
+        <select required name="marital"><option value="">—</option><option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option></select>
+      </label>
+    </div>
+    <label class="field" style="margin-top:1rem;display:block"><span class="label">Physical Address *</span><input required name="address"></label>
+    <div class="grid-2" style="margin-top:1rem">
+      <label class="field"><span class="label">Phone *</span><input required type="tel" name="phone" placeholder="+254 700 000 000"></label>
+      <label class="field"><span class="label">Email *</span><input required type="email" name="email" placeholder="you@email.com"></label>
+    </div>
+
+    <h3 class="font-serif text-2xl text-primary" style="margin-top:2rem">Passport</h3>
+    <div class="grid-2" style="margin-top:1rem">
+      <label class="field"><span class="label">Passport Type *</span>
+        <select required name="ptype"><option>Ordinary</option><option>Travel Document</option></select>
+      </label>
+      <label class="field"><span class="label">Passport Number *</span><input required name="pnumber" style="text-transform:uppercase"></label>
+    </div>
+    <div class="grid-2" style="margin-top:1rem">
+      <label class="field"><span class="label">Date of Issue *</span><input required type="date" name="pissue"></label>
+      <label class="field"><span class="label">Expiry Date *</span><input required type="date" name="pexp"></label>
+    </div>
+    <p style="margin-top:.5rem;font-size:11px;color:hsl(var(--muted-foreground))">Passport must be valid for <strong>more than 6 months</strong> from today.</p>
+
+    <h3 class="font-serif text-2xl text-primary" style="margin-top:2rem">Documents</h3>
+    <div class="grid-2" style="margin-top:1rem">
+      <div>
+        <div class="text-xs uppercase" style="letter-spacing:.18em;color:hsl(var(--muted-foreground));margin-bottom:.5rem">Passport biodata page *</div>
+        <label class="dropzone"><span data-icon="upload" data-icon-class="svg-icon xl text-accent"></span><div style="margin-top:.5rem;font-weight:500;color:hsl(var(--primary))">Click to upload</div><div class="text-xs text-muted">JPG, PNG or PDF</div><input type="file" name="passportFile" required accept="image/*,application/pdf"></label>
+      </div>
+      <div>
+        <div class="text-xs uppercase" style="letter-spacing:.18em;color:hsl(var(--muted-foreground));margin-bottom:.5rem">Passport-size photo *</div>
+        <label class="dropzone"><span data-icon="upload" data-icon-class="svg-icon xl text-accent"></span><div style="margin-top:.5rem;font-weight:500;color:hsl(var(--primary))">Click to upload</div><div class="text-xs text-muted">JPG or PNG</div><input type="file" name="photoFile" required accept="image/*"></label>
+      </div>
+    </div>
+
+    <h3 class="font-serif text-2xl text-primary" style="margin-top:2rem">Travel & Sponsor</h3>
+    <label class="field" style="margin-top:1rem;display:block"><span class="label">Sponsor Code *</span><input required name="sponsor"></label>
+    <div class="grid-2" style="margin-top:1rem">
+      <label class="field"><span class="label">Purpose of Visit *</span>
+        <select required name="purpose"><option value="">—</option><option>Business</option><option>Tourism</option><option>Family Visit</option><option>Conference</option><option>Medical</option><option>Other</option></select>
+      </label>
+      <label class="field"><span class="label">Travel Date (Arrival) *</span><input required type="date" name="travelDate"></label>
+    </div>
+    <label class="field" style="margin-top:1rem;display:block"><span class="label">Duration of Stay *</span>
+      <select required name="duration"><option value="">—</option><option>1-7 days</option><option>8-14 days</option><option>15-30 days</option><option>1-3 months</option><option>3-6 months</option></select>
+    </label>
+
+    <label style="display:flex;gap:.75rem;margin-top:2rem;padding-top:1.25rem;border-top:1px solid hsl(var(--border));font-size:.875rem;color:hsl(var(--foreground)/.85);cursor:pointer">
+      <input type="checkbox" required style="margin-top:.25rem;accent-color:hsl(var(--accent))">
+      <span>I confirm the information is accurate, request immediate performance of services, and agree to our <a href="terms.html" class="text-accent underline">Terms</a>, <a href="privacy.html" class="text-accent underline">Privacy</a>, and <a href="refund.html" class="text-accent underline">Refund Policy</a>.</span>
+    </label>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:1.5rem;flex-wrap:wrap;gap:1rem">
+      <div class="fee-box gold"><div class="label">Applicable fee</div><div class="price">$94 <span style="font-size:.75rem;font-family:Inter;color:hsl(var(--primary)/.7)">USD</span></div></div>
+      <button class="btn btn-gold btn-lg">Continue to Payment <span data-icon="arrow"></span></button>
+    </div>
+  </form>
+</section>
+<div id="siteFooter"></div>
+<script src="js/site.js"></script>
+<script>
+document.getElementById('applyForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  toast('Application complete. Continue to payment.', 'success');
+  setTimeout(()=>{
+    const params = new URLSearchParams({type:'standard', email:fd.get('email')||'', name:(fd.get('given')||'')+' '+(fd.get('surname')||'')});
+    location.href = 'payment.html?' + params.toString();
+  }, 700);
+});
+</script>
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/69a714eae2f23c1c34acc2ad/1jiqajdbf';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+</body>
+</html>
