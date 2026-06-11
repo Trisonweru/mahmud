@@ -22,8 +22,8 @@ const Privacy = () => (
 
     <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground/85">
       <Block n="1" title="Data Controller">
-        <strong>eVisaSomali</strong> — a private company registered in England &amp;
-        Wales (Company No. 16877709), registered office: 71–75 Shelton Street, Covent Garden,
+        <strong>eVisaSomali.com</strong> — a trading name of Passkey Technologies Limited,
+        registered in England &amp; Wales (Company No. 16877709), registered office: 71–75 Shelton Street, Covent Garden,
         London WC2H 9JQ, United Kingdom. We are an
         independent third-party service provider and are not affiliated with, endorsed by, or
         connected to the the Somali government or any of its departments.
@@ -99,7 +99,7 @@ const Privacy = () => (
           <br />
           Registered Office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom
           <br />
-          Company Name: eVisaSomali
+          Company Name: Passkey Technologies Limited (trading as eVisaSomali.com)
           <br />
           Company No.: 16877709
         </p>

@@ -85,7 +85,7 @@ export const SiteFooter = () => {
 
       <div className="border-t border-primary-foreground/10">
         <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-primary-foreground/50">
-          <div>© {new Date().getFullYear()} eVisaSomali. Company No. 16877709 · Registered in England &amp; Wales.</div>
+          <div>© {new Date().getFullYear()} eVisaSomali.com, a trading name of Passkey Technologies Limited. Company No. 16877709 · Registered in England &amp; Wales.</div>
           <div className="flex gap-6">
             <Link to="/privacy" className="hover:text-accent">Privacy</Link>
             <Link to="/terms" className="hover:text-accent">Terms</Link>

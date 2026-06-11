@@ -76,7 +76,7 @@ const Refund = () => (
           <br />
           Registered Office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom
           <br />
-          Company Name: eVisaSomali
+          Company Name: Passkey Technologies Limited (trading as eVisaSomali.com)
           <br />
           Company No.: 16877709
         </p>

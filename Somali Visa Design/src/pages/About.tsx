@@ -43,8 +43,8 @@ const About = () => (
       <SectionHeading eyebrow="Who We Are" title="Independent specialists, not a government agency." />
       <div className="mt-8 space-y-5 text-foreground/85 leading-relaxed">
         <p>
-          <strong>eVisaSomali</strong> is an independent visa application assistance service,
-          a private company registered in England &amp; Wales
+          <strong>eVisaSomali.com</strong> is an independent visa application assistance service,
+          a trading name of Passkey Technologies Limited, registered in England &amp; Wales
           (Company No. 16877709), with its registered office at 71–75 Shelton Street, Covent Garden,
           London WC2H 9JQ, United Kingdom.
           We are not affiliated with, endorsed by, or connected to the Somali government or any of its

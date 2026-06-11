@@ -15,8 +15,8 @@ const Terms = () => (
 
     <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground/85">
       <Block n="1" title="Service Provider">
-        This service is provided by <strong>eVisaSomali</strong> ("we," "us," or "our"),
-        a private third-party company registered in England &amp; Wales (Company No. 16877709),
+        This service is provided by <strong>eVisaSomali.com</strong> ("we," "us," or "our"),
+        a trading name of Passkey Technologies Limited registered in England &amp; Wales (Company No. 16877709),
         registered office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom.
         We are not affiliated with, endorsed by,
         or part of the the destination government or the official eTAS portal (the official government portal).
@@ -101,7 +101,7 @@ const Terms = () => (
           <br />
           Registered Office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom
           <br />
-          Company Name: eVisaSomali
+          Company Name: Passkey Technologies Limited (trading as eVisaSomali.com)
           <br />
           Company No.: 16877709
         </p>
