@@ -186,10 +186,17 @@ export async function extractPassport(
   if (mrz1 && mrz2) {
     const country = mrz1.substring(2, 5);
     const namePart = mrz1.substring(5).replace(/<+$/g, "");
-    const [surnameRaw, givenRaw = ""] = namePart.split("<<");
-    result.surname = surnameRaw.replace(/</g, " ").trim();
-    result.givenNames = givenRaw.replace(/</g, " ").trim();
-    result.fullName = [result.givenNames, result.surname].filter(Boolean).join(" ");
+    const nameSegments = namePart.split("<<");
+    // Only trust the MRZ name split when the surname/given-names separator (<<)
+    // was actually found — OCR sometimes drops one of the two filler characters,
+    // which would otherwise dump the whole name into surname. When that happens,
+    // leave these unset so the visual-zone label fallbacks below can fill them in.
+    if (nameSegments.length >= 2) {
+      const [surnameRaw, givenRaw] = nameSegments;
+      result.surname = surnameRaw.replace(/</g, " ").trim();
+      result.givenNames = givenRaw.replace(/</g, " ").trim();
+      result.fullName = [result.givenNames, result.surname].filter(Boolean).join(" ");
+    }
     result.nationality = country;
 
     const passNum = mrz2.substring(0, 9).replace(/</g, "");
