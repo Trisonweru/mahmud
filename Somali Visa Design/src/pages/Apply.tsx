@@ -5,7 +5,7 @@ import { DateDropdown } from "@/components/DateDropdown";
 import { ArrowRight, ArrowLeft, ShieldCheck, UploadCloud, Loader2, Check, AlertCircle, FileText, Camera, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { COUNTRIES } from "@/data/countries";
-import { extractPassport, hasExtractedData, UnsupportedImageError } from "@/lib/passportOcr";
+import { extractPassport, hasExtractedData, matchNationality, UnsupportedImageError } from "@/lib/passportOcr";
 import { setPending } from "@/lib/pendingApplication";
 import { FUNCTIONS_URL, fnHeaders } from "@/lib/api";
 import { isEmail, monthsBetween, todayStr } from "@/lib/validation";
@@ -111,26 +111,13 @@ const Apply = () => {
     setOcrProgress(0);
     try {
       const data = await extractPassport(file, (p) => setOcrProgress(p));
-      const matchCountry = (code?: string) => {
-        if (!code) return "";
-        const map: Record<string, string> = {
-          SOM: "Somalia", KEN: "Kenya", USA: "United States", GBR: "United Kingdom",
-          CAN: "Canada", IND: "India", PAK: "Pakistan", ETH: "Ethiopia", DJI: "Djibouti",
-          UGA: "Uganda", TZA: "Tanzania", ARE: "United Arab Emirates", SAU: "Saudi Arabia",
-          QAT: "Qatar", DEU: "Germany", FRA: "France", ITA: "Italy", ESP: "Spain",
-          NLD: "Netherlands", SWE: "Sweden", NOR: "Norway", FIN: "Finland", DNK: "Denmark",
-          AUS: "Australia", NZL: "New Zealand", TUR: "Turkey", EGY: "Egypt", ZAF: "South Africa",
-          CHN: "China", JPN: "Japan", KOR: "South Korea", BRA: "Brazil", MEX: "Mexico",
-        };
-        return map[code] || "";
-      };
       setForm((f) => ({
         ...f,
         surname: data.surname || f.surname,
         givenNames: data.givenNames || f.givenNames,
         dob: data.dateOfBirth || f.dob,
         sex: data.sex === "M" ? "Male" : data.sex === "F" ? "Female" : f.sex,
-        nationality: matchCountry(data.nationality) || f.nationality,
+        nationality: matchNationality(data.nationality) || f.nationality,
         passportNumber: data.passportNumber || f.passportNumber,
         passportIssueDate: data.issueDate || f.passportIssueDate,
         passportExpiryDate: data.expiryDate || f.passportExpiryDate,

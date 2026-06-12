@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { _mrzDate, _parseHumanDate } from "@/lib/passportOcr";
+import { _mrzDate, _parseHumanDate, _parseOcrText } from "@/lib/passportOcr";
 
 describe("_mrzDate (MRZ YYMMDD → YYYY-MM-DD)", () => {
   const thisYear = new Date().getFullYear() % 100;
@@ -69,5 +69,45 @@ describe("_parseHumanDate (visual zone date parsing)", () => {
 
   it("returns undefined for unknown month abbreviations", () => {
     expect(_parseHumanDate("12 XYZ 2030")).toBeUndefined();
+  });
+});
+
+describe("_parseOcrText (full MRZ + visual zone parsing)", () => {
+  // Captured from a real OCR pass on a sample Kenyan passport. The MRZ line2
+  // here has the surname/given-names "<<" separator collapsed to a single
+  // "<", and the passport number digits misread as the letter "O".
+  const kenMrz1 = "P<KEN<HALISI<MKENYA<<<<<<<<<<<<<<<<<<<<<<<<<";
+  const kenMrz2 = "AKOOOOOOOO<8KEN910101F0000001<<<<<<<<<<<<<<?";
+  const kenFullText = "REPUBLIC OF KENYA\nP KEN AK000000000\nHALISI\nMKENYA";
+
+  it("splits surname/given names when the MRZ '<<' separator collapses to '<'", () => {
+    const result = _parseOcrText(kenFullText, `${kenMrz1}\n${kenMrz2}`);
+    expect(result.surname).toBe("HALISI");
+    expect(result.givenNames).toBe("MKENYA");
+    expect(result.fullName).toBe("MKENYA HALISI");
+  });
+
+  it("normalizes O→0 digit confusions in the passport number", () => {
+    const result = _parseOcrText(kenFullText, `${kenMrz1}\n${kenMrz2}`);
+    expect(result.passportNumber).toBe("AK0000000");
+  });
+
+  it("re-anchors DOB/sex/expiry on the nationality code when offsets drift", () => {
+    const result = _parseOcrText(kenFullText, `${kenMrz1}\n${kenMrz2}`);
+    expect(result.nationality).toBe("KEN");
+    expect(result.dateOfBirth).toBe("1991-01-01");
+  });
+
+  it("splits surname/given names normally when the MRZ '<<' separator is intact", () => {
+    const mrz1 = "P<USASMITH<<JOHN<<<<<<<<<<<<<<<<<<<<<<<<<<<<";
+    const mrz2 = "AB1234567USA9001015M3001017<<<<<<<<<<<<<<04";
+    const result = _parseOcrText("", `${mrz1}\n${mrz2}`);
+    expect(result.surname).toBe("SMITH");
+    expect(result.givenNames).toBe("JOHN");
+    expect(result.nationality).toBe("USA");
+    expect(result.passportNumber).toBe("AB1234567");
+    expect(result.dateOfBirth).toBe("1990-01-01");
+    expect(result.sex).toBe("M");
+    expect(result.expiryDate).toBe("2030-01-01");
   });
 });

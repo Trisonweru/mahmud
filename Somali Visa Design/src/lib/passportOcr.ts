@@ -31,6 +31,23 @@ export function hasExtractedData(data: PassportData): boolean {
   );
 }
 
+// Maps an MRZ 3-letter country code to the full country name used in our
+// nationality dropdowns. Returns "" when the code isn't recognized.
+const NATIONALITY_MAP: Record<string, string> = {
+  SOM: "Somalia", KEN: "Kenya", USA: "United States", GBR: "United Kingdom",
+  CAN: "Canada", IND: "India", PAK: "Pakistan", ETH: "Ethiopia", DJI: "Djibouti",
+  UGA: "Uganda", TZA: "Tanzania", ARE: "United Arab Emirates", SAU: "Saudi Arabia",
+  QAT: "Qatar", DEU: "Germany", FRA: "France", ITA: "Italy", ESP: "Spain",
+  NLD: "Netherlands", SWE: "Sweden", NOR: "Norway", FIN: "Finland", DNK: "Denmark",
+  AUS: "Australia", NZL: "New Zealand", TUR: "Turkey", EGY: "Egypt", ZAF: "South Africa",
+  CHN: "China", JPN: "Japan", KOR: "South Korea", BRA: "Brazil", MEX: "Mexico",
+};
+
+export function matchNationality(code?: string): string {
+  if (!code) return "";
+  return NATIONALITY_MAP[code] || "";
+}
+
 const MONTHS: Record<string, string> = {
   JAN: "01", FEB: "02", MAR: "03", APR: "04", MAY: "05", JUN: "06",
   JUL: "07", AUG: "08", SEP: "09", OCT: "10", NOV: "11", DEC: "12",
@@ -161,6 +178,12 @@ export async function extractPassport(
 
   const mrzPassText = mrzPass.data.text || "";
   const fullText = fullPass.data.text || "";
+  return _parseOcrText(fullText, mrzPassText);
+}
+
+// Pure text-parsing step, split out from extractPassport so it can be
+// exercised directly in tests against captured OCR output.
+export function _parseOcrText(fullText: string, mrzPassText: string): PassportData {
   const text = `${fullText}\n${mrzPassText}`;
   const upper = text.toUpperCase();
   // MRZ-crop lines are checked first since the upscaled, dedicated pass is
@@ -187,29 +210,55 @@ export async function extractPassport(
   if (mrz1 && mrz2) {
     const country = mrz1.substring(2, 5);
     const namePart = mrz1.substring(5).replace(/<+$/g, "");
-    const nameSegments = namePart.split("<<");
-    // Only trust the MRZ name split when the surname/given-names separator (<<)
-    // was actually found — OCR sometimes drops one of the two filler characters,
-    // which would otherwise dump the whole name into surname. When that happens,
-    // leave these unset so the visual-zone label fallbacks below can fill them in.
-    if (nameSegments.length >= 2) {
-      const [surnameRaw, givenRaw] = nameSegments;
+    let surnameRaw: string | undefined;
+    let givenRaw: string | undefined;
+    const strictSegments = namePart.split("<<");
+    if (strictSegments.length >= 2 && strictSegments[0] && strictSegments[1]) {
+      [surnameRaw, givenRaw] = strictSegments;
+    } else {
+      // OCR often collapses the "<<" surname/given-names separator down to a
+      // single "<", which is otherwise indistinguishable from the filler
+      // between multiple given names. Falling back to splitting on any run
+      // of "<" still recovers the common single-surname case.
+      const looseSegments = namePart.split(/<+/).filter(Boolean);
+      if (looseSegments.length >= 2) {
+        surnameRaw = looseSegments[0];
+        givenRaw = looseSegments.slice(1).join(" ");
+      }
+    }
+    // Only trust the MRZ name split when both a surname and given names were
+    // found. When that's not the case, leave these unset so the visual-zone
+    // label fallbacks below can fill them in.
+    if (surnameRaw && givenRaw) {
       result.surname = surnameRaw.replace(/</g, " ").trim();
       result.givenNames = givenRaw.replace(/</g, " ").trim();
       result.fullName = [result.givenNames, result.surname].filter(Boolean).join(" ");
     }
     result.nationality = country;
 
-    const passNum = mrz2.substring(0, 9).replace(/</g, "");
+    // Passport numbers virtually never contain the letter "O" (it's reserved
+    // to avoid confusion with zero), so it's safe to normalize that specific
+    // confusion. Other letters in _fixMrzDigits (B, S, Z, G, I, L) are common
+    // in real passport numbers and must be left alone.
+    const passNum = mrz2.substring(0, 9).replace(/</g, "").replace(/O/g, "0");
     if (passNum) result.passportNumber = passNum;
-    const dob = _fixMrzDigits(mrz2.substring(13, 19));
-    const dobIso = _mrzDate(dob, false);
-    if (dobIso) result.dateOfBirth = dobIso;
-    const sex = mrz2.substring(20, 21);
-    if (sex === "M" || sex === "F") result.sex = sex;
-    const exp = _fixMrzDigits(mrz2.substring(21, 27));
-    const expIso = _mrzDate(exp, true);
-    if (expIso) result.expiryDate = expIso;
+
+    // The DOB/sex/expiry fields use fixed offsets relative to the nationality
+    // code, but OCR sometimes drops or inserts a stray character earlier in
+    // the line, shifting everything after it. Re-anchor on the nationality
+    // code's actual position (it should match mrz1's country code) instead of
+    // assuming it falls at the textbook offset of 10.
+    const natIdx = mrz2.indexOf(country, 8);
+    if (natIdx !== -1) {
+      const dob = _fixMrzDigits(mrz2.substring(natIdx + 3, natIdx + 9));
+      const dobIso = _mrzDate(dob, false);
+      if (dobIso) result.dateOfBirth = dobIso;
+      const sex = mrz2[natIdx + 10];
+      if (sex === "M" || sex === "F") result.sex = sex;
+      const exp = _fixMrzDigits(mrz2.substring(natIdx + 11, natIdx + 17));
+      const expIso = _mrzDate(exp, true);
+      if (expIso) result.expiryDate = expIso;
+    }
   }
 
   // --- Fallback: parse visual zone labels ---
@@ -240,6 +289,10 @@ export async function extractPassport(
   }
   if (!result.fullName && (result.surname || result.givenNames)) {
     result.fullName = [result.givenNames, result.surname].filter(Boolean).join(" ").trim();
+  }
+  if (!result.sex) {
+    const m = upper.match(/SEX[A-Z\/\s]*[:\-]?\s*([MF])\b/);
+    if (m) result.sex = m[1];
   }
 
   return result;

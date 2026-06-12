@@ -10,10 +10,11 @@ import { setPending } from "@/lib/pendingApplication";
 import { FUNCTIONS_URL, fnHeaders } from "@/lib/api";
 import { DateDropdown } from "@/components/DateDropdown";
 import { monthsBetween } from "@/lib/validation";
+import { extractPassport, hasExtractedData, matchNationality, UnsupportedImageError } from "@/lib/passportOcr";
 import {
   ArrowRight, ShieldCheck, Clock4, FileCheck2, Headphones, Lock, Sparkles,
   CheckCircle2, FileText, BadgeCheck, Plane, UploadCloud, Zap, PenLine,
-  Camera, Phone, Mail, X, Globe2, Users, User, Hash, CalendarDays,
+  Camera, Phone, Mail, X, Globe2, Users, User, Hash, CalendarDays, Loader2,
 } from "lucide-react";
 
 
@@ -41,6 +42,36 @@ const Index = () => {
   const [whatsapp, setWhatsapp] = useState("");
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [ocrLoading, setOcrLoading] = useState(false);
+  const [ocrProgress, setOcrProgress] = useState(0);
+
+  const handlePassportUpload = async (file: File) => {
+    setPassport(file);
+    setOcrLoading(true);
+    setOcrProgress(0);
+    try {
+      const data = await extractPassport(file, (p) => setOcrProgress(p));
+      setFullName((v) => v || data.fullName || "");
+      setPassportNumber((v) => v || data.passportNumber || "");
+      setPassportIssueDate((v) => v || data.issueDate || "");
+      setPassportExpiryDate((v) => v || data.expiryDate || "");
+      setNationality((v) => v || matchNationality(data.nationality) || "");
+      if (hasExtractedData(data)) {
+        toast.success("Passport scanned — please review the auto-filled details.");
+      } else {
+        toast.info("We couldn't read the details from this scan automatically. Please fill them in manually.");
+      }
+    } catch (e) {
+      if (e instanceof UnsupportedImageError) {
+        toast.info("Auto-scan isn't supported for this file type. Please fill the details manually, or re-upload as a JPG or PNG photo.");
+      } else {
+        console.error(e);
+        toast.error("Could not read the passport. Please fill the details manually.");
+      }
+    } finally {
+      setOcrLoading(false);
+    }
+  };
 
   const handleQuick = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -334,9 +365,11 @@ const Index = () => {
                   label="Passport"
                   sublabel="Baasaboor"
                   file={passport}
-                  onChange={setPassport}
+                  onChange={handlePassportUpload}
                   onClear={() => setPassport(null)}
                   accept="image/*,application/pdf"
+                  loading={ocrLoading}
+                  progress={ocrProgress}
                 />
                 <MiniUploader
                   icon={Camera}
@@ -620,13 +653,20 @@ interface MiniUploaderProps {
   onChange: (f: File) => void;
   onClear: () => void;
   accept: string;
+  loading?: boolean;
+  progress?: number;
 }
-const MiniUploader = ({ icon: Icon, label, sublabel, file, onChange, onClear, accept }: MiniUploaderProps) => (
+const MiniUploader = ({ icon: Icon, label, sublabel, file, onChange, onClear, accept, loading, progress }: MiniUploaderProps) => (
   <div>
     <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground mb-1.5">
       {label}{sublabel && <span className="normal-case tracking-normal italic text-muted-foreground/70"> · {sublabel}</span>}
     </div>
-    {file ? (
+    {loading ? (
+      <div className="rounded-sm border border-dashed border-accent/60 bg-accent-soft/30 p-3 flex flex-col items-center justify-center gap-1.5 text-center">
+        <Loader2 className="h-4 w-4 text-accent animate-spin" />
+        <div className="text-[10px] font-medium text-primary">Scanning… {Math.round((progress ?? 0) * 100)}%</div>
+      </div>
+    ) : file ? (
       <div className="rounded-sm border border-accent/40 bg-accent-soft/40 p-3 flex items-center gap-2">
         <Icon className="h-4 w-4 text-accent shrink-0" />
         <div className="flex-1 min-w-0 text-xs font-medium text-primary truncate">{file.name}</div>
