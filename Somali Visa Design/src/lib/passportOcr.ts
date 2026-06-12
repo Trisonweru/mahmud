@@ -17,6 +17,7 @@ export type PassportData = {
   passportNumber?: string;
   nationality?: string;
   dateOfBirth?: string; // YYYY-MM-DD
+  issueDate?: string;   // YYYY-MM-DD
   expiryDate?: string;  // YYYY-MM-DD
   sex?: string;
   rawText: string;
@@ -26,7 +27,7 @@ export type PassportData = {
 export function hasExtractedData(data: PassportData): boolean {
   return !!(
     data.surname || data.givenNames || data.passportNumber
-    || data.nationality || data.dateOfBirth || data.expiryDate || data.sex
+    || data.nationality || data.dateOfBirth || data.issueDate || data.expiryDate || data.sex
   );
 }
 
@@ -223,6 +224,11 @@ export async function extractPassport(
   if (!result.expiryDate) {
     const m = upper.match(/(?:DATE OF EXPIRY|EXPIRY|EXPIRES)[^\n]*?([0-3]?\d[\s/.-][A-Z0-9]+[\s/.-]\d{2,4})/);
     if (m) result.expiryDate = _parseHumanDate(m[1]);
+  }
+  // The MRZ doesn't encode the issue date, so this is visual-zone only.
+  if (!result.issueDate) {
+    const m = upper.match(/(?:DATE OF ISSUE|ISSUE)[^\n]*?([0-3]?\d[\s/.-][A-Z0-9]+[\s/.-]\d{2,4})/);
+    if (m) result.issueDate = _parseHumanDate(m[1]);
   }
   if (!result.surname) {
     const m = upper.match(/SURNAME[\s:]+([A-Z\- ]{2,})/);

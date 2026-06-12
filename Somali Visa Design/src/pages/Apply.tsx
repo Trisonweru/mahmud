@@ -132,6 +132,7 @@ const Apply = () => {
         sex: data.sex === "M" ? "Male" : data.sex === "F" ? "Female" : f.sex,
         nationality: matchCountry(data.nationality) || f.nationality,
         passportNumber: data.passportNumber || f.passportNumber,
+        passportIssueDate: data.issueDate || f.passportIssueDate,
         passportExpiryDate: data.expiryDate || f.passportExpiryDate,
       }));
       if (hasExtractedData(data)) {
