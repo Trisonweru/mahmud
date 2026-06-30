@@ -187,10 +187,6 @@ const Apply = () => {
       else if (new Date(form.travelDate) < new Date(todayStr()))
         e.travelDate = "Arrival date cannot be in the past.";
       if (!form.duration) e.duration = "Select duration of stay.";
-      if (form.applicantType === "ajnabi" && !form.sponsorLetter)
-        e.sponsorLetter = "Upload your sponsor letter.";
-      if (form.applicantType === "qurba" && !form.flightTicket)
-        e.flightTicket = "Upload your flight ticket.";
     }
     if (step === 4) {
       if (!form.somAddress.trim()) e.somAddress = "Physical address is required.";
@@ -275,6 +271,7 @@ const Apply = () => {
       setPending({
         flow: "standard",
         application_id: json.application_id,
+        reference: json.reference,
         surname: form.surname,
         given: form.givenNames,
         dob: form.dob,
@@ -342,8 +339,8 @@ const Apply = () => {
         {step === 0 && (
           <div className="space-y-5">
             <p className="text-sm text-muted-foreground">
-              Have the following ready: <strong>passport biodata page, selfie photo</strong>, and{" "}
-              <strong>travel bookings</strong>. The next step uses our automatic passport scanner to fill
+              Have the following ready: <strong>passport biodata page</strong> and a{" "}
+              <strong>selfie photo</strong>. The next step uses our automatic passport scanner to fill
               your personal information.
             </p>
 
@@ -412,7 +409,7 @@ const Apply = () => {
             <Field label="Physical Address *" value={form.homeAddress} onChange={(v) => set("homeAddress", v)} error={errors.homeAddress} />
 
             <div className="grid sm:grid-cols-2 gap-5">
-              <Field label="Contact (Phone) *" type="tel" placeholder="+254 700 000 000" value={form.phone} onChange={(v) => set("phone", v)} error={errors.phone} />
+              <Field label="Contact / WhatsApp *" type="tel" placeholder="+254 700 000 000" value={form.phone} onChange={(v) => set("phone", v)} error={errors.phone} />
               <Field label="Email *" type="email" placeholder="you@email.com" value={form.email} onChange={(v) => set("email", v)} error={errors.email} />
             </div>
 
@@ -456,11 +453,6 @@ const Apply = () => {
                   <Select label="Duration of Stay *" value={form.duration} onChange={(v) => set("duration", v)}
                     options={["1-7 days", "8-14 days", "15-30 days", "1-3 months", "3-6 months"]} error={errors.duration} />
                 </div>
-                <div>
-                  <Label>Upload Sponsor Letter *</Label>
-                  <FileUpload file={form.sponsorLetter} onChange={(f) => set("sponsorLetter", f)} accept="image/*,application/pdf" hint="JPG, PNG, or PDF • Clear scan required" />
-                  {errors.sponsorLetter && <ErrText msg={errors.sponsorLetter} />}
-                </div>
               </>
             ) : (
               <>
@@ -470,11 +462,6 @@ const Apply = () => {
                   <DateDropdown label="Travel Date (Arrival) *" value={form.travelDate} onChange={(v) => set("travelDate", v)} error={errors.travelDate} minYear={new Date().getFullYear()} maxYear={new Date().getFullYear() + 5} />
                   <Select label="Duration of Stay *" value={form.duration} onChange={(v) => set("duration", v)}
                     options={["1-3 months", "3-6 months", "6-12 months", "1-2 years", "Permanent"]} error={errors.duration} />
-                </div>
-                <div>
-                  <Label>Flight Ticket Upload *</Label>
-                  <FileUpload file={form.flightTicket} onChange={(f) => set("flightTicket", f)} accept="image/*,application/pdf" hint="JPG, PNG, or PDF • Clear scan required" />
-                  {errors.flightTicket && <ErrText msg={errors.flightTicket} />}
                 </div>
               </>
             )}
