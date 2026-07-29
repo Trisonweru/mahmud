@@ -21,17 +21,19 @@ const Refund = () => (
 
     <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground/85">
       <Block n="1" title="Service Fee">
-        Our total fee is <strong>$94 USD</strong> (all-inclusive) per application. This includes:
+        We offer three processing options, each an all-inclusive fee covering the official
+        government eTAS fee plus our service fee:
         <ul className="list-disc pl-6 mt-2 space-y-1">
-          <li>The official government eTAS fee of $64 USD (forwarded 100% to the official government portal)</li>
-          <li>Our private service fee of $30 USD for form review, error-checking, document preparation, and submission assistance.</li>
+          <li><strong>Option 1 — Standard, $94 USD</strong> (24–72 hour processing): $64 USD government eTAS fee (forwarded 100% to the official government portal) + $30 USD private service fee for form review, error-checking, document preparation, and submission assistance.</li>
+          <li><strong>Option 2 — Express, $150 USD</strong> (5–6 hour processing, during Somalia working hours): $64 USD government eTAS fee + $86 USD private service fee, which includes priority rush handling.</li>
+          <li><strong>Option 3 — Foreigner (Ajnabi) guided application, $94 USD</strong> (24–72 hour processing): $64 USD government eTAS fee + $30 USD private service fee.</li>
         </ul>
       </Block>
 
       <Block n="2" title="Refund Eligibility">
-        You are eligible for a refund of our private service fee ($94 USD) only if we are unable to
-        submit your application due to a technical issue on our side. <strong>No other refunds will
-        be issued.</strong>
+        You are eligible for a refund of our private service fee (the portion of your total fee
+        above the $64 USD government eTAS fee) only if we are unable to submit your application due
+        to a technical issue on our side. <strong>No other refunds will be issued.</strong>
       </Block>
 
       <Block n="3" title="Non-Refundable Items">

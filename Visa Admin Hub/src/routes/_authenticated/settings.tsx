@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Pencil, Check, X } from "lucide-react";
+import { Pencil, Check, X, Trash2, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { AccessDenied } from "@/components/admin/AccessDenied";
@@ -31,6 +31,7 @@ function SettingsContent() {
   const [inviteRole, setInviteRole] = useState<AppRole>("officer");
   const [inviting, setInviting] = useState(false);
   const [editingPayroll, setEditingPayroll] = useState<string | null>(null);
+  const [purging, setPurging] = useState(false);
   const [payrollDraft, setPayrollDraft] = useState<{ phone: string; position: string; department: string; start_date: string }>({
     phone: "", position: "", department: "", start_date: "",
   });
@@ -100,6 +101,29 @@ function SettingsContent() {
       department: s.department ?? "",
       start_date: s.start_date ?? "",
     });
+  };
+
+  const purgeTestData = async () => {
+    setPurging(true);
+    const { data: testApps, error: fetchError } = await supabase.from("applications").select("id").lte("fee", 1);
+    if (fetchError) { setPurging(false); toast.error(fetchError.message); return; }
+    const ids = (testApps ?? []).map(a => a.id);
+    if (ids.length === 0) { setPurging(false); toast.info("No test data found (fee ≤ $1)."); return; }
+    const phrase = prompt(
+      `This will PERMANENTLY delete ${ids.length} test application${ids.length === 1 ? "" : "s"} (fee ≤ $1) — including all of their documents and notes. This cannot be undone.\n\nType DELETE to confirm.`
+    );
+    if (phrase === null) { setPurging(false); return; }
+    if (phrase.trim().toUpperCase() !== "DELETE") {
+      setPurging(false);
+      toast.error("Confirmation phrase did not match — nothing was deleted");
+      return;
+    }
+    await supabase.from("application_documents").delete().in("application_id", ids);
+    await supabase.from("application_notes").delete().in("application_id", ids);
+    const { error } = await supabase.from("applications").delete().in("id", ids);
+    setPurging(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`${ids.length} test application${ids.length === 1 ? "" : "s"} deleted`);
   };
 
   const savePayroll = async (userId: string) => {
@@ -272,6 +296,21 @@ function SettingsContent() {
         <div className="font-serif text-lg text-foreground">SMS notifications</div>
         <p className="mt-1 text-xs text-muted-foreground">In-app notifications are live. To also receive SMS alerts on payment / submission, connect a Twilio account and provide API credentials.</p>
       </div>
+
+      {/* Danger zone */}
+      {isSuperAdmin && (
+        <div className="mt-6 rounded-sm border border-destructive/40 bg-destructive/5 p-6 shadow-card">
+          <div className="font-serif text-xl text-destructive">Danger zone</div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Permanently remove test applications (fee ≤ $1, e.g. sandbox payment runs) along with their documents and notes. This cannot be undone.
+          </p>
+          <button onClick={purgeTestData} disabled={purging}
+            className="mt-4 inline-flex items-center gap-1.5 rounded-sm border border-destructive/50 bg-destructive/10 px-4 py-2 text-xs uppercase tracking-wider text-destructive hover:bg-destructive/20 disabled:opacity-50">
+            {purging ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+            Purge test data
+          </button>
+        </div>
+      )}
     </PageShell>
   );
 }

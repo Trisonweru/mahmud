@@ -38,8 +38,8 @@ RewriteRule ^ /index.html [QSA,L]
   # Send full URL only for same-origin requests; origin only for cross-origin HTTPS
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
-  # Restrict browser API access; allow payment API on PayPal origins
-  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(self https://www.paypal.com https://www.sandbox.paypal.com)"
+  # Restrict browser API access; allow payment API on Stripe origins
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(self https://js.stripe.com)"
 
   # Content-Security-Policy
   # Annotations:
@@ -48,16 +48,14 @@ RewriteRule ^ /index.html [QSA,L]
   #  - script-src/connect-src cdn.jsdelivr.net: Tesseract.js OCR engine loads its worker,
   #    WASM core, and language data from jsDelivr at runtime.
   #  - worker-src blob: required by Tesseract.js OCR engine.
-  #  - frame-src paypal: PayPal Buttons render inside cross-origin iframes.
+  #  - script-src/frame-src *.stripe.com: Stripe.js loads from js.stripe.com and renders
+  #    the PaymentElement inside a cross-origin iframe on js.stripe.com.
   #  - frame-ancestors 'none': blocks all framing of this site (equivalent to X-Frame-Options DENY).
   Header always set Content-Security-Policy "\
 default-src 'self'; \
 script-src 'self' 'unsafe-inline' 'unsafe-eval' \
   https://*.tawk.to \
-  https://www.paypal.com \
-  https://www.paypalobjects.com \
-  https://www.sandbox.paypal.com \
-  https://c.paypal.com \
+  https://js.stripe.com \
   https://cdn.jsdelivr.net \
   blob:; \
 style-src 'self' 'unsafe-inline' \
@@ -70,14 +68,13 @@ img-src 'self' data: blob: https:; \
 connect-src 'self' \
   https://yqhzkjrwdsdlsslvmsbe.supabase.co \
   https://tanstack-start-app.evisasomali.workers.dev \
+  https://staff.evisasomali.com \
   wss://*.tawk.to https://*.tawk.to \
-  https://api-m.paypal.com \
-  https://www.paypal.com \
-  https://www.sandbox.paypal.com \
+  https://api.stripe.com \
   https://cdn.jsdelivr.net; \
 frame-src \
-  https://*.paypal.com \
-  https://www.sandbox.paypal.com \
+  https://js.stripe.com \
+  https://hooks.stripe.com \
   https://*.tawk.to; \
 worker-src 'self' blob:; \
 object-src 'none'; \
@@ -106,6 +103,11 @@ upgrade-insecure-requests"
   ExpiresByType image/svg+xml          "access plus 1 year"
   ExpiresByType image/x-icon           "access plus 1 year"
   ExpiresByType font/woff2             "access plus 1 year"
+</IfModule>
+
+# ── MIME types ───────────────────────────────────────────────────────────────
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
 </IfModule>
 
 # ── Block direct access to sensitive file types ───────────────────────────────

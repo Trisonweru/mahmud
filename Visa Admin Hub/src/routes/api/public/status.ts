@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { jsonRes, optionsRes } from "@/lib/cors";
+import { INFO_SOURCE_NOTE_PREFIX } from "@/lib/applications";
 
 // Server-side IP rate limiting: 5 requests per 60 seconds per IP (#15)
 const ipWindows = new Map<string, { count: number; windowStart: number }>();
@@ -49,19 +50,35 @@ export const Route = createFileRoute("/api/public/status")({
           // Select only safe, non-PII fields — no full_name, dob, address, etc. (#15)
           const { data: app } = await supabaseAdmin
             .from("applications")
-            .select("reference, status, email")
+            .select("id, reference, status, email")
             .eq("reference", reference)
-            .single();
+            .maybeSingle();
 
           // Cross-check email server-side before returning anything (#15)
           if (!app || app.email.toLowerCase() !== email) {
             return jsonRes(request, 404, { error: "No matching application found. Please check your email and reference number and try again." });
           }
 
+          // When info has been requested, distinguish "us" vs "government" sources (#4)
+          let status: string = app.status;
+          if (app.status === "additional_info") {
+            const { data: note } = await supabaseAdmin
+              .from("application_notes")
+              .select("body")
+              .eq("application_id", app.id)
+              .like("body", `${INFO_SOURCE_NOTE_PREFIX}%`)
+              .order("created_at", { ascending: false })
+              .limit(1)
+              .maybeSingle();
+            if (note?.body === `${INFO_SOURCE_NOTE_PREFIX}government`) {
+              status = "government_info_required";
+            }
+          }
+
           return jsonRes(request, 200, {
             ok: true,
             reference: app.reference,
-            status: app.status,
+            status,
           });
         } catch (e) {
           return jsonRes(request, 500, { error: e instanceof Error ? e.message : "Unexpected error" });

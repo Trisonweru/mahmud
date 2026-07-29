@@ -74,7 +74,7 @@ const About = () => (
             {
               step: "01",
               title: "You upload your documents",
-              body: "Submit your passport scan, passport-size photo, flight ticket, and travel details through our secure online form. The entire process takes under five minutes.",
+              body: "Submit your passport scan, passport-size photo, and travel details through our secure online form. The entire process takes under five minutes.",
             },
             {
               step: "02",

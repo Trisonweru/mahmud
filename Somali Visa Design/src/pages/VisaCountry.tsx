@@ -3,13 +3,14 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { PageSEO } from "@/components/PageSEO";
 import { CheckCircle2, Clock, CreditCard, Globe2, ArrowRight } from "lucide-react";
 import { visaCountries } from "@/data/visaCountries";
+import { AJNABI_OPTION, formatFee } from "@/lib/pricing";
 
 const requirements = [
   "A valid passport with at least 6 months' validity remaining from your travel date",
   "A recent passport-style photo on a plain, light-coloured background",
   "A clear scanned copy of your passport's bio-data page",
-  "Your travel itinerary, including arrival date and accommodation details",
-  "An invitation letter or sponsor reference, if applicable",
+  "Your planned travel (arrival) date",
+  "A sponsor document, if applying as a foreign (Ajnabi) national",
   "A valid email address to receive your approved eVisa",
 ];
 
@@ -26,11 +27,11 @@ const VisaCountry = () => {
     },
     {
       q: "How long does processing take?",
-      a: "Most applications are reviewed by our specialists and submitted to the official Somalia eTAS portal within 24-48 hours of receiving your complete documents.",
+      a: `Most applications are reviewed by our specialists and submitted to the official Somalia eTAS portal within ${AJNABI_OPTION.processingTime} of receiving your complete documents. A 5-6 hour Express option is also available for urgent travel.`,
     },
     {
-      q: "What does the $94 fee cover?",
-      a: "The $94 USD fee is all-inclusive: it covers the official government eTAS fee as well as our specialist review, document checks, and submission service. No hidden charges.",
+      q: `What does the ${formatFee(AJNABI_OPTION.fee)} fee cover?`,
+      a: `The ${formatFee(AJNABI_OPTION.fee)} fee is all-inclusive: it covers the official government eTAS fee as well as our specialist review, document checks, and submission service. No hidden charges.`,
     },
     {
       q: `Can I apply from ${data.country}?`,
@@ -66,7 +67,7 @@ const VisaCountry = () => {
             to="/apply/start"
             className="mt-8 inline-flex items-center gap-2 rounded-sm bg-gradient-gold px-8 py-4 text-sm font-medium text-accent-foreground shadow-gold hover:shadow-elegant transition-smooth"
           >
-            Start your application — $94 USD <ArrowRight className="h-4 w-4" />
+            Start your application — {formatFee(AJNABI_OPTION.fee)} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>
@@ -76,8 +77,8 @@ const VisaCountry = () => {
         <SectionHeading eyebrow="Key Details" title={`What ${data.demonym} travellers need to know`} />
         <div className="mt-12 grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {[
-            { icon: Clock, title: "Processing Time", body: "Most applications are reviewed and submitted within 24-48 hours of receiving your complete documents." },
-            { icon: CreditCard, title: "Visa Fee", body: "$94 USD, all-inclusive — covers the official government eTAS fee and our specialist service. No hidden charges." },
+            { icon: Clock, title: "Processing Time", body: `Most applications are reviewed and submitted within ${AJNABI_OPTION.processingTime} of receiving your complete documents. Express (5-6hr) processing is also available.` },
+            { icon: CreditCard, title: "Visa Fee", body: `${formatFee(AJNABI_OPTION.fee)}, all-inclusive — covers the official government eTAS fee and our specialist service. No hidden charges.` },
             { icon: Globe2, title: "Validity", body: "Single or multiple-entry options available, valid for up to 180 days from the date of issue." },
           ].map((d) => (
             <div key={d.title} className="bg-card border border-border rounded-sm p-8 shadow-card">

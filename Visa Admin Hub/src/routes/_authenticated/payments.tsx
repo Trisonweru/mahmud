@@ -72,20 +72,37 @@ function PaymentsContent() {
     );
   }), [apps, typeFilter, q]);
 
-  // KPI totals per period
-  const kpis = useMemo(() =>
-    PERIODS.map(p => {
-      const items = paidAll.filter(a => inPeriod(new Date(a.paid_at!), p.key));
-      return { ...p, count: items.length, total: items.reduce((s, a) => s + Number(a.fee), 0) };
-    }),
-  [paidAll]);
-
-  // Active period transactions
+  // Active period transactions (all paid, by paid_at)
   const activeItems = useMemo(() =>
     paidAll.filter(a => inPeriod(new Date(a.paid_at!), period)),
   [paidAll, period]);
 
-  const activeTotal = useMemo(() => activeItems.reduce((s, a) => s + Number(a.fee), 0), [activeItems]);
+  // Gross revenue for active period
+  const activeGross = useMemo(() => activeItems.reduce((s, a) => s + Number(a.fee), 0), [activeItems]);
+
+  // Refunds processed in active period (by refund_processed_at)
+  const activeRefunds = useMemo(() =>
+    apps.filter(a =>
+      a.refund_status === "processed" &&
+      a.refund_processed_at &&
+      inPeriod(new Date(a.refund_processed_at), period)
+    ),
+  [apps, period]);
+
+  const activeRefundTotal = useMemo(() =>
+    activeRefunds.reduce((s, a) => s + Number(a.refund_amount ?? a.fee), 0),
+  [activeRefunds]);
+
+  const activeNet = activeGross - activeRefundTotal;
+
+  // All-time totals (independent of the selected period), refund-aware to stay
+  // consistent with the period figures above.
+  const allTimeGross = useMemo(() => paidAll.reduce((s, a) => s + Number(a.fee), 0), [paidAll]);
+  const allTimeRefunds = useMemo(() => apps.filter(a => a.refund_status === "processed"), [apps]);
+  const allTimeRefundTotal = useMemo(() =>
+    allTimeRefunds.reduce((s, a) => s + Number(a.refund_amount ?? a.fee), 0),
+  [allTimeRefunds]);
+  const allTimeNet = allTimeGross - allTimeRefundTotal;
 
   // For "Last 7" and "Last 30" views, group by local date for the sub-grid
   const dateBuckets = useMemo(() => {
@@ -102,11 +119,16 @@ function PaymentsContent() {
     return Array.from(map.entries()).sort((a, b) => b[0].localeCompare(a[0]));
   }, [activeItems, period]);
 
-  const refundRequested = apps.filter(a => a.refund_status === "requested").length;
+  // Pending refund requests
+  const pendingRefunds = useMemo(() => apps.filter(a => a.refund_status === "requested"), [apps]);
+  const [showRefundPanel, setShowRefundPanel] = useState(false);
 
   const exportCsv = () => {
-    const rows: string[][] = [["Reference", "Applicant", "Email", "Nationality", "Type", "Amount", "Paid at"]];
-    activeItems.forEach(a => rows.push([a.reference, a.full_name, a.email, a.nationality, a.type, String(a.fee), a.paid_at ?? ""]));
+    const rows: string[][] = [["Reference", "Applicant", "Email", "Nationality", "Type", "Amount", "Paid at", "Refund Status", "Refund Amount", "Refund Processed At"]];
+    activeItems.forEach(a => rows.push([
+      a.reference, a.full_name, a.email, a.nationality, a.type, String(a.fee), a.paid_at ?? "",
+      a.refund_status ?? "", a.refund_amount != null ? String(a.refund_amount) : "", a.refund_processed_at ?? "",
+    ]));
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     const link = document.createElement("a"); link.href = url; link.download = `payments-${period}.csv`; link.click();
@@ -134,16 +156,77 @@ function PaymentsContent() {
       </div>
 
       {/* Summary row */}
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
         <div className="rounded-sm border border-border bg-card p-4 shadow-card">
-          <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">All-time collected</div>
-          <div className="mt-1 font-serif text-2xl text-foreground">${paidAll.reduce((s, a) => s + Number(a.fee), 0).toLocaleString()}</div>
+          <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">All-time net revenue</div>
+          <div className="mt-1 font-serif text-2xl text-foreground">${allTimeNet.toLocaleString()}</div>
+          {allTimeRefundTotal > 0 && (
+            <div className="mt-0.5 text-[11px] text-muted-foreground">
+              ${allTimeGross.toLocaleString()} gross − ${allTimeRefundTotal.toLocaleString()} refunded
+            </div>
+          )}
         </div>
-        <div className={`rounded-sm border p-4 shadow-card ${refundRequested > 0 ? "border-destructive/40 bg-destructive/5" : "border-border bg-card"}`}>
+        <div className="rounded-sm border border-border bg-card p-4 shadow-card">
+          <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Period net revenue</div>
+          <div className="mt-1 font-serif text-2xl text-foreground">${activeNet.toLocaleString()}</div>
+          {activeRefundTotal > 0 && (
+            <div className="mt-0.5 text-[11px] text-muted-foreground">
+              ${activeGross.toLocaleString()} gross − ${activeRefundTotal.toLocaleString()} refunded
+            </div>
+          )}
+        </div>
+        <button
+          onClick={() => setShowRefundPanel(v => !v)}
+          className={`rounded-sm border p-4 shadow-card text-left transition-colors ${pendingRefunds.length > 0 ? "border-destructive/40 bg-destructive/5 hover:bg-destructive/10" : "border-border bg-card hover:bg-secondary/40"}`}
+        >
           <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Refund requests</div>
-          <div className={`mt-1 font-serif text-2xl ${refundRequested > 0 ? "text-destructive" : "text-foreground"}`}>{refundRequested}</div>
-        </div>
+          <div className={`mt-1 font-serif text-2xl ${pendingRefunds.length > 0 ? "text-destructive" : "text-foreground"}`}>{pendingRefunds.length}</div>
+          {pendingRefunds.length > 0 && (
+            <div className="mt-0.5 text-[11px] text-destructive/80 underline">{showRefundPanel ? "Hide summary ↑" : "View summary ↓"}</div>
+          )}
+        </button>
       </div>
+
+      {/* Refund requests summary panel */}
+      {showRefundPanel && pendingRefunds.length > 0 && (
+        <div className="mt-3 overflow-hidden rounded-sm border border-destructive/30 bg-destructive/5 shadow-card">
+          <div className="border-b border-destructive/20 px-5 py-3 text-[10px] uppercase tracking-[0.2em] text-destructive">
+            Pending refund requests ({pendingRefunds.length})
+          </div>
+          <table className="w-full text-sm">
+            <thead className="border-b border-destructive/20 text-[10px] uppercase tracking-wider text-muted-foreground">
+              <tr>
+                <th className="px-5 py-2 text-left font-medium">Reference</th>
+                <th className="px-5 py-2 text-left font-medium">Applicant</th>
+                <th className="px-5 py-2 text-right font-medium">Amount</th>
+                <th className="px-5 py-2 text-left font-medium">Reason</th>
+                <th className="px-5 py-2 text-left font-medium">Requested</th>
+                <th className="px-5 py-2 text-left font-medium">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pendingRefunds.map(a => (
+                <tr key={a.id} className="border-b border-destructive/10 last:border-0">
+                  <td className="px-5 py-3">
+                    <Link to="/applications/$id" params={{ id: a.id }} className="font-mono text-xs text-primary hover:text-accent">{a.reference}</Link>
+                  </td>
+                  <td className="max-w-[140px] truncate px-5 py-3 text-foreground">{a.full_name}</td>
+                  <td className="px-5 py-3 text-right font-medium">${Number(a.refund_amount ?? a.fee).toLocaleString()}</td>
+                  <td className="max-w-[200px] truncate px-5 py-3 text-xs text-muted-foreground">{a.refund_reason ?? "—"}</td>
+                  <td className="whitespace-nowrap px-5 py-3 text-xs text-muted-foreground">
+                    {a.refund_requested_at ? new Date(a.refund_requested_at).toLocaleDateString() : "—"}
+                  </td>
+                  <td className="px-5 py-3">
+                    <Link to="/applications/$id" params={{ id: a.id }} className="inline-flex items-center rounded-sm border border-destructive/40 bg-destructive/10 px-2 py-1 text-[10px] uppercase tracking-wider text-destructive hover:bg-destructive/20">
+                      Review →
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="mt-5 rounded-sm border border-border bg-card p-4 shadow-card">
@@ -188,7 +271,8 @@ function PaymentsContent() {
               Transactions · {activePeriod.label}
             </div>
             <div className="font-serif text-lg text-foreground">
-              {activeItems.length} settled · ${activeTotal.toLocaleString()} USD
+              {activeItems.length} settled · ${activeGross.toLocaleString()} gross
+              {activeRefundTotal > 0 && <span className="ml-2 text-sm text-destructive">− ${activeRefundTotal.toLocaleString()} refunded = ${activeNet.toLocaleString()} net</span>}
             </div>
           </div>
           <button onClick={exportCsv} disabled={activeItems.length === 0}
@@ -245,10 +329,24 @@ function PaymentsContent() {
             {activeItems.length > 0 && (
               <tfoot>
                 <tr className="bg-secondary/40">
-                  <td colSpan={3} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Total</td>
-                  <td className="px-6 py-3 text-right font-serif text-accent">${activeTotal.toLocaleString()}</td>
+                  <td colSpan={3} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Gross total</td>
+                  <td className="px-6 py-3 text-right font-serif text-accent">${activeGross.toLocaleString()}</td>
                   <td colSpan={2} />
                 </tr>
+                {activeRefundTotal > 0 && (
+                  <tr className="bg-destructive/5">
+                    <td colSpan={3} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Refunds (this period)</td>
+                    <td className="px-6 py-3 text-right font-serif text-destructive">− ${activeRefundTotal.toLocaleString()}</td>
+                    <td colSpan={2} />
+                  </tr>
+                )}
+                {activeRefundTotal > 0 && (
+                  <tr className="bg-secondary/60 font-medium">
+                    <td colSpan={3} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Net revenue</td>
+                    <td className="px-6 py-3 text-right font-serif text-foreground">${activeNet.toLocaleString()}</td>
+                    <td colSpan={2} />
+                  </tr>
+                )}
               </tfoot>
             )}
           </table>

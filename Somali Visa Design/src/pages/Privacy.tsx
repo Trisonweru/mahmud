@@ -56,7 +56,7 @@ const Privacy = () => (
       <Block n="5" title="Who We Share Your Data With">
         <ul className="list-disc pl-6 space-y-1">
           <li>The the Somali government (the official Somali eTAS portal) — to process your official eTAS application</li>
-          <li>Our payment gateway provider — to process your $94 payment</li>
+          <li>Our payment gateway provider — to process your application fee payment</li>
           <li>Trusted service providers who assist us (under strict confidentiality agreements)</li>
         </ul>
         We do not sell, trade, or rent your personal data to third parties.

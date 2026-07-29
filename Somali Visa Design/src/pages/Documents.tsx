@@ -1,14 +1,14 @@
 import { PageSEO } from "@/components/PageSEO";
 import { SectionHeading } from "@/components/SectionHeading";
-import { FileText, Camera, Plane, CreditCard, MapPin, Calendar } from "lucide-react";
+import { FileText, Camera, CreditCard, FileSignature, Calendar } from "lucide-react";
+import { PRICING_TIERS } from "@/lib/pricing";
 
 const docs = [
   { icon: FileText, title: "Valid Passport", body: "Valid for at least 6 months from your arrival date, with two blank pages." },
   { icon: Camera, title: "Digital Photo", body: "A recent passport-style photo on a clear background, taken within the last 6 months." },
-  { icon: Plane, title: "Flight Ticket", body: "A confirmed return or onward ticket showing your travel dates." },
-  { icon: MapPin, title: "Proof of Accommodation", body: "Hotel reservation or invitation letter from your host in your destination country." },
-  { icon: Calendar, title: "Travel Dates", body: "Clear arrival and departure dates that match your itinerary." },
-  { icon: CreditCard, title: "Payment Method", body: "A credit or debit card to complete the $94 processing fee." },
+  { icon: Calendar, title: "Travel Date", body: "Your planned arrival date in Somalia (Taariikhda Safarka)." },
+  { icon: FileSignature, title: "Sponsor Document", body: "Required for foreign (Ajnabi) applicants only — a sponsor letter or invitation document from your local contact." },
+  { icon: CreditCard, title: "Payment Method", body: `A credit or debit card to complete the processing fee — from $${PRICING_TIERS.standard.fee} USD.` },
 ];
 
 const documentsJsonLd = {
@@ -30,7 +30,7 @@ const Documents = () => (
   <>
     <PageSEO
       title="Somalia eVisa Requirements — Documents You Need | eVisaSomali"
-      description="Find out exactly what documents you need for a Somalia eVisa: valid passport, digital photo, flight ticket, accommodation proof and travel dates. Apply online in minutes."
+      description="Find out exactly what documents you need for a Somalia eVisa: valid passport, digital photo, travel date and (for foreign applicants) a sponsor document. Apply online in minutes."
       canonical="https://www.evisasomali.com/documents"
       jsonLd={documentsJsonLd}
     />

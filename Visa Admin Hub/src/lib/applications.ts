@@ -20,6 +20,7 @@ export const statusLabels: Record<AppStatus, string> = {
   additional_info: "Info needed",
   approved: "Approved",
   rejected: "Denied",
+  refunded: "Refunded",
 };
 
 export const INFO_SOURCE_NOTE_PREFIX = "info_source:";
@@ -37,6 +38,7 @@ export const statusTone: Record<AppStatus, string> = {
   additional_info:  "bg-warning/15 text-amber-800 ring-1 ring-inset ring-warning/50",
   approved:         "bg-success/15 text-success ring-1 ring-inset ring-success/40",
   rejected:         "bg-destructive/10 text-destructive ring-1 ring-inset ring-destructive/40",
+  refunded:         "bg-violet-500/10 text-violet-700 ring-1 ring-inset ring-violet-500/40",
 };
 
 export const statusDot: Record<AppStatus, string> = {
@@ -47,12 +49,14 @@ export const statusDot: Record<AppStatus, string> = {
   additional_info: "bg-warning",
   approved:        "bg-success",
   rejected:        "bg-destructive",
+  refunded:        "bg-violet-500",
 };
 
 export const docTypeLabels: Record<DocType, string> = {
   passport: "Passport scan",
   photo: "Biometric photo",
   ticket: "Flight ticket",
+  sponsor: "Sponsor document",
   other: "Other document",
 };
 
@@ -74,3 +78,31 @@ export const ALL_STATUSES: AppStatus[] = [
   "approved",
   "rejected",
 ];
+
+// Builds a wa.me deep link from a phone number, stripping everything but digits.
+export function waLink(phone: string): string {
+  return `https://wa.me/${phone.replace(/\D/g, "")}`;
+}
+
+// True for applications that have been denied or refunded — these never
+// proceed to ETAS submission (#16).
+export function isRefundedOrDenied(a: Application): boolean {
+  return a.status === "rejected" || a.status === "refunded";
+}
+
+// Express applications that omit nationality/DOB get auto-generated
+// placeholder values at submission time (see routes/api/public/applications.ts
+// and payment/initiate.ts). These helpers detect those placeholders so the
+// admin UI can show "Not provided — see passport" instead (C1).
+const PLACEHOLDER_NATIONALITY = "Somali (Qurba-Joog)";
+
+export function isPlaceholderNationality(a: Application): boolean {
+  return a.type === "express" && a.nationality === PLACEHOLDER_NATIONALITY;
+}
+
+// The Express (Qurba-Joog) form never collects a real date of birth — the
+// save function stamps a fixed placeholder instead. Any express application's
+// dob is therefore always a placeholder, regardless of its value.
+export function isPlaceholderDob(a: Application): boolean {
+  return a.type === "express";
+}

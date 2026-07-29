@@ -52,7 +52,6 @@ type Form = {
   travelDate: string;
   duration: string;
   sponsorLetter: File | null;
-  flightTicket: File | null;
   // 05
   somAddress: string;
   somPlace: string;
@@ -82,7 +81,7 @@ const initialForm: Form = {
   passportType: "Ordinary", passportNumber: "", passportIssueDate: "", passportExpiryDate: "",
   selfieFile: null, selfieConsent: false,
   sponsorCode: "", purpose: "", travelDate: "", duration: "",
-  sponsorLetter: null, flightTicket: null,
+  sponsorLetter: null,
   somAddress: "", somPlace: "", hostPhone: "", hostEmail: "",
   visitedBefore: "",
   q_convicted: "", q_refused: "", q_trafficking: "", q_terrorism: "",
@@ -182,6 +181,8 @@ const Apply = () => {
     if (step === 3) {
       if (form.applicantType === "ajnabi" && !form.sponsorCode.trim())
         e.sponsorCode = "Sponsor code is required for foreign applicants.";
+      if (form.applicantType === "ajnabi" && !form.sponsorLetter)
+        e.sponsorLetter = "Sponsor document is required for foreign applicants.";
       if (!form.purpose) e.purpose = "Select purpose of visit.";
       if (!form.travelDate) e.travelDate = "Travel date is required.";
       else if (new Date(form.travelDate) < new Date(todayStr()))
@@ -253,7 +254,6 @@ const Apply = () => {
       fd.append("visitedBefore", form.visitedBefore);
       if (passportFile) fd.append("passport", passportFile);
       if (form.selfieFile) fd.append("selfieFile", form.selfieFile);
-      if (form.flightTicket) fd.append("flightTicket", form.flightTicket);
       if (form.sponsorLetter) fd.append("sponsorLetter", form.sponsorLetter);
 
       const res = await fetch(`${FUNCTIONS_URL}/application-save`, {
@@ -301,7 +301,6 @@ const Apply = () => {
         visitedBefore: form.visitedBefore,
         passport: passportFile,
         photo: form.selfieFile,
-        ticket: form.flightTicket,
         sponsorLetter: form.sponsorLetter,
       });
       toast.success("Application saved. Continue to payment.");
@@ -446,6 +445,16 @@ const Apply = () => {
             {form.applicantType === "ajnabi" ? (
               <>
                 <Field label="Sponsor Code *" value={form.sponsorCode} onChange={(v) => set("sponsorCode", v)} error={errors.sponsorCode} />
+                <div>
+                  <Label>Sponsor Document Upload *</Label>
+                  <FileUpload
+                    file={form.sponsorLetter}
+                    onChange={(f) => set("sponsorLetter", f)}
+                    accept="image/*,application/pdf"
+                    hint="Sponsor letter or invitation document. JPG, PNG, or PDF."
+                  />
+                  {errors.sponsorLetter && <ErrText msg={errors.sponsorLetter} />}
+                </div>
                 <Select label="Purpose of Visit *" value={form.purpose} onChange={(v) => set("purpose", v)}
                   options={["Business", "Tourism", "Family Visit", "Conference", "Medical", "Other"]} error={errors.purpose} />
                 <div className="grid sm:grid-cols-2 gap-5">

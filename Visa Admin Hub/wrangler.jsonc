@@ -5,6 +5,9 @@
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
   "main": "src/server.ts",
+  "triggers": {
+    "crons": ["0 3 * * *"]
+  },
   "vars": {
     "SUPABASE_URL": "https://yqhzkjrwdsdlsslvmsbe.supabase.co",
     "SUPABASE_PUBLISHABLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxaHpranJ3ZHNkbHNzbHZtc2JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2Mjk4MzEsImV4cCI6MjA5NTIwNTgzMX0.u5jAOarTwxKpGHZyEWFVQ-xzDoLPAvgG568a2GEgL9w",

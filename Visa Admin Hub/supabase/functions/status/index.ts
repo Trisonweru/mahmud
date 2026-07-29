@@ -45,14 +45,32 @@ Deno.serve(async (req: Request) => {
   try {
     const { data: app } = await supabase
       .from("applications")
-      .select("reference, status")
+      .select("id, reference, status, email")
       .eq("reference", reference)
-      .eq("email", email)
-      .single();
+      .maybeSingle();
 
-    if (!app) return jsonRes(origin, 404, { error: "Application not found. Check your reference number." });
+    // Cross-check email server-side before returning anything
+    if (!app || app.email.toLowerCase() !== email) {
+      return jsonRes(origin, 404, { error: "No matching application found. Please check your email and reference number and try again." });
+    }
 
-    return jsonRes(origin, 200, { ok: true, reference: app.reference, status: app.status });
+    // When info has been requested, distinguish "us" vs "government" sources
+    let status: string = app.status;
+    if (app.status === "additional_info") {
+      const { data: note } = await supabase
+        .from("application_notes")
+        .select("body")
+        .eq("application_id", app.id)
+        .like("body", "info_source:%")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (note?.body === "info_source:government") {
+        status = "government_info_required";
+      }
+    }
+
+    return jsonRes(origin, 200, { ok: true, reference: app.reference, status });
   } catch (e) {
     return jsonRes(origin, 500, { error: e instanceof Error ? e.message : "Unexpected error" });
   }

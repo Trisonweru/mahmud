@@ -11,6 +11,7 @@ import { FUNCTIONS_URL, fnHeaders } from "@/lib/api";
 import { DateDropdown } from "@/components/DateDropdown";
 import { monthsBetween } from "@/lib/validation";
 import { extractPassport, hasExtractedData, matchNationality, UnsupportedImageError } from "@/lib/passportOcr";
+import { PRICING_TIERS, AJNABI_OPTION, formatFee, type ProcessingSpeed } from "@/lib/pricing";
 import {
   ArrowRight, ShieldCheck, Clock4, FileCheck2, Headphones, Lock, Sparkles,
   CheckCircle2, FileText, BadgeCheck, Plane, UploadCloud, Zap, PenLine,
@@ -28,12 +29,13 @@ const sixMonthsFromNowISO = () => {
 const Index = () => {
   const navigate = useNavigate();
   const [showQurba, setShowQurba] = useState(false);
+  const [speed, setSpeed] = useState<ProcessingSpeed>("standard");
   const countries = useMemo(() => COUNTRIES, []);
 
   // Qurba-Joog quick-form state
   const [passport, setPassport] = useState<File | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
-  const [ticket, setTicket] = useState<File | null>(null);
+  const [travelDate, setTravelDate] = useState("");
   const [fullName, setFullName] = useState("");
   const [passportNumber, setPassportNumber] = useState("");
   const [passportIssueDate, setPassportIssueDate] = useState("");
@@ -75,12 +77,12 @@ const Index = () => {
 
   const handleQuick = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!passport || !photo || !ticket) {
-      toast.error("Please upload your passport, photo and ticket. / Fadlan soo geli baasaboorka, sawirka iyo tigidhka.");
+    if (!passport || !photo) {
+      toast.error("Please upload your passport and photo. / Fadlan soo geli baasaboorka iyo sawirka.");
       return;
     }
-    if (!fullName || !passportNumber || !nationality || !whatsapp || !email || !passportIssueDate || !passportExpiryDate) {
-      toast.error("Please provide your full name, passport number, issue & expiry dates, nationality, WhatsApp and email. / Fadlan buuxi magaca, lambarka baasaboor, taariikhda bixinta & dhicitaanka, dhalashada, WhatsApp iyo emailka.");
+    if (!fullName || !passportNumber || !nationality || !whatsapp || !email || !passportIssueDate || !passportExpiryDate || !travelDate) {
+      toast.error("Please provide your full name, passport number, issue & expiry dates, nationality, travel date, WhatsApp and email. / Fadlan buuxi magaca, lambarka baasaboor, taariikhda bixinta & dhicitaanka, taariikhda safarka, dhalashada, WhatsApp iyo emailka.");
       return;
     }
     if (new Date(passportIssueDate) > new Date()) {
@@ -91,11 +93,16 @@ const Index = () => {
       toast.error("Passport must be valid for more than 6 months from today. / Baasaboorku waa inuu shaqaynayaa in ka badan 6 bilood.");
       return;
     }
+    if (new Date(travelDate) < new Date(todayISO())) {
+      toast.error("Travel date cannot be in the past. / Taariikhda safarka ma noqon karto mid tagay.");
+      return;
+    }
 
     setSubmitting(true);
     try {
       const fd = new FormData();
       fd.append("flow", "express");
+      fd.append("processingSpeed", speed);
       fd.append("email", email.trim());
       fd.append("fullName", fullName);
       fd.append("phone", whatsapp.trim());
@@ -104,9 +111,9 @@ const Index = () => {
       fd.append("passportIssueDate", passportIssueDate);
       fd.append("passportExpiryDate", passportExpiryDate);
       fd.append("nationality", nationality);
+      fd.append("travelDate", travelDate);
       fd.append("passport", passport);
       fd.append("photo", photo);
-      fd.append("ticket", ticket);
 
       const res = await fetch(`${FUNCTIONS_URL}/application-save`, {
         method: "POST",
@@ -123,6 +130,7 @@ const Index = () => {
       setPending({
         flow: "express",
         application_id: json.application_id,
+        reference: json.reference,
         email,
         fullName,
         passportNumber,
@@ -130,6 +138,8 @@ const Index = () => {
         passportExpiryDate,
         whatsapp,
         nationality,
+        travelDate,
+        processingSpeed: speed,
       });
       toast.success("Documents received — redirecting to payment. / Dokumentigaaga waa la helay — waxaa lagu wareejinayaa lacag-bixinta.");
       navigate("/payment", { state: { type: "express", email, fullName, passportNumber } });
@@ -148,8 +158,10 @@ const Index = () => {
       "url": "https://www.evisasomali.com",
       "logo": { "@type": "ImageObject", "url": "https://www.evisasomali.com/og-image.jpg", "width": 1200, "height": 630 },
       "email": "support@evisasomali.com",
+      "telephone": "+252613886027",
       "address": { "@type": "PostalAddress", "streetAddress": "71-75 Shelton Street, Covent Garden", "addressLocality": "London", "postalCode": "WC2H 9JQ", "addressCountry": "GB" },
-      "contactPoint": { "@type": "ContactPoint", "email": "support@evisasomali.com", "contactType": "customer support", "availableLanguage": ["English", "Somali"] },
+      "contactPoint": { "@type": "ContactPoint", "telephone": "+252613886027", "email": "support@evisasomali.com", "contactType": "customer support", "availableLanguage": ["English", "Somali"] },
+      "openingHoursSpecification": { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "00:00", "closes": "23:59" },
       "sameAs": []
     },
     {
@@ -174,7 +186,7 @@ const Index = () => {
     <>
       <PageSEO
         title="Apply for Somalia eVisa Online | Fast & Secure | eVisaSomali"
-        description="Get your Somalia eVisa in 60 seconds. Upload your passport, photo and ticket — our specialists handle the rest. $94 USD. WhatsApp updates. 24/7 support."
+        description="Get your Somalia eVisa in 60 seconds. Upload your passport and photo — our specialists handle the rest. From $94 USD, with 5-6hr Express available. WhatsApp updates. 24/7 support."
         canonical="https://www.evisasomali.com/"
         jsonLd={homepageJsonLd}
       />
@@ -205,8 +217,8 @@ const Index = () => {
                 Dooro nooca codsigaaga
               </p>
               <p className="mt-5 text-base text-primary-foreground/95">
-                Two clear paths — pick the one that matches you, then continue. ·
-                <span className="italic"> Laba waddo oo cad — dooro tan kugu habboon.</span>
+                Three clear options — pick the one that matches you, then continue. ·
+                <span className="italic"> Saddex ikhtiyaar oo cad — dooro tan kugu habboon.</span>
               </p>
             </div>
           </div>
@@ -215,34 +227,23 @@ const Index = () => {
         {/* Cards + form area on plain background */}
         <div className="container py-12 md:py-16">
 
-          {/* Two choice cards — side by side (Qurba first, then Ajnabi) */}
-          <div className={`grid md:grid-cols-2 gap-6 max-w-5xl mx-auto ${showQurba ? "hidden" : ""}`}>
-            {/* Qurba-Joog (diaspora) — Express */}
+          {/* Three choice cards — Standard, Express, then Ajnabi guided form */}
+          <div className={`grid md:grid-cols-3 gap-6 max-w-6xl mx-auto ${showQurba ? "hidden" : ""}`}>
+            {/* Qurba-Joog (diaspora) — Option 1 · Standard */}
             <button
               type="button"
               onClick={() => {
-                setShowQurba((v) => !v);
+                setSpeed("standard");
+                setShowQurba(true);
                 setTimeout(() => {
                   document.getElementById("qurba-form")?.scrollIntoView({ behavior: "smooth", block: "center" });
                 }, 60);
               }}
-              className={`group relative text-left rounded-sm px-7 pt-10 pb-7 md:px-8 md:pt-12 md:pb-8 shadow-elegant transition-smooth border-2 bg-card ${
-                showQurba ? "border-accent ring-2 ring-accent/40" : "border-accent/60 hover:border-accent"
-              }`}
+              className="group relative text-left rounded-sm px-7 pt-10 pb-7 md:px-8 md:pt-12 md:pb-8 shadow-elegant transition-smooth border-2 bg-card border-accent/60 hover:border-accent"
             >
               <div className="absolute -top-3 left-6 bg-gradient-gold text-accent-foreground text-[10px] uppercase tracking-[0.2em] font-semibold px-3 py-1 rounded-sm">
-                Option 1 · Express
+                Option 1 · Standard
               </div>
-              {showQurba && (
-                <span
-                  role="button"
-                  aria-label="Close"
-                  onClick={(e) => { e.stopPropagation(); e.preventDefault(); setShowQurba(false); }}
-                  className="absolute bottom-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-card border border-border text-muted-foreground hover:text-primary hover:border-accent shadow-card transition-smooth"
-                >
-                  <X className="h-4 w-4" />
-                </span>
-              )}
               <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-gradient-navy text-accent">
                 <Users className="h-5 w-5" />
               </div>
@@ -256,7 +257,7 @@ const Index = () => {
                 Waxaan ahay Qurba-Joog
               </p>
               <p className="mt-3 text-sm text-foreground leading-relaxed">
-                Diaspora travellers holding a foreign passport. Apply in under 60 seconds by uploading your passport, photo and ticket, then providing a few essential details.
+                Diaspora travellers holding a foreign passport. Apply in under 60 seconds by uploading your passport and photo, then providing a few essential details. {formatFee(PRICING_TIERS.standard.fee)}, {PRICING_TIERS.standard.processingTime}.
               </p>
               <ul className="mt-5 space-y-2 text-sm text-foreground">
                 {[
@@ -274,7 +275,62 @@ const Index = () => {
                 <div className="rounded-sm bg-accent-soft px-3 py-2">
                   <div className="text-[10px] uppercase tracking-[0.2em] text-primary/70">Applicable fee</div>
                   <div className="font-serif text-2xl font-semibold text-primary leading-none mt-0.5">
-                    $94 <span className="text-xs font-sans text-primary/70">USD</span>
+                    ${PRICING_TIERS.standard.fee} <span className="text-xs font-sans text-primary/70">USD</span>
+                  </div>
+                </div>
+                <span className="inline-flex items-center gap-2 rounded-sm bg-gradient-gold px-5 py-3 text-sm font-semibold text-accent-foreground shadow-gold group-hover:shadow-elegant transition-smooth">
+                  Use Standard <ArrowRight className="h-4 w-4" />
+                </span>
+              </div>
+            </button>
+
+            {/* Qurba-Joog (diaspora) — Option 2 · Express rush */}
+            <button
+              type="button"
+              onClick={() => {
+                setSpeed("express");
+                setShowQurba(true);
+                setTimeout(() => {
+                  document.getElementById("qurba-form")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                }, 60);
+              }}
+              className="group relative text-left rounded-sm px-7 pt-10 pb-7 md:px-8 md:pt-12 md:pb-8 shadow-elegant transition-smooth border-2 bg-card border-accent/60 hover:border-accent"
+            >
+              <div className="absolute -top-3 left-6 bg-primary text-primary-foreground text-[10px] uppercase tracking-[0.2em] font-semibold px-3 py-1 rounded-sm">
+                Option 2 · Express
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-gradient-navy text-accent">
+                <Zap className="h-5 w-5" />
+              </div>
+              <div className="mt-5 text-[10px] uppercase tracking-[0.25em] text-accent font-semibold">
+                Rush Service · Adeeg Degdeg ah
+              </div>
+              <h2 className="mt-2 font-serif text-2xl font-semibold text-primary leading-tight">
+                I need it fast (Express)
+              </h2>
+              <p className="mt-1 font-serif italic text-base font-medium text-primary">
+                Waan degdegsanahay
+              </p>
+              <p className="mt-3 text-sm text-foreground leading-relaxed">
+                Same simple application as Standard, prioritized for rush processing. {formatFee(PRICING_TIERS.express.fee)}, {PRICING_TIERS.express.processingTime}.
+              </p>
+              <ul className="mt-5 space-y-2 text-sm text-foreground">
+                {[
+                  "Priority rush processing",
+                  "5–6 hour turnaround",
+                  "Simple document upload",
+                  "Updates via WhatsApp & email",
+                ].map((t) => (
+                  <li key={t} className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-accent mt-0.5" /> {t}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 pt-5 border-t border-border flex items-center justify-between">
+                <div className="rounded-sm bg-accent-soft px-3 py-2">
+                  <div className="text-[10px] uppercase tracking-[0.2em] text-primary/70">Applicable fee</div>
+                  <div className="font-serif text-2xl font-semibold text-primary leading-none mt-0.5">
+                    ${PRICING_TIERS.express.fee} <span className="text-xs font-sans text-primary/70">USD</span>
                   </div>
                 </div>
                 <span className="inline-flex items-center gap-2 rounded-sm bg-gradient-gold px-5 py-3 text-sm font-semibold text-accent-foreground shadow-gold group-hover:shadow-elegant transition-smooth">
@@ -283,13 +339,13 @@ const Index = () => {
               </div>
             </button>
 
-            {/* Standard foreigner — direct link to /apply/start */}
+            {/* Standard foreigner guided form — Option 3 */}
             <Link
               to="/apply/start"
               className="group relative text-left bg-card rounded-sm px-7 pt-10 pb-7 md:px-8 md:pt-12 md:pb-8 shadow-elegant transition-smooth border-2 border-accent/60 hover:border-accent block"
             >
-              <div className="absolute -top-3 left-6 bg-primary text-primary-foreground text-[10px] uppercase tracking-[0.2em] font-semibold px-3 py-1 rounded-sm">
-                Option 2
+              <div className="absolute -top-3 left-6 bg-secondary text-primary text-[10px] uppercase tracking-[0.2em] font-semibold px-3 py-1 rounded-sm">
+                Option 3
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-gradient-navy text-accent">
                 <Globe2 className="h-5 w-5" />
@@ -302,7 +358,7 @@ const Index = () => {
               </p>
               <p className="mt-3 text-sm text-foreground leading-relaxed">
                 Travellers holding a foreign passport. A local sponsor is required, so you'll
-                complete the official application yourself with our step-by-step guidance.
+                complete the official application yourself with our step-by-step guidance. {formatFee(AJNABI_OPTION.fee)}, {AJNABI_OPTION.processingTime}.
               </p>
               <ul className="mt-5 space-y-2 text-sm text-foreground">
                 {[
@@ -320,7 +376,7 @@ const Index = () => {
                 <div className="rounded-sm bg-secondary px-3 py-2">
                   <div className="text-[10px] uppercase tracking-[0.2em] text-primary/70">Applicable fee</div>
                   <div className="font-serif text-2xl font-semibold text-primary leading-none mt-0.5">
-                    $94 <span className="text-xs font-sans text-primary/70">USD</span>
+                    ${AJNABI_OPTION.fee} <span className="text-xs font-sans text-primary/70">USD</span>
                   </div>
                 </div>
                 <span className="inline-flex items-center gap-2 rounded-sm bg-gradient-navy px-5 py-3 text-sm font-semibold text-primary-foreground shadow-card group-hover:shadow-elegant transition-smooth">
@@ -345,11 +401,13 @@ const Index = () => {
                   >
                     ← Back to options
                   </button>
-                  <div className="text-[10px] uppercase tracking-[0.25em] text-accent">Express · Qurba-Joog</div>
+                  <div className="text-[10px] uppercase tracking-[0.25em] text-accent">
+                    {PRICING_TIERS[speed].label} · Qurba-Joog · {formatFee(PRICING_TIERS[speed].fee)}
+                  </div>
                   <h3 className="mt-1 font-serif text-2xl text-primary leading-tight">
-                    Apply in 60 seconds
+                    {speed === "express" ? "Express — 5–6 hour processing" : "Apply in 60 seconds"}
                     <span className="block text-sm font-sans italic text-muted-foreground mt-1">
-                      Codso 60 ilbiriqsi gudahood
+                      {speed === "express" ? "Degdeg — 5–6 saacadood" : "Codso 60 ilbiriqsi gudahood"}
                     </span>
                   </h3>
                 </div>
@@ -379,15 +437,6 @@ const Index = () => {
                   onChange={setPhoto}
                   onClear={() => setPhoto(null)}
                   accept="image/*"
-                />
-                <MiniUploader
-                  icon={Plane}
-                  label="Ticket"
-                  sublabel="Tigidh"
-                  file={ticket}
-                  onChange={setTicket}
-                  onClear={() => setTicket(null)}
-                  accept="image/*,application/pdf"
                 />
               </div>
 
@@ -431,7 +480,13 @@ const Index = () => {
                 Passport must be valid for <strong>more than 6 months</strong> from today.
               </p>
 
-
+              <DateDropdown
+                label="Travel Date / Taariikhda Safarka"
+                value={travelDate}
+                onChange={setTravelDate}
+                minYear={new Date().getFullYear()}
+                maxYear={new Date().getFullYear() + 5}
+              />
 
               <MiniSelect
                 icon={Globe2}
@@ -483,7 +538,7 @@ const Index = () => {
                 <div className="rounded-sm bg-accent-soft px-3 py-2">
                   <div className="text-[10px] uppercase tracking-[0.2em] text-primary/70">Applicable fee · Qiimaha</div>
                   <div className="font-serif text-2xl font-semibold text-primary leading-none mt-0.5">
-                    $94 <span className="text-xs font-sans text-primary/70">USD</span>
+                    ${PRICING_TIERS[speed].fee} <span className="text-xs font-sans text-primary/70">USD</span>
                   </div>
                 </div>
                 <button
@@ -508,22 +563,35 @@ const Index = () => {
         <SectionHeading
           eyebrow="Pricing"
           title="Transparent Pricing"
-          description="No hidden fees. One simple, all-inclusive price for your Somalia eVisa application."
+          description="No hidden fees. Choose the processing speed that suits your travel plans."
         />
-        <div className="mt-12 max-w-2xl mx-auto bg-card border border-border rounded-sm p-10 md:p-12 text-center shadow-card">
-          <div className="font-serif text-5xl md:text-6xl font-bold bg-gradient-gold bg-clip-text text-transparent">
-            $94 <span className="text-3xl md:text-4xl">USD</span>
+        <div className="mt-12 grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          <div className="bg-card border border-border rounded-sm p-8 md:p-10 text-center shadow-card">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-accent font-semibold">Option 1 · Standard</div>
+            <div className="mt-3 font-serif text-4xl md:text-5xl font-bold bg-gradient-gold bg-clip-text text-transparent">
+              {formatFee(PRICING_TIERS.standard.fee)}
+            </div>
+            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+              {PRICING_TIERS.standard.processingTime} processing. All-inclusive — covers specialist
+              application assistance, document review, and submission through the official Somalia
+              eTAS portal.
+            </p>
           </div>
-          <p className="mt-6 text-sm text-muted-foreground leading-relaxed">
-            The total cost for the Somalia eVisa application service is <strong className="text-foreground">$94 USD</strong>,
-            all-inclusive. This fee covers our specialist application assistance, document review,
-            and submission through the official Somalia eTAS portal.
-          </p>
-          <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-            All fees are displayed clearly before payment is completed. Applicants are advised to
-            review the information provided carefully before submitting their application.
-          </p>
+          <div className="bg-card border border-accent rounded-sm p-8 md:p-10 text-center shadow-elegant">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-accent font-semibold">Option 2 · Express</div>
+            <div className="mt-3 font-serif text-4xl md:text-5xl font-bold bg-gradient-gold bg-clip-text text-transparent">
+              {formatFee(PRICING_TIERS.express.fee)}
+            </div>
+            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+              {PRICING_TIERS.express.processingTime} processing. Priority rush handling for urgent travel.
+            </p>
+          </div>
         </div>
+        <p className="mt-6 max-w-2xl mx-auto text-center text-sm text-muted-foreground leading-relaxed">
+          Foreign nationals (Ajnabi) completing the guided sponsor-required application (Option 3) pay
+          {" "}{formatFee(AJNABI_OPTION.fee)}, {AJNABI_OPTION.processingTime} processing. All fees are
+          displayed clearly before payment is completed.
+        </p>
       </section>
 
       {/* HOW IT WORKS */}

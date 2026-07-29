@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { AlertTriangle, Check, Loader2, Download, Copy, Eye, Search, X, FolderOpen, Folder, XCircle, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AlertTriangle, Check, Clock, Download, Copy, Eye, Loader2, Lock, Search, ShieldAlert, X, FolderOpen, Folder, XCircle, Trash2, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { docTypeLabels, INFO_SOURCE_NOTE_PREFIX, INFO_SOURCES, type AppDocument, type Application, type AppStatus, type DocType, type InfoSource } from "@/lib/applications";
+import { docTypeLabels, INFO_SOURCE_NOTE_PREFIX, INFO_SOURCES, isPlaceholderDob, isPlaceholderNationality, waLink, type AppDocument, type AppNote, type Application, type DocType, type InfoSource } from "@/lib/applications";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageShell, PageHeader } from "@/components/admin/PageShell";
@@ -14,32 +14,89 @@ export const Route = createFileRoute("/_authenticated/queue")({
   component: QueuePage,
 });
 
+const CLAIM_MS = 20 * 60 * 1000; // 20 minutes
+
 function QueuePage() {
   const { user, isSuperAdmin } = useAuth();
   const [apps, setApps] = useState<Application[]>([]);
   const [docsByApp, setDocsByApp] = useState<Record<string, AppDocument[]>>({});
+  const [profileNames, setProfileNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [etasRefs, setEtasRefs] = useState<Record<string, string>>({});
   const [busyId, setBusyId] = useState<string | null>(null);
   const [busyDoc, setBusyDoc] = useState<string | null>(null);
   const [openDocs, setOpenDocs] = useState<Record<string, boolean>>({});
   const [viewing, setViewing] = useState<Application | null>(null);
+  const [viewingNotes, setViewingNotes] = useState<(AppNote & { profiles?: { full_name: string } | null })[]>([]);
+  const [claimStartTime, setClaimStartTime] = useState<Date | null>(null);
+  const [claimSecondsLeft, setClaimSecondsLeft] = useState<number | null>(null);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [q, setQ] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "standard" | "express">("all");
   const [overdueOnly, setOverdueOnly] = useState(false);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
 
+  // 20-minute countdown for the active claim
+  useEffect(() => {
+    if (!viewing || !claimStartTime) {
+      if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
+      setClaimSecondsLeft(null);
+      return;
+    }
+    const tick = () => {
+      const left = Math.max(0, Math.ceil((CLAIM_MS - (Date.now() - claimStartTime.getTime())) / 1000));
+      setClaimSecondsLeft(left);
+      if (left === 0) {
+        if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
+        setViewing(null);
+        setViewingNotes([]);
+        setClaimStartTime(null);
+        toast.warning("Your 20-minute claim has expired — the application has returned to the queue.");
+      }
+    };
+    tick();
+    countdownRef.current = setInterval(tick, 1000);
+    return () => { if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; } };
+  }, [viewing?.id, claimStartTime]);
+
+  useEffect(() => () => { if (countdownRef.current) clearInterval(countdownRef.current); }, []);
+
   const load = useCallback(async () => {
-    const { data } = await supabase.from("applications").select("*").eq("paid", true).eq("etas_submitted", false).neq("status", "rejected").or("refund_status.is.null,refund_status.eq.requested,refund_status.eq.rejected").order("paid_at", { ascending: true });
-    const { data: docs } = await supabase.from("application_documents").select("*").order("uploaded_at", { ascending: false });
+    if (!user?.id) return;
+    const twentyMinAgo = new Date(Date.now() - CLAIM_MS).toISOString();
+    let query = supabase
+      .from("applications")
+      .select("*")
+      .eq("paid", true)
+      .eq("etas_submitted", false)
+      .neq("status", "rejected")
+      .neq("status", "refunded")
+      .or("refund_status.is.null,refund_status.eq.requested,refund_status.eq.rejected");
+
+    // Regular officers only see unclaimed apps, their own claims, or expired claims
+    if (!isSuperAdmin) {
+      query = query.or(`claimed_by.is.null,claimed_by.eq.${user.id},claimed_at.lt.${twentyMinAgo}`);
+    }
+
+    const [{ data }, { data: docs }, { data: profiles }] = await Promise.all([
+      query.order("paid_at", { ascending: true }),
+      supabase.from("application_documents").select("*").order("uploaded_at", { ascending: false }),
+      supabase.from("profiles").select("id, full_name"),
+    ]);
+
     setApps((data ?? []) as Application[]);
     const grouped: Record<string, AppDocument[]> = {};
     for (const d of (docs ?? []) as AppDocument[]) {
       (grouped[d.application_id] ??= []).push(d);
     }
     setDocsByApp(grouped);
+    const names: Record<string, string> = {};
+    for (const p of (profiles ?? [])) {
+      if (p.id && p.full_name) names[p.id] = p.full_name;
+    }
+    setProfileNames(names);
     setLoading(false);
-  }, []);
+  }, [isSuperAdmin, user?.id]);
 
   useEffect(() => {
     load();
@@ -67,6 +124,79 @@ function QueuePage() {
   const hasFilters = q !== "" || typeFilter !== "all" || overdueOnly;
   const clearFilters = () => { setQ(""); setTypeFilter("all"); setOverdueOnly(false); };
 
+  // Atomically claim the application and open the sheet.
+  // Uses a conditional UPDATE — if the row is already claimed by another officer
+  // the WHERE doesn't match, data comes back null, and we abort.
+  const openViewing = useCallback(async (a: Application) => {
+    if (!user?.id) return;
+    const twentyMinAgo = new Date(Date.now() - CLAIM_MS).toISOString();
+    const { data: claimed } = await supabase
+      .from("applications")
+      .update({ claimed_by: user.id, claimed_at: new Date().toISOString() })
+      .eq("id", a.id)
+      .or(`claimed_by.is.null,claimed_by.eq.${user.id},claimed_at.lt.${twentyMinAgo}`)
+      .select("*")
+      .maybeSingle();
+
+    if (!claimed) {
+      toast.error("This application is currently being processed by another officer.");
+      load();
+      return;
+    }
+
+    const [{ data: ns }] = await Promise.all([
+      supabase.from("application_notes")
+        .select("*, profiles(full_name)")
+        .eq("application_id", a.id)
+        .not("body", "like", "__AUDIT__%")
+        .order("created_at", { ascending: false }),
+      supabase.from("application_notes").insert({
+        application_id: a.id,
+        author_id: user.id,
+        body: `__AUDIT__ Application claimed for processing`,
+      }),
+    ]);
+
+    setViewingNotes((ns ?? []) as (AppNote & { profiles?: { full_name: string } | null })[]);
+    setClaimStartTime(new Date(claimed.claimed_at!));
+    setViewing(claimed as Application);
+  }, [user?.id, load]);
+
+  // Super-admin: open the sheet without taking ownership of the claim
+  const peekViewing = useCallback(async (a: Application) => {
+    const { data: ns } = await supabase
+      .from("application_notes")
+      .select("*, profiles(full_name)")
+      .eq("application_id", a.id)
+      .not("body", "like", "__AUDIT__%")
+      .order("created_at", { ascending: false });
+    setViewingNotes((ns ?? []) as (AppNote & { profiles?: { full_name: string } | null })[]);
+    setClaimStartTime(null);
+    setViewing(a);
+  }, []);
+
+  // Closing the sheet does NOT release the DB claim.
+  // Only ETAS submission (trigger) or 20-min idle (filter) releases it.
+  const closeViewing = useCallback(() => {
+    setViewing(null);
+    setViewingNotes([]);
+    setClaimStartTime(null);
+  }, []);
+
+  const forceRelease = useCallback(async (a: Application) => {
+    await Promise.all([
+      supabase.from("applications")
+        .update({ claimed_by: null, claimed_at: null })
+        .eq("id", a.id),
+      supabase.from("application_notes").insert({
+        application_id: a.id,
+        author_id: user?.id ?? null,
+        body: `__AUDIT__ Claim force-released by super admin`,
+      }),
+    ]);
+    toast.success("Claim released — application returned to queue");
+  }, [user?.id]);
+
   const downloadDoc = async (doc: AppDocument) => {
     setBusyDoc(doc.id);
     const { data, error } = await supabase.storage
@@ -85,7 +215,7 @@ function QueuePage() {
     if (!confirm(msg)) return;
     setBusyId(a.id);
     setApps(prev => prev.filter(app => app.id !== a.id));
-    const updates: Record<string, unknown> = { status: "rejected" };
+    const updates: Record<string, unknown> = { status: isPaid ? "refunded" : "rejected" };
     if (isPaid) {
       updates.refund_status = "requested";
       updates.refund_requested_at = new Date().toISOString();
@@ -109,6 +239,8 @@ function QueuePage() {
     if (!confirm(`Permanently delete ${a.full_name} (${a.reference}) and all associated documents? This cannot be undone.`)) return;
     setBusyId(a.id);
     setApps(prev => prev.filter(app => app.id !== a.id));
+    const { data: docPaths } = await supabase.from("application_documents").select("storage_path").eq("application_id", a.id);
+    if (docPaths?.length) await supabase.storage.from("application-documents").remove(docPaths.map(d => d.storage_path));
     await supabase.from("application_documents").delete().eq("application_id", a.id);
     await supabase.from("application_notes").delete().eq("application_id", a.id);
     const { error } = await supabase.from("applications").delete().eq("id", a.id);
@@ -136,6 +268,7 @@ function QueuePage() {
     if (!user) return;
     setBusyId(a.id);
     setApps(prev => prev.filter(app => app.id !== a.id));
+    // The DB trigger (trg_enforce_etas_claim) verifies ownership and clears claimed_by/claimed_at
     const { error } = await supabase.from("applications").update({
       etas_submitted: true,
       etas_reference: ref,
@@ -147,8 +280,8 @@ function QueuePage() {
       load();
       toast.error(error.message);
     } else {
+      closeViewing();
       toast.success("ETAS reference recorded");
-      setTimeout(() => load(), 1500);
     }
   };
 
@@ -161,6 +294,9 @@ function QueuePage() {
       toast.error("Copy failed");
     }
   };
+
+  const fmtCountdown = (s: number) =>
+    `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
   return (
     <PageShell>
@@ -215,14 +351,28 @@ function QueuePage() {
           const isBusy = busyId === a.id;
           const infoRequired = a.status === "additional_info";
           const docs = docsByApp[a.id] ?? [];
+          const isActiveClaim = !!a.claimed_by && !!a.claimed_at && new Date(a.claimed_at).getTime() > Date.now() - CLAIM_MS;
+          const isClaimedByMe = a.claimed_by === user?.id;
+          const isClaimedByOther = isActiveClaim && !isClaimedByMe;
+          const claimerName = a.claimed_by ? (profileNames[a.claimed_by] ?? "an officer") : null;
+
           return (
-            <div key={a.id} className={`rounded-sm border bg-card shadow-card ${overdue ? "border-warning/50" : "border-border"}`}>
+            <div key={a.id} className={`rounded-sm border bg-card shadow-card ${overdue ? "border-warning/50" : isClaimedByOther ? "border-destructive/30" : "border-border"}`}>
               <div className="flex items-start justify-between gap-4 px-6 pt-5">
                 <div className="min-w-0">
                   <div className="font-semibold text-foreground">{a.full_name}</div>
-                  <div className="mt-0.5 text-[11px] text-muted-foreground">DOB {new Date(a.dob).toLocaleDateString()}</div>
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                  {isClaimedByOther && (
+                    <span className="inline-flex items-center gap-1 rounded-sm border border-destructive/40 bg-destructive/5 px-2 py-0.5 text-[10px] uppercase tracking-wider text-destructive">
+                      <Lock className="h-3 w-3" /> In progress by {claimerName}
+                    </span>
+                  )}
+                  {isClaimedByMe && (
+                    <span className="inline-flex items-center gap-1 rounded-sm border border-primary/30 bg-primary/5 px-2 py-0.5 text-[10px] uppercase tracking-wider text-primary">
+                      <Lock className="h-3 w-3" /> Claimed by you
+                    </span>
+                  )}
                   <span className={`text-[10px] uppercase tracking-wider ${a.type === "express" ? "font-semibold text-accent" : "text-muted-foreground"}`}>{a.type}</span>
                   {a.paid
                     ? <span className="rounded-sm bg-success/15 px-2 py-0.5 text-[10px] uppercase tracking-wider text-success">✓ Paid</span>
@@ -245,7 +395,7 @@ function QueuePage() {
                 </div>
                 <div>
                   <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Nationality</dt>
-                  <dd className="mt-0.5 text-sm text-foreground">{a.nationality}</dd>
+                  <dd className="mt-0.5 text-sm text-foreground">{isPlaceholderNationality(a) ? "Not provided" : a.nationality}</dd>
                 </div>
                 <div>
                   <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Passport</dt>
@@ -255,7 +405,14 @@ function QueuePage() {
                 <div>
                   <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Contact / WhatsApp</dt>
                   <dd className="mt-0.5 text-xs text-foreground">{a.email}</dd>
-                  {a.phone && <dd className="text-[11px] text-muted-foreground">{a.phone}</dd>}
+                  {a.phone && (
+                    <dd className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      {a.phone}
+                      <a href={waLink(a.phone)} target="_blank" rel="noopener noreferrer" title="Message on WhatsApp" className="inline-flex shrink-0 items-center text-success hover:text-success/80">
+                        <MessageCircle className="h-3 w-3" />
+                      </a>
+                    </dd>
+                  )}
                 </div>
                 <div>
                   <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Documents</dt>
@@ -294,12 +451,42 @@ function QueuePage() {
               </dl>
 
               <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border px-6 py-4">
-                <button
-                  onClick={() => setViewing(a)}
-                  className="inline-flex items-center gap-1 rounded-sm border border-border bg-card px-2.5 py-1.5 text-[10px] uppercase tracking-wider hover:border-accent hover:bg-accent-soft"
-                >
-                  <Eye className="h-3 w-3" /> View & Docs
-                </button>
+                {isClaimedByOther ? (
+                  <>
+                    <div className="inline-flex items-center gap-1.5 rounded-sm border border-destructive/40 bg-destructive/5 px-2.5 py-1.5 text-[10px] uppercase tracking-wider text-destructive">
+                      <Lock className="h-3 w-3" />
+                      In progress — {claimerName}
+                    </div>
+                    {isSuperAdmin && (
+                      <>
+                        <button
+                          onClick={() => forceRelease(a)}
+                          className="inline-flex items-center gap-1 rounded-sm border border-warning/40 bg-warning/10 px-2.5 py-1.5 text-[10px] uppercase tracking-wider text-warning hover:bg-warning/20"
+                        >
+                          <ShieldAlert className="h-3 w-3" /> Force Release
+                        </button>
+                        <button
+                          onClick={() => peekViewing(a)}
+                          className="inline-flex items-center gap-1 rounded-sm border border-border bg-card px-2.5 py-1.5 text-[10px] uppercase tracking-wider hover:border-accent hover:bg-accent-soft"
+                          title="View without taking the claim"
+                        >
+                          <Eye className="h-3 w-3" /> Override View
+                        </button>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <button
+                    onClick={() => openViewing(a)}
+                    className={`inline-flex items-center gap-1 rounded-sm border px-2.5 py-1.5 text-[10px] uppercase tracking-wider ${
+                      isClaimedByMe
+                        ? "border-primary/30 bg-primary/5 hover:bg-primary/10"
+                        : "border-border bg-card hover:border-accent hover:bg-accent-soft"
+                    }`}
+                  >
+                    <Eye className="h-3 w-3" /> {isClaimedByMe ? "Resume" : "View & Docs"}
+                  </button>
+                )}
                 <Select
                   value={infoRequired ? "additional_info" : "awaiting_etas"}
                   onValueChange={async (val) => {
@@ -359,11 +546,12 @@ function QueuePage() {
                     placeholder="ETAS reference number"
                     value={etasRefs[a.id] ?? ""}
                     onChange={(e) => setEtasRefs(prev => ({ ...prev, [a.id]: e.target.value }))}
-                    className="w-44 rounded-sm border border-input bg-background px-2.5 py-1.5 text-xs"
+                    disabled={isClaimedByOther && !isSuperAdmin}
+                    className="w-44 rounded-sm border border-input bg-background px-2.5 py-1.5 text-xs disabled:opacity-50"
                   />
                   <button
                     onClick={() => submitEtas(a)}
-                    disabled={isBusy || !(etasRefs[a.id] ?? "").trim()}
+                    disabled={isBusy || !(etasRefs[a.id] ?? "").trim() || (isClaimedByOther && !isSuperAdmin)}
                     className="inline-flex items-center gap-1 rounded-sm bg-gradient-gold px-3 py-1.5 text-[11px] uppercase tracking-wider text-primary shadow-gold disabled:opacity-50"
                   >
                     {isBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
@@ -376,7 +564,7 @@ function QueuePage() {
         })}
       </div>
 
-      <Sheet open={!!viewing} onOpenChange={(o) => !o && setViewing(null)}>
+      <Sheet open={!!viewing} onOpenChange={(o) => !o && closeViewing()}>
         <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
           {viewing && (
             <>
@@ -385,6 +573,18 @@ function QueuePage() {
                 <SheetDescription>
                   Reference <span className="font-mono">{viewing.reference}</span> · all fields below can be copied for ETAS entry.
                 </SheetDescription>
+                {claimSecondsLeft !== null && (
+                  <div className={`mt-1 inline-flex w-fit items-center gap-1.5 rounded-sm px-2.5 py-1 text-[11px] uppercase tracking-wider ${
+                    claimSecondsLeft <= 60
+                      ? "border border-destructive/50 bg-destructive/5 text-destructive"
+                      : claimSecondsLeft <= 300
+                        ? "border border-warning/50 bg-warning/10 text-warning"
+                        : "border border-border bg-secondary/40 text-muted-foreground"
+                  }`}>
+                    <Clock className="h-3 w-3" />
+                    Claim expires in {fmtCountdown(claimSecondsLeft)}
+                  </div>
+                )}
               </SheetHeader>
 
               <div className="mt-6 space-y-5 text-sm">
@@ -396,10 +596,18 @@ function QueuePage() {
                 )}
                 <DetailGroup title="Personal">
                   <DetailRow label={viewing.type === "express" ? "Name (from passport)" : "Full legal name"} value={viewing.full_name} onCopy={copy} />
-                  <DetailRow label="Date of birth" value={new Date(viewing.dob).toLocaleDateString()} onCopy={copy} />
-                  <DetailRow label="Nationality" value={viewing.nationality} onCopy={copy} />
+                  {isPlaceholderDob(viewing) ? (
+                    <DetailRow label="Date of birth" value="Not provided — see passport" />
+                  ) : (
+                    <DetailRow label="Date of birth" value={new Date(viewing.dob).toLocaleDateString()} onCopy={copy} />
+                  )}
+                  {isPlaceholderNationality(viewing) ? (
+                    <DetailRow label="Nationality" value="Not provided — see passport" />
+                  ) : (
+                    <DetailRow label="Nationality" value={viewing.nationality} onCopy={copy} />
+                  )}
                   <DetailRow label="Email" value={viewing.email} onCopy={copy} />
-                  {viewing.phone && <DetailRow label="Contact / WhatsApp" value={viewing.phone} onCopy={copy} />}
+                  {viewing.phone && <DetailRow label="Contact / WhatsApp" value={viewing.phone} onCopy={copy} wa />}
                 </DetailGroup>
 
                 <DetailGroup title="Passport">
@@ -447,6 +655,25 @@ function QueuePage() {
                     </div>
                   )}
                 </div>
+
+                <div>
+                  <div className="mb-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Case notes</div>
+                  {viewingNotes.length === 0 ? (
+                    <div className="text-xs text-muted-foreground">No notes on this application yet.</div>
+                  ) : (
+                    <div className="space-y-2">
+                      {viewingNotes.map(n => (
+                        <div key={n.id} className="rounded-sm border border-border bg-secondary/40 px-3 py-2 text-sm">
+                          <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
+                            <span>{new Date(n.created_at).toLocaleString()}</span>
+                            {n.profiles?.full_name && <span className="font-medium">{n.profiles.full_name}</span>}
+                          </div>
+                          <p className="mt-1 text-foreground whitespace-pre-wrap">{n.body}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </>
           )}
@@ -467,22 +694,33 @@ function DetailGroup({ title, children }: { title: string; children: React.React
   );
 }
 
-function DetailRow({ label, value, onCopy, mono }: { label: string; value: string; onCopy?: (l: string, v?: string | null) => void; mono?: boolean }) {
+function DetailRow({ label, value, onCopy, mono, wa }: { label: string; value: string; onCopy?: (l: string, v?: string | null) => void; mono?: boolean; wa?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-3 px-3 py-2">
       <div className="min-w-0">
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
         <div className={`truncate text-sm text-foreground ${mono ? "font-mono" : ""}`} title={value}>{value}</div>
       </div>
-      {onCopy && (
-        <button
-          onClick={() => onCopy(label, value)}
-          className="inline-flex shrink-0 items-center gap-1 rounded-sm border border-border bg-background px-2 py-1 text-[10px] uppercase tracking-wider hover:border-accent hover:text-accent"
-          title={`Copy ${label}`}
-        >
-          <Copy className="h-3 w-3" /> Copy
-        </button>
-      )}
+      <div className="flex shrink-0 items-center gap-1.5">
+        {wa && (
+          <a
+            href={waLink(value)} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 rounded-sm border border-success/40 bg-success/10 px-2 py-1 text-[10px] uppercase tracking-wider text-success hover:bg-success/20"
+            title="Message on WhatsApp"
+          >
+            <MessageCircle className="h-3 w-3" /> WhatsApp
+          </a>
+        )}
+        {onCopy && (
+          <button
+            onClick={() => onCopy(label, value)}
+            className="inline-flex items-center gap-1 rounded-sm border border-border bg-background px-2 py-1 text-[10px] uppercase tracking-wider hover:border-accent hover:text-accent"
+            title={`Copy ${label}`}
+          >
+            <Copy className="h-3 w-3" /> Copy
+          </button>
+        )}
+      </div>
     </div>
   );
 }

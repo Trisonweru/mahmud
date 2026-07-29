@@ -5,23 +5,23 @@ import { PageSEO } from "@/components/PageSEO";
 const faqs = [
   {
     q: "How long does a Somalia eVisa application take?",
-    a: "Most applications are reviewed and processed within 72 hours of submission. Expedited processing is available for urgent travel — contact our team via WhatsApp for priority handling.",
+    a: "It depends on the processing option you choose: Option 1 (Standard, $94 USD) takes 24–72 hours. Option 2 (Express, $150 USD) takes just 5–6 hours during Somalia working hours. Option 3, our guided application for foreign (Ajnabi) applicants, takes 24–72 hours.",
   },
   {
     q: "How much does the Somalia eVisa cost?",
-    a: "Our all-inclusive service fee is $94 USD per application. This covers specialist preparation, submission, document review, and post-approval support. The fee is for a single-entry eVisa valid for up to 180 days.",
+    a: "We offer three all-inclusive processing options: Option 1 Standard ($94 USD, 24–72 hours), Option 2 Express ($150 USD, 5–6 hours), and Option 3 the guided foreigner (Ajnabi) application ($94 USD, 24–72 hours). Each covers specialist preparation, submission, document review, and post-approval support for a single-entry eVisa valid for up to 180 days.",
   },
   {
     q: "What documents do I need for a Somalia eVisa?",
-    a: "You will need: (1) a valid passport with at least 6 months validity, (2) a recent passport-style photo, (3) proof of onward travel or a confirmed flight ticket, and (4) basic personal details. Diaspora (Qurba-Joog) applicants using our Express service simply upload these — our specialists prepare everything else.",
+    a: "You will need: (1) a valid passport with at least 6 months validity, (2) a recent passport-style photo, (3) your planned travel date, and (4) basic personal details. Foreign (Ajnabi) applicants also need a sponsor document. Diaspora (Qurba-Joog) applicants using our Standard or Express service simply upload these — our specialists prepare everything else.",
   },
   {
     q: "Who is eligible to apply for a Somalia eVisa?",
-    a: "International visitors travelling to Somalia for tourism, business, family visits, or transit are eligible to apply. Applicants must hold a passport with at least 6 months remaining validity. A local sponsor or host contact in Somalia is typically required for standard applications.",
+    a: "International visitors travelling to Somalia for tourism, business, family visits, or transit are eligible to apply. Applicants must hold a passport with at least 6 months remaining validity. A local sponsor is required for foreign (Ajnabi) applicants.",
   },
   {
     q: "Can Somali diaspora (Qurba-Joog) use this service?",
-    a: "Yes — our Express service is designed specifically for the Somali diaspora holding a foreign passport. You apply in under 60 seconds by uploading your passport, photo and ticket. Our specialists handle the entire form preparation and submission on your behalf.",
+    a: "Yes — our Standard and Express services are designed specifically for the Somali diaspora holding a foreign passport. You apply in under 60 seconds by uploading your passport and photo. Our specialists handle the entire form preparation and submission on your behalf.",
   },
   {
     q: "Is this an official government website?",

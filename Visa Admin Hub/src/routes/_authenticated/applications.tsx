@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Search, Download, Loader2, Eye, Copy, ChevronDown, ChevronRight, X, RotateCcw, Trash2 } from "lucide-react";
+import { Search, Download, Loader2, Eye, Copy, ChevronDown, ChevronRight, X, RotateCcw, Trash2, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge } from "@/components/admin/StatusBadge";
-import { ALL_STATUSES, statusLabels, docTypeLabels, type AppDocument, type AppStatus, type Application, type DocType } from "@/lib/applications";
+import { ALL_STATUSES, isPlaceholderDob, isPlaceholderNationality, isRefundedOrDenied, statusLabels, docTypeLabels, waLink, type AppDocument, type AppStatus, type Application, type DocType } from "@/lib/applications";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { PageShell, PageHeader } from "@/components/admin/PageShell";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,8 +19,10 @@ const ACTION_STATUSES: { value: AppStatus; label: string }[] = [
 // Statuses that belong to Queue, not shown in Applications list (#13)
 const QUEUE_ONLY_STATUSES: AppStatus[] = ["awaiting_etas", "pending_payment" as AppStatus];
 
-// Status filter options shown in Applications (#16 — no pending_payment)
-const FILTER_STATUSES = ALL_STATUSES.filter(s => !QUEUE_ONLY_STATUSES.includes(s));
+// Status filter options shown in Applications (#16 — no pending_payment).
+// "refunded" is reached only via the refund flow, not ALL_STATUSES' manual
+// workflow picker, but must still be filterable here (#15/#16).
+const FILTER_STATUSES: AppStatus[] = [...ALL_STATUSES.filter(s => !QUEUE_ONLY_STATUSES.includes(s)), "refunded"];
 
 export const Route = createFileRoute("/_authenticated/applications")({
   head: () => ({ meta: [{ title: "Applications — Somalia eVisa Admin" }] }),
@@ -31,6 +33,7 @@ function ApplicationsPage() {
   const { isAdmin, isSuperAdmin } = useAuth();
   const [apps, setApps] = useState<Application[]>([]);
   const [docsByApp, setDocsByApp] = useState<Record<string, AppDocument[]>>({});
+  const [profileNames, setProfileNames] = useState<Record<string, string>>({}); // userId → full_name
   const [loading, setLoading] = useState(true);
   const [busyDoc, setBusyDoc] = useState<string | null>(null);
   const [busyStatus, setBusyStatus] = useState<string | null>(null);
@@ -45,14 +48,22 @@ function ApplicationsPage() {
   const [openMonths, setOpenMonths] = useState<Record<string, boolean>>({});
 
   const load = useCallback(async () => {
-    const { data } = await supabase.from("applications").select("*").order("etas_submitted", { ascending: false }).order("submitted_at", { ascending: false });
-    const { data: docs } = await supabase.from("application_documents").select("*").order("uploaded_at", { ascending: false });
+    const [{ data }, { data: docs }, { data: profiles }] = await Promise.all([
+      supabase.from("applications").select("*").order("etas_submitted", { ascending: false }).order("submitted_at", { ascending: false }),
+      supabase.from("application_documents").select("*").order("uploaded_at", { ascending: false }),
+      supabase.from("profiles").select("id, full_name"),
+    ]);
     setApps((data ?? []) as Application[]);
     const grouped: Record<string, AppDocument[]> = {};
     for (const d of (docs ?? []) as AppDocument[]) {
       (grouped[d.application_id] ??= []).push(d);
     }
     setDocsByApp(grouped);
+    const names: Record<string, string> = {};
+    for (const p of (profiles ?? [])) {
+      if (p.id && p.full_name) names[p.id] = p.full_name;
+    }
+    setProfileNames(names);
     setLoading(false);
   }, []);
 
@@ -285,7 +296,7 @@ function ApplicationsPage() {
                   <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-5">
                     <div>
                       <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Nationality</dt>
-                      <dd className="mt-0.5 text-sm text-foreground">{a.nationality}</dd>
+                      <dd className="mt-0.5 text-sm text-foreground">{isPlaceholderNationality(a) ? "Not provided — see passport" : a.nationality}</dd>
                     </div>
                     <div>
                       <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Passport</dt>
@@ -294,12 +305,19 @@ function ApplicationsPage() {
                     </div>
                     <div>
                       <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Date of Birth</dt>
-                      <dd className="mt-0.5 text-sm text-foreground">{new Date(a.dob).toLocaleDateString()}</dd>
+                      <dd className="mt-0.5 text-sm text-foreground">{isPlaceholderDob(a) ? "Not provided — see passport" : new Date(a.dob).toLocaleDateString()}</dd>
                     </div>
                     <div>
-                      <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Contact</dt>
+                      <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Contact / WhatsApp</dt>
                       <dd className="mt-0.5 text-xs text-foreground">{a.email}</dd>
-                      {a.phone && <dd className="text-[11px] text-muted-foreground">{a.phone}</dd>}
+                      {a.phone && (
+                        <dd className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                          {a.phone}
+                          <a href={waLink(a.phone)} target="_blank" rel="noopener noreferrer" title="Message on WhatsApp" className="inline-flex shrink-0 items-center text-success hover:text-success/80">
+                            <MessageCircle className="h-3 w-3" />
+                          </a>
+                        </dd>
+                      )}
                     </div>
                     <div>
                       <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">ETAS Ref</dt>
@@ -310,6 +328,11 @@ function ApplicationsPage() {
                             ? <span className="font-medium text-warning">Pending</span>
                             : <span className="text-muted-foreground">—</span>}
                       </dd>
+                      {a.etas_submitted_by && profileNames[a.etas_submitted_by] && (
+                        <dd className="mt-0.5 text-[11px] text-muted-foreground">
+                          by {profileNames[a.etas_submitted_by]}
+                        </dd>
+                      )}
                     </div>
                   </dl>
 
@@ -333,7 +356,7 @@ function ApplicationsPage() {
                           <option key={s.value} value={s.value}>{s.label}</option>
                         ))}
                       </select>
-                    ) : a.status === "rejected" || a.refund_status === "processed" ? (
+                    ) : isRefundedOrDenied(a) || a.refund_status === "processed" ? (
                       <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
                         {a.status === "rejected" ? "Application denied" : "Refund processed"}
                       </span>
@@ -393,10 +416,18 @@ function ApplicationsPage() {
 
                 <DetailGroup title="Personal">
                   <DetailRow label={viewing.type === "express" ? "Name (from passport)" : "Full legal name"} value={viewing.full_name} onCopy={copy} />
-                  <DetailRow label="Date of birth" value={new Date(viewing.dob).toLocaleDateString()} onCopy={copy} />
-                  <DetailRow label="Nationality" value={viewing.nationality} onCopy={copy} />
+                  {isPlaceholderDob(viewing) ? (
+                    <DetailRow label="Date of birth" value="Not provided — see passport" />
+                  ) : (
+                    <DetailRow label="Date of birth" value={new Date(viewing.dob).toLocaleDateString()} onCopy={copy} />
+                  )}
+                  {isPlaceholderNationality(viewing) ? (
+                    <DetailRow label="Nationality" value="Not provided — see passport" />
+                  ) : (
+                    <DetailRow label="Nationality" value={viewing.nationality} onCopy={copy} />
+                  )}
                   <DetailRow label="Email" value={viewing.email} onCopy={copy} />
-                  {viewing.phone && <DetailRow label="Contact / WhatsApp" value={viewing.phone} onCopy={copy} />}
+                  {viewing.phone && <DetailRow label="Contact / WhatsApp" value={viewing.phone} onCopy={copy} wa />}
                 </DetailGroup>
 
                 <DetailGroup title="Passport">
@@ -465,22 +496,33 @@ function DetailGroup({ title, children }: { title: string; children: React.React
   );
 }
 
-function DetailRow({ label, value, onCopy, mono }: { label: string; value: string; onCopy?: (l: string, v?: string | null) => void; mono?: boolean }) {
+function DetailRow({ label, value, onCopy, mono, wa }: { label: string; value: string; onCopy?: (l: string, v?: string | null) => void; mono?: boolean; wa?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-3 px-3 py-2">
       <div className="min-w-0">
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
         <div className={`truncate text-sm text-foreground ${mono ? "font-mono" : ""}`} title={value}>{value}</div>
       </div>
-      {onCopy && (
-        <button
-          onClick={() => onCopy(label, value)}
-          className="inline-flex shrink-0 items-center gap-1 rounded-sm border border-border bg-background px-2 py-1 text-[10px] uppercase tracking-wider hover:border-accent hover:text-accent"
-          title={`Copy ${label}`}
-        >
-          <Copy className="h-3 w-3" /> Copy
-        </button>
-      )}
+      <div className="flex shrink-0 items-center gap-1.5">
+        {wa && (
+          <a
+            href={waLink(value)} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 rounded-sm border border-success/40 bg-success/10 px-2 py-1 text-[10px] uppercase tracking-wider text-success hover:bg-success/20"
+            title="Message on WhatsApp"
+          >
+            <MessageCircle className="h-3 w-3" /> WhatsApp
+          </a>
+        )}
+        {onCopy && (
+          <button
+            onClick={() => onCopy(label, value)}
+            className="inline-flex items-center gap-1 rounded-sm border border-border bg-background px-2 py-1 text-[10px] uppercase tracking-wider hover:border-accent hover:text-accent"
+            title={`Copy ${label}`}
+          >
+            <Copy className="h-3 w-3" /> Copy
+          </button>
+        )}
+      </div>
     </div>
   );
 }

@@ -25,11 +25,18 @@ const Terms = () => (
       </Block>
 
       <Block n="2" title="Service Fee">
-        Our total fee is <strong>$94 USD</strong> (all-inclusive), which covers:
+        We offer three processing options, each all-inclusive and covering the official government
+        eTAS fee plus our service fee:
         <ul className="list-disc pl-6 mt-2 space-y-1">
-          <li>The official government eTAS fee ($64 USD, forwarded 100% to the official government portal)</li>
-          <li>Our application assistance, document review, and submission service fee</li>
+          <li><strong>Option 1 — Standard, $94 USD</strong> (24–72 hour processing)</li>
+          <li><strong>Option 2 — Express, $150 USD</strong> (5–6 hour processing, during Somalia working hours)</li>
+          <li><strong>Option 3 — Foreigner (Ajnabi) guided application, $94 USD</strong> (24–72 hour processing)</li>
         </ul>
+        Every option includes the official government eTAS fee ($64 USD, forwarded 100% to the
+        official government portal) plus our application assistance, document review, and
+        submission service fee. See our{" "}
+        <Link to="/refund" className="text-accent underline">Refund Policy</Link> for the full
+        breakdown.
       </Block>
 
       <Block n="3" title="Refund Policy">
@@ -75,7 +82,8 @@ const Terms = () => (
 
       <Block n="9" title="Limitation of Liability">
         Our total liability for any claim arising from the use of our services is limited to the
-        amount you paid us ($94 USD). We are not liable for:
+        total fee you paid us ($94–$150 USD, depending on the processing option selected). We are
+        not liable for:
         <ul className="list-disc pl-6 mt-2 space-y-1">
           <li>Visa refusals or entry denials by destination authorities</li>
           <li>Travel disruptions, financial losses, or consequential damages</li>

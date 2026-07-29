@@ -40,10 +40,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearIdleTimers();
     if (!active) return;
     warnTimer.current = setTimeout(() => {
-      toast.warning("You will be signed out in 5 minutes due to inactivity.", { duration: 60000 });
+      toast.warning("You will be signed out in 5 minutes due to inactivity.", { id: "session-warning", duration: 60000 });
     }, IDLE_WARN_MS);
     logoutTimer.current = setTimeout(async () => {
-      toast.error("Signed out due to inactivity.", { duration: 8000 });
+      toast.error("Signed out due to inactivity.", { id: "session-timeout", duration: 8000 });
       await supabase.auth.signOut();
     }, IDLE_TIMEOUT_MS);
   };

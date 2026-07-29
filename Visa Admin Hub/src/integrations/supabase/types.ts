@@ -93,8 +93,11 @@ export type Database = {
       applications: {
         Row: {
           address_in_somalia: string
+          applicant_type: string | null
           arrival_date: string
           assigned_to: string | null
+          claimed_at: string | null
+          claimed_by: string | null
           created_at: string
           departure_date: string
           dob: string
@@ -110,24 +113,32 @@ export type Database = {
           paid: boolean
           paid_at: string | null
           passport_expiry: string
+          passport_issue_date: string | null
           passport_number: string
           phone: string | null
+          processing_speed: string
           purpose: string
           reference: string
           refund_amount: number | null
+          refund_processed_at: string | null
           refund_reason: string | null
           refund_requested_at: string | null
           refund_requested_by: string | null
           refund_status: "requested" | "approved" | "rejected" | "processed" | null
           status: Database["public"]["Enums"]["application_status"]
+          stripe_customer_id: string | null
+          stripe_payment_intent_id: string | null
           submitted_at: string
           type: Database["public"]["Enums"]["application_type"]
           updated_at: string
         }
         Insert: {
           address_in_somalia: string
+          applicant_type?: string | null
           arrival_date: string
           assigned_to?: string | null
+          claimed_at?: string | null
+          claimed_by?: string | null
           created_at?: string
           departure_date: string
           dob: string
@@ -143,24 +154,32 @@ export type Database = {
           paid?: boolean
           paid_at?: string | null
           passport_expiry: string
+          passport_issue_date?: string | null
           passport_number: string
           phone?: string | null
+          processing_speed?: string
           purpose: string
           reference: string
           refund_amount?: number | null
+          refund_processed_at?: string | null
           refund_reason?: string | null
           refund_requested_at?: string | null
           refund_requested_by?: string | null
           refund_status?: "requested" | "approved" | "rejected" | "processed" | null
           status?: Database["public"]["Enums"]["application_status"]
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
           submitted_at?: string
           type?: Database["public"]["Enums"]["application_type"]
           updated_at?: string
         }
         Update: {
           address_in_somalia?: string
+          applicant_type?: string | null
           arrival_date?: string
           assigned_to?: string | null
+          claimed_at?: string | null
+          claimed_by?: string | null
           created_at?: string
           departure_date?: string
           dob?: string
@@ -176,16 +195,21 @@ export type Database = {
           paid?: boolean
           paid_at?: string | null
           passport_expiry?: string
+          passport_issue_date?: string | null
           passport_number?: string
           phone?: string | null
+          processing_speed?: string
           purpose?: string
           reference?: string
           refund_amount?: number | null
+          refund_processed_at?: string | null
           refund_reason?: string | null
           refund_requested_at?: string | null
           refund_requested_by?: string | null
           refund_status?: "requested" | "approved" | "rejected" | "processed" | null
           status?: Database["public"]["Enums"]["application_status"]
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
           submitted_at?: string
           type?: Database["public"]["Enums"]["application_type"]
           updated_at?: string
@@ -323,8 +347,9 @@ export type Database = {
         | "additional_info"
         | "approved"
         | "rejected"
+        | "refunded"
       application_type: "standard" | "express"
-      document_type: "passport" | "photo" | "ticket" | "other"
+      document_type: "passport" | "photo" | "ticket" | "other" | "sponsor"
       notification_type:
         | "application_submitted"
         | "payment_received"
@@ -468,9 +493,10 @@ export const Constants = {
         "additional_info",
         "approved",
         "rejected",
+        "refunded",
       ],
       application_type: ["standard", "express"],
-      document_type: ["passport", "photo", "ticket", "other"],
+      document_type: ["passport", "photo", "ticket", "other", "sponsor"],
       notification_type: [
         "application_submitted",
         "payment_received",

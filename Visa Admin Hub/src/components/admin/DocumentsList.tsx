@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Download, FileText, Image as ImageIcon, Ticket, Loader2, Eye, Upload, Trash2 } from "lucide-react";
+import { Download, FileText, Image as ImageIcon, Ticket, FileSignature, Loader2, Eye, Upload, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { docTypeLabels, type AppDocument, type DocType } from "@/lib/applications";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,6 +9,7 @@ const iconFor: Record<DocType, typeof FileText> = {
   passport: FileText,
   photo: ImageIcon,
   ticket: Ticket,
+  sponsor: FileSignature,
   other: FileText,
 };
 
@@ -24,6 +25,7 @@ export function DocumentsList({ applicationId }: Props) {
     passport: useRef<HTMLInputElement>(null),
     photo: useRef<HTMLInputElement>(null),
     ticket: useRef<HTMLInputElement>(null),
+    sponsor: useRef<HTMLInputElement>(null),
     other: useRef<HTMLInputElement>(null),
   } as Record<DocType, React.RefObject<HTMLInputElement>>;
 
@@ -115,8 +117,8 @@ export function DocumentsList({ applicationId }: Props) {
     <div className="rounded-sm border border-dashed border-accent/40 bg-accent-soft/40 p-4">
       <div className="text-[10px] uppercase tracking-[0.2em] text-accent">Add document on behalf of applicant</div>
       <div className="mt-3 flex flex-wrap gap-2">
-        {(["passport", "photo", "ticket", "other"] as DocType[]).map((dt) => {
-          const accept = dt === "photo" ? "image/*" : dt === "passport" ? "image/*,application/pdf" : dt === "ticket" ? "image/*,application/pdf" : undefined;
+        {(["passport", "photo", "ticket", "sponsor", "other"] as DocType[]).map((dt) => {
+          const accept = dt === "photo" ? "image/*" : dt === "passport" || dt === "ticket" || dt === "sponsor" ? "image/*,application/pdf" : undefined;
           return (
             <div key={dt}>
               <input
@@ -149,7 +151,7 @@ export function DocumentsList({ applicationId }: Props) {
       {uploadRow}
       {docs.length === 0 && (
         <div className="rounded-sm border border-dashed border-border bg-secondary/30 p-6 text-center text-sm text-muted-foreground">
-          No documents uploaded yet. Use the buttons above to attach the passport, photo or ticket.
+          No documents uploaded yet. Use the buttons above to attach a document.
         </div>
       )}
       {docs.map((d) => {

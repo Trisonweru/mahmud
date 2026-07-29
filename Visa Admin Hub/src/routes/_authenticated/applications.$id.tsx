@@ -3,14 +3,16 @@ import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft, Mail, MapPin, Calendar, Shield, User, Briefcase,
   MessageSquare, FileText, Loader2, Trash2, Eye, History,
-  AlertTriangle, RotateCcw, DollarSign, ChevronDown, ChevronUp,
+  AlertTriangle, RotateCcw, DollarSign, ChevronDown, ChevronUp, MessageCircle,
 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DocumentsList } from "@/components/admin/DocumentsList";
-import { ALL_STATUSES, statusLabels, type AppNote, type AppStatus, type Application } from "@/lib/applications";
+import { ALL_STATUSES, INFO_SOURCE_NOTE_PREFIX, INFO_SOURCES, isPlaceholderDob, isPlaceholderNationality, isRefundedOrDenied, statusLabels, waLink, type AppNote, type AppStatus, type Application, type InfoSource } from "@/lib/applications";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { processStripeRefund } from "@/lib/payments.functions";
 
 export const Route = createFileRoute("/_authenticated/applications/$id")({
   head: ({ params }) => ({ meta: [{ title: `Application ${params.id} — Admin` }] }),
@@ -29,6 +31,7 @@ function ApplicationDetail() {
   const { id } = Route.useParams();
   const { user, profile, isAdmin, isSuperAdmin } = useAuth();
   const nav = useNavigate();
+  const stripeRefund = useServerFn(processStripeRefund);
   const [app, setApp] = useState<Application | null>(null);
   const [notes, setNotes] = useState<AppNote[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,6 +45,7 @@ function ApplicationDetail() {
   // Concurrent viewers via Supabase Presence
   const [viewers, setViewers] = useState<{ name: string }[]>([]);
   const presenceRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const [etasSubmittedByName, setEtasSubmittedByName] = useState<string | null>(null);
 
   const load = async () => {
     const { data, error } = await supabase.from("applications").select("*").eq("id", id).maybeSingle();
@@ -56,6 +60,13 @@ function ApplicationDetail() {
       .eq("application_id", id)
       .order("created_at", { ascending: false });
     setNotes((ns ?? []) as (AppNote & { profiles: { full_name: string } | null })[]);
+    // Resolve who submitted to the government portal (#5)
+    if (data.etas_submitted_by) {
+      const { data: p } = await supabase.from("profiles").select("full_name").eq("id", data.etas_submitted_by).maybeSingle();
+      setEtasSubmittedByName(p?.full_name ?? null);
+    } else {
+      setEtasSubmittedByName(null);
+    }
     setLoading(false);
   };
 
@@ -131,6 +142,23 @@ function ApplicationDetail() {
 
   const reject = () => setStatus("rejected");
 
+  const setInfoSource = async (source: InfoSource) => {
+    if (!user) return;
+    setBusy(true);
+    const { error } = await supabase.from("applications").update({ status: "additional_info" }).eq("id", app.id);
+    if (!error) {
+      await supabase.from("application_notes").insert({
+        application_id: app.id,
+        author_id: user.id,
+        body: `${INFO_SOURCE_NOTE_PREFIX}${source}`,
+      });
+    }
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(INFO_SOURCES[source]);
+    await load();
+  };
+
   const superAdminOverride = async (s: AppStatus) => {
     if (!isSuperAdmin) return;
     if (!confirm(`Override status to "${statusLabels[s]}" for ${app.reference}? This bypasses normal workflow rules.`)) return;
@@ -183,7 +211,29 @@ function ApplicationDetail() {
 
   const updateRefundStatus = async (status: "approved" | "rejected" | "processed") => {
     if (!user) return;
-    const ok = await update({ refund_status: status });
+
+    if (status === "processed") {
+      const amountNumber = refundAmount ? parseFloat(refundAmount) : Number(app.fee);
+      setBusy(true);
+      try {
+        await stripeRefund({ data: { applicationId: app.id, amount: amountNumber } });
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Stripe refund failed — please try again.");
+        setBusy(false);
+        return;
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    const patch: Partial<Application> = { refund_status: status };
+    if (status === "processed") {
+      const amountToSave = refundAmount ? parseFloat(refundAmount) : Number(app.fee);
+      patch.status = "refunded";
+      patch.refund_processed_at = new Date().toISOString();
+      patch.refund_amount = amountToSave;
+    }
+    const ok = await update(patch);
     if (ok) {
       await supabase.from("application_notes").insert({
         application_id: app.id,
@@ -233,6 +283,12 @@ function ApplicationDetail() {
           {isAdmin && (
             <>
               {!app.paid && <button onClick={markPaid} disabled={busy || isLocked} className="rounded-sm border border-border bg-card px-4 py-2 text-xs uppercase tracking-wider hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed">Mark as paid</button>}
+              {app.status !== "additional_info" && (
+                <>
+                  <button onClick={() => setInfoSource("internal")} disabled={busy || isLocked} className="rounded-sm border border-amber-400/60 bg-amber-50 px-4 py-2 text-xs uppercase tracking-wider text-amber-700 hover:bg-amber-100 disabled:opacity-50 disabled:cursor-not-allowed">Info — Us</button>
+                  <button onClick={() => setInfoSource("government")} disabled={busy || isLocked} className="rounded-sm border border-amber-400/60 bg-amber-50 px-4 py-2 text-xs uppercase tracking-wider text-amber-700 hover:bg-amber-100 disabled:opacity-50 disabled:cursor-not-allowed">Info — Government</button>
+                </>
+              )}
               <button onClick={reject} disabled={busy || isLocked} className="rounded-sm border border-destructive/40 bg-destructive/10 px-4 py-2 text-xs uppercase tracking-wider text-destructive hover:bg-destructive/15 disabled:opacity-50 disabled:cursor-not-allowed">Reject</button>
               <button onClick={approve} disabled={busy || isLocked} className="rounded-sm bg-gradient-navy px-4 py-2 text-xs uppercase tracking-wider text-primary-foreground shadow-card hover:shadow-elegant disabled:opacity-60 disabled:cursor-not-allowed">Approve &amp; issue eVisa</button>
             </>
@@ -256,11 +312,12 @@ function ApplicationDetail() {
 
           <Section title="Personal information" icon={User}>
             <Field label={app.type === "express" ? "Name (from passport)" : "Full legal name"} value={app.full_name} />
-            <Field label="Date of birth" value={new Date(app.dob).toLocaleDateString()} />
-            <Field label="Nationality" value={app.nationality} />
+            <Field label="Date of birth" value={isPlaceholderDob(app) ? "Not provided — see passport" : new Date(app.dob).toLocaleDateString()} />
+            <Field label="Nationality" value={isPlaceholderNationality(app) ? "Not provided — see passport" : app.nationality} />
             <Field label="Email" value={app.email} icon={Mail} />
-            {app.phone && <Field label="Contact / WhatsApp" value={app.phone} />}
+            {app.phone && <Field label="Contact / WhatsApp" value={app.phone} wa />}
             <Field label="Passport number" value={app.passport_number} />
+            {app.passport_issue_date && <Field label="Passport issue date" value={new Date(app.passport_issue_date).toLocaleDateString()} />}
             <Field label="Passport expiry" value={new Date(app.passport_expiry).toLocaleDateString()} />
           </Section>
 
@@ -336,12 +393,16 @@ function ApplicationDetail() {
 
         <aside className="space-y-6">
           {/* ETAS card — hidden for denied/refunded applications */}
-          {(app.status === "rejected" || (app.refund_status !== null && app.refund_status !== undefined)) && !app.etas_submitted ? (
+          {(isRefundedOrDenied(app) || (app.refund_status !== null && app.refund_status !== undefined)) && !app.etas_submitted ? (
             <div className="rounded-sm border border-border bg-card p-6 shadow-card">
               <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Government portal (ETAS)</div>
               <div className="font-serif text-xl text-muted-foreground">Not applicable</div>
               <p className="mt-2 text-xs text-muted-foreground">
-                {app.status === "rejected" ? "Application was denied — ETAS submission is not required." : "Refund in progress — ETAS submission is blocked."}
+                {app.status === "rejected"
+                  ? "Application was denied — ETAS submission is not required."
+                  : app.status === "refunded"
+                    ? "Application was refunded — ETAS submission is not required."
+                    : "Refund in progress — ETAS submission is blocked."}
               </p>
             </div>
           ) : (
@@ -354,7 +415,12 @@ function ApplicationDetail() {
                   <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Reference</div>
                   <div className="font-mono text-foreground">{app.etas_reference}</div>
                 </div>
-                {app.etas_submitted_at && <div className="mt-2 text-[11px] text-muted-foreground">{new Date(app.etas_submitted_at).toLocaleString()}</div>}
+                {app.etas_submitted_at && (
+                  <div className="mt-2 text-[11px] text-muted-foreground">
+                    {new Date(app.etas_submitted_at).toLocaleString()}
+                    {etasSubmittedByName && <> · by {etasSubmittedByName}</>}
+                  </div>
+                )}
               </>
             ) : (
               <>
@@ -427,7 +493,7 @@ function ApplicationDetail() {
                     <div className={`mt-1 text-sm font-medium capitalize ${
                       app.refund_status === "processed" ? "text-success" :
                       app.refund_status === "rejected"  ? "text-destructive" : "text-foreground"
-                    }`}>{app.refund_status}{app.refund_amount ? ` · $${app.refund_amount}` : ""}</div>
+                    }`}>{app.refund_status}{app.refund_amount ? ` · $${app.refund_amount}` : ""}{app.refund_processed_at ? ` · ${new Date(app.refund_processed_at).toLocaleDateString()}` : ""}</div>
                     {app.refund_reason && <p className="mt-1 text-xs text-muted-foreground">{app.refund_reason}</p>}
                     {app.refund_status === "requested" && isSuperAdmin && (
                       <div className="mt-3 flex gap-2">
@@ -491,13 +557,22 @@ function Section({ title, icon: Icon, children }: { title: string; icon: React.C
   );
 }
 
-function Field({ label, value, icon: Icon }: { label: string; value: string; icon?: React.ComponentType<{ className?: string }> }) {
+function Field({ label, value, icon: Icon, wa }: { label: string; value: string; icon?: React.ComponentType<{ className?: string }>; wa?: boolean }) {
   return (
     <div>
       <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{label}</div>
       <div className="mt-1 flex items-center gap-2 text-sm text-foreground">
         {Icon && <Icon className="h-3.5 w-3.5 text-muted-foreground" />}
         {value}
+        {wa && (
+          <a
+            href={waLink(value)} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 rounded-sm border border-success/40 bg-success/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-success hover:bg-success/20"
+            title="Message on WhatsApp"
+          >
+            <MessageCircle className="h-3 w-3" /> WhatsApp
+          </a>
+        )}
       </div>
     </div>
   );
