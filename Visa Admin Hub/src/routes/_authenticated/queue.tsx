@@ -4,7 +4,7 @@ import { AlertTriangle, Check, Clock, Download, Copy, Eye, Loader2, Lock, Search
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { docTypeLabels, INFO_SOURCE_NOTE_PREFIX, INFO_SOURCES, isPlaceholderDob, isPlaceholderNationality, waLink, type AppDocument, type AppNote, type Application, type DocType, type InfoSource } from "@/lib/applications";
+import { docTypeLabels, formatMoney, INFO_SOURCE_NOTE_PREFIX, INFO_SOURCES, isPlaceholderDob, isPlaceholderNationality, waLink, type AppDocument, type AppNote, type Application, type DocType, type InfoSource } from "@/lib/applications";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageShell, PageHeader } from "@/components/admin/PageShell";
@@ -227,7 +227,7 @@ function QueuePage() {
       await supabase.from("application_notes").insert({
         application_id: a.id,
         author_id: user?.id ?? null,
-        body: `__AUDIT__ Refund requested · $${Number(a.fee)} — Application rejected from queue`,
+        body: `__AUDIT__ Refund requested · ${formatMoney(Number(a.fee), a.currency)} — Application rejected from queue`,
       });
     }
     setBusyId(null);
@@ -373,7 +373,10 @@ function QueuePage() {
                       <Lock className="h-3 w-3" /> Claimed by you
                     </span>
                   )}
-                  <span className={`text-[10px] uppercase tracking-wider ${a.type === "express" ? "font-semibold text-accent" : "text-muted-foreground"}`}>{a.type}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{a.type === "express" ? "Quick-apply" : "Guided form"}</span>
+                  <span className={`rounded-sm px-2 py-0.5 text-[10px] uppercase tracking-wider font-semibold ${a.processing_speed === "express" ? "bg-accent/15 text-accent" : "bg-secondary text-foreground"}`}>
+                    {a.processing_speed === "express" ? "Express" : "Standard"} · {formatMoney(Number(a.fee), a.currency)}
+                  </span>
                   {a.paid
                     ? <span className="rounded-sm bg-success/15 px-2 py-0.5 text-[10px] uppercase tracking-wider text-success">✓ Paid</span>
                     : <span className="rounded-sm bg-warning/20 px-2 py-0.5 text-[10px] uppercase tracking-wider text-foreground">Not paid</span>}
@@ -398,10 +401,20 @@ function QueuePage() {
                   <dd className="mt-0.5 text-sm text-foreground">{isPlaceholderNationality(a) ? "Not provided" : a.nationality}</dd>
                 </div>
                 <div>
+                  <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Travel Date</dt>
+                  <dd className="mt-0.5 text-sm text-foreground">{a.arrival_date ? new Date(a.arrival_date).toLocaleDateString() : "Not provided"}</dd>
+                </div>
+                <div>
                   <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Passport</dt>
                   <dd className="mt-0.5 font-mono text-xs text-foreground">{a.passport_number}</dd>
                   <dd className="text-[11px] text-muted-foreground">exp {new Date(a.passport_expiry).toLocaleDateString()}</dd>
                 </div>
+                {a.sponsor_code && (
+                  <div>
+                    <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Sponsor Code</dt>
+                    <dd className="mt-0.5 font-mono text-xs text-foreground">{a.sponsor_code}</dd>
+                  </div>
+                )}
                 <div>
                   <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Contact / WhatsApp</dt>
                   <dd className="mt-0.5 text-xs text-foreground">{a.email}</dd>
@@ -590,7 +603,7 @@ function QueuePage() {
               <div className="mt-6 space-y-5 text-sm">
                 {viewing.type === "express" && (
                   <div className="rounded-sm border border-accent/30 bg-accent/5 px-4 py-3 text-xs text-muted-foreground">
-                    <span className="font-semibold text-accent uppercase tracking-wider text-[10px]">Express application</span>
+                    <span className="font-semibold text-accent uppercase tracking-wider text-[10px]">Quick-apply application</span>
                     <p className="mt-1">Applicant details were extracted from passport documents via OCR. Verify against uploaded files before processing.</p>
                   </div>
                 )}
@@ -615,9 +628,9 @@ function QueuePage() {
                   <DetailRow label="Passport expiry" value={new Date(viewing.passport_expiry).toLocaleDateString()} onCopy={copy} />
                 </DetailGroup>
 
-                {viewing.type === "standard" && viewing.purpose && (
+                {(viewing.purpose || viewing.arrival_date) && (
                   <DetailGroup title="Travel">
-                    <DetailRow label="Purpose" value={viewing.purpose} onCopy={copy} />
+                    {viewing.purpose && <DetailRow label="Purpose" value={viewing.purpose} onCopy={copy} />}
                     {viewing.address_in_somalia && <DetailRow label="Address in Somalia" value={viewing.address_in_somalia} onCopy={copy} />}
                     {viewing.arrival_date && <DetailRow label="Arrival" value={new Date(viewing.arrival_date).toLocaleDateString()} onCopy={copy} />}
                     {viewing.departure_date && <DetailRow label="Departure" value={new Date(viewing.departure_date).toLocaleDateString()} onCopy={copy} />}
@@ -625,8 +638,11 @@ function QueuePage() {
                 )}
 
                 <DetailGroup title="Application">
-                  <DetailRow label="Type" value={viewing.type} onCopy={copy} />
-                  <DetailRow label="Fee" value={`$${Number(viewing.fee)} USD`} onCopy={copy} />
+                  <DetailRow label="Form used" value={viewing.type === "express" ? "Quick-apply" : "Guided form"} onCopy={copy} />
+                  <DetailRow label="Processing speed" value={viewing.processing_speed === "express" ? "Express (5-6hr)" : "Standard"} onCopy={copy} />
+                  {viewing.applicant_type && <DetailRow label="Applicant type" value={viewing.applicant_type === "ajnabi" ? "Foreigner (Ajnabi)" : "Diaspora (Qurba-Joog)"} onCopy={copy} />}
+                  {viewing.sponsor_code && <DetailRow label="Sponsor code" value={viewing.sponsor_code} onCopy={copy} mono />}
+                  <DetailRow label="Fee" value={formatMoney(Number(viewing.fee), viewing.currency)} onCopy={copy} />
                   <DetailRow label="Payment" value={viewing.paid ? "Paid" : "Not paid"} />
                 </DetailGroup>
 

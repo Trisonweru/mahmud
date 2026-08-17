@@ -14,11 +14,15 @@ function CheckoutForm({
   agreed,
   reference,
   fee,
+  currencySymbol,
+  currencyLabel,
   onSuccess,
 }: {
   agreed: boolean;
   reference: string;
   fee: number;
+  currencySymbol: string;
+  currencyLabel: string;
   onSuccess: (ref: string) => void;
 }) {
   const stripe = useStripe();
@@ -130,7 +134,7 @@ function CheckoutForm({
           </>
         ) : (
           <>
-            <CreditCard className="h-4 w-4" /> Pay ${fee.toFixed(2)} USD
+            <CreditCard className="h-4 w-4" /> Pay {currencySymbol}{fee.toFixed(2)}{currencyLabel ? ` ${currencyLabel}` : ""}
           </>
         )}
       </button>
@@ -148,6 +152,7 @@ const Payment = () => {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [reference, setReference] = useState("");
   const [fee, setFee] = useState<number | null>(null);
+  const [currency, setCurrency] = useState<"gbp" | "usd">("usd");
   const [loadError, setLoadError] = useState("");
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -180,6 +185,7 @@ const Payment = () => {
         setClientSecret(json.client_secret as string);
         setReference((pending.reference as string | undefined) ?? "");
         setFee(typeof json.fee === "number" ? json.fee : null);
+        setCurrency(json.currency === "gbp" ? "gbp" : "usd");
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Payment initialization failed.";
         setLoadError(msg);
@@ -191,6 +197,9 @@ const Payment = () => {
   if (success !== null) {
     return <SuccessScreen reference={success} />;
   }
+
+  const currencySymbol = currency === "gbp" ? "£" : "$";
+  const currencyLabel = currency === "gbp" ? "" : "USD";
 
   return (
     <section className="container py-20 max-w-5xl">
@@ -210,7 +219,7 @@ const Payment = () => {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-foreground">eVisa application fee</span>
-              <span className="font-medium">{fee != null ? `$${fee.toFixed(2)} USD` : "…"}</span>
+              <span className="font-medium">{fee != null ? `${currencySymbol}${fee.toFixed(2)}${currencyLabel ? ` ${currencyLabel}` : ""}` : "…"}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-foreground">Processing</span>
@@ -265,6 +274,8 @@ const Payment = () => {
                 agreed={agreed}
                 reference={reference}
                 fee={fee ?? 0}
+                currencySymbol={currencySymbol}
+                currencyLabel={currencyLabel}
                 onSuccess={(ref) => setSuccess(ref)}
               />
             </Elements>
@@ -285,12 +296,12 @@ const Payment = () => {
             Single entry · Valid up to 180 days
           </p>
           <div className="mt-8 space-y-3 text-sm border-t border-primary-foreground/10 pt-6">
-            <Row label="Applicable fee" value={fee != null ? `$${fee.toFixed(2)}` : "…"} />
+            <Row label="Applicable fee" value={fee != null ? `${currencySymbol}${fee.toFixed(2)}` : "…"} />
             <Row label="Processing" value="Included" />
           </div>
           <div className="mt-6 pt-6 border-t border-primary-foreground/10 flex items-end justify-between">
             <span className="text-xs uppercase tracking-[0.2em] text-primary-foreground/60">Total</span>
-            <span className="font-serif text-3xl text-accent">{fee != null ? `$${fee}` : "…"}</span>
+            <span className="font-serif text-3xl text-accent">{fee != null ? `${currencySymbol}${fee}` : "…"}</span>
           </div>
           <div className="mt-8 flex items-start gap-2 text-xs text-primary-foreground/60">
             <ShieldCheck className="h-4 w-4 text-accent mt-0.5 shrink-0" />

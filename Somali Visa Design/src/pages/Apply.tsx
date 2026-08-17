@@ -8,6 +8,7 @@ import { COUNTRIES } from "@/data/countries";
 import { extractPassport, hasExtractedData, matchNationality, UnsupportedImageError } from "@/lib/passportOcr";
 import { setPending } from "@/lib/pendingApplication";
 import { FUNCTIONS_URL, fnHeaders } from "@/lib/api";
+import { AJNABI_OPTION, formatFee } from "@/lib/pricing";
 import { isEmail, monthsBetween, todayStr } from "@/lib/validation";
 
 
@@ -511,7 +512,7 @@ const Apply = () => {
             </div>
             <p className="text-muted-foreground">
               By submitting, you confirm all information provided is accurate. Submission incurs a one-time
-              processing fee of <strong className="text-primary">$94 USD</strong>.
+              processing fee of <strong className="text-primary">{formatFee(AJNABI_OPTION.fee, AJNABI_OPTION.currency)}</strong>.
             </p>
             <Check2
               label="I agree to the Terms of Service and Privacy Policy and confirm my information is correct. *"

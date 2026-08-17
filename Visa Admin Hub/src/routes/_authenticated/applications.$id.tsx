@@ -9,7 +9,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DocumentsList } from "@/components/admin/DocumentsList";
-import { ALL_STATUSES, INFO_SOURCE_NOTE_PREFIX, INFO_SOURCES, isPlaceholderDob, isPlaceholderNationality, isRefundedOrDenied, statusLabels, waLink, type AppNote, type AppStatus, type Application, type InfoSource } from "@/lib/applications";
+import { ALL_STATUSES, formatMoney, INFO_SOURCE_NOTE_PREFIX, INFO_SOURCES, isPlaceholderDob, isPlaceholderNationality, isRefundedOrDenied, statusLabels, waLink, type AppNote, type AppStatus, type Application, type InfoSource } from "@/lib/applications";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { processStripeRefund } from "@/lib/payments.functions";
@@ -202,17 +202,17 @@ function ApplicationDetail() {
       await supabase.from("application_notes").insert({
         application_id: app.id,
         author_id: user.id,
-        body: `${AUDIT_PREFIX}Refund requested${amount ? ` · $${amount}` : ""} — ${refundReason.trim()}`,
+        body: `${AUDIT_PREFIX}Refund requested${amount ? ` · ${formatMoney(amount, app.currency)}` : ""} — ${refundReason.trim()}`,
       });
       setShowRefund(false); setRefundReason(""); setRefundAmount("");
       await load();
     }
   };
 
-  const updateRefundStatus = async (status: "approved" | "rejected" | "processed") => {
+  const updateRefundStatus = async (status: "approved" | "rejected" | "refunded") => {
     if (!user) return;
 
-    if (status === "processed") {
+    if (status === "refunded") {
       const amountNumber = refundAmount ? parseFloat(refundAmount) : Number(app.fee);
       setBusy(true);
       try {
@@ -227,7 +227,7 @@ function ApplicationDetail() {
     }
 
     const patch: Partial<Application> = { refund_status: status };
-    if (status === "processed") {
+    if (status === "refunded") {
       const amountToSave = refundAmount ? parseFloat(refundAmount) : Number(app.fee);
       patch.status = "refunded";
       patch.refund_processed_at = new Date().toISOString();
@@ -305,7 +305,7 @@ function ApplicationDetail() {
         <div className="space-y-6 lg:col-span-2">
           {app.type === "express" && (
             <div className="rounded-sm border border-accent/30 bg-accent/5 px-5 py-3 text-xs text-muted-foreground">
-              <span className="font-semibold text-accent uppercase tracking-wider text-[10px]">Express application</span>
+              <span className="font-semibold text-accent uppercase tracking-wider text-[10px]">Quick-apply application</span>
               <p className="mt-1">Details below were extracted from uploaded passport documents via OCR. Verify against the uploaded files before processing.</p>
             </div>
           )}
@@ -321,12 +321,13 @@ function ApplicationDetail() {
             <Field label="Passport expiry" value={new Date(app.passport_expiry).toLocaleDateString()} />
           </Section>
 
-          {app.type === "standard" && app.purpose && (
+          {(app.purpose || app.arrival_date || app.sponsor_code) && (
             <Section title="Travel details" icon={Briefcase}>
-              <Field label="Purpose" value={app.purpose} />
+              {app.purpose && <Field label="Purpose" value={app.purpose} />}
               {app.address_in_somalia && <Field label="Address in Somalia" value={app.address_in_somalia} icon={MapPin} />}
               {app.arrival_date && <Field label="Arrival" value={new Date(app.arrival_date).toLocaleDateString()} icon={Calendar} />}
               {app.departure_date && <Field label="Departure" value={new Date(app.departure_date).toLocaleDateString()} icon={Calendar} />}
+              {app.sponsor_code && <Field label="Sponsor code" value={app.sponsor_code} />}
             </Section>
           )}
 
@@ -472,8 +473,9 @@ function ApplicationDetail() {
           {/* Payment card */}
           <div className="rounded-sm border border-border bg-card p-6 shadow-card">
             <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Payment</div>
-            <div className="font-serif text-xl text-foreground">${Number(app.fee)} USD</div>
-            <div className="mt-2 text-sm text-muted-foreground">{app.type === "express" ? "Express service" : "Standard processing"}</div>
+            <div className="font-serif text-xl text-foreground">{formatMoney(Number(app.fee), app.currency)}</div>
+            <div className="mt-2 text-sm text-muted-foreground">{app.processing_speed === "express" ? "Express processing (5-6hr)" : "Standard processing"}</div>
+            <div className="mt-1 text-xs text-muted-foreground">{app.type === "express" ? "Quick-apply form" : "Guided form"}{app.applicant_type ? ` · ${app.applicant_type === "ajnabi" ? "Foreigner (Ajnabi)" : "Diaspora (Qurba-Joog)"}` : ""}</div>
             <div className="mt-3">
               {app.paid ? (
                 <span className="inline-flex items-center rounded-sm bg-success/15 px-2.5 py-1 text-[11px] uppercase tracking-wider text-success">
@@ -491,9 +493,9 @@ function ApplicationDetail() {
                   <div>
                     <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Refund status</div>
                     <div className={`mt-1 text-sm font-medium capitalize ${
-                      app.refund_status === "processed" ? "text-success" :
+                      app.refund_status === "refunded" ? "text-success" :
                       app.refund_status === "rejected"  ? "text-destructive" : "text-foreground"
-                    }`}>{app.refund_status}{app.refund_amount ? ` · $${app.refund_amount}` : ""}{app.refund_processed_at ? ` · ${new Date(app.refund_processed_at).toLocaleDateString()}` : ""}</div>
+                    }`}>{app.refund_status}{app.refund_amount ? ` · ${formatMoney(Number(app.refund_amount), app.currency)}` : ""}{app.refund_processed_at ? ` · ${new Date(app.refund_processed_at).toLocaleDateString()}` : ""}</div>
                     {app.refund_reason && <p className="mt-1 text-xs text-muted-foreground">{app.refund_reason}</p>}
                     {app.refund_status === "requested" && isSuperAdmin && (
                       <div className="mt-3 flex gap-2">
@@ -504,8 +506,8 @@ function ApplicationDetail() {
                       </div>
                     )}
                     {app.refund_status === "approved" && isSuperAdmin && (
-                      <button onClick={() => updateRefundStatus("processed")} disabled={busy}
-                        className="mt-2 w-full rounded-sm bg-primary px-3 py-1.5 text-xs uppercase tracking-wider text-primary-foreground hover:bg-primary/90 disabled:opacity-60">Mark as processed</button>
+                      <button onClick={() => updateRefundStatus("refunded")} disabled={busy}
+                        className="mt-2 w-full rounded-sm bg-primary px-3 py-1.5 text-xs uppercase tracking-wider text-primary-foreground hover:bg-primary/90 disabled:opacity-60">Mark as refunded</button>
                     )}
                   </div>
                 ) : (
@@ -520,7 +522,7 @@ function ApplicationDetail() {
                         <div className="text-[10px] uppercase tracking-wider text-destructive flex items-center gap-1">
                           <DollarSign className="h-3 w-3" /> Refund request
                         </div>
-                        <input value={refundAmount} onChange={e => setRefundAmount(e.target.value)} placeholder={`Amount (max $${app.fee})`} type="number" min="1" max={String(app.fee)}
+                        <input value={refundAmount} onChange={e => setRefundAmount(e.target.value)} placeholder={`Amount (max ${formatMoney(Number(app.fee), app.currency)})`} type="number" min="1" max={String(app.fee)}
                           className="w-full rounded-sm border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40" />
                         <textarea value={refundReason} onChange={e => setRefundReason(e.target.value)} placeholder="Reason for refund…" rows={2}
                           className="w-full rounded-sm border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40" />

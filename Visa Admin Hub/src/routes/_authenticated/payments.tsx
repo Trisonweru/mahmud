@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { AccessDenied } from "@/components/admin/AccessDenied";
 import { PageShell, PageHeader } from "@/components/admin/PageShell";
 import type { Application } from "@/lib/applications";
+import { formatMoney, sumByCurrency, formatCurrencyTotals } from "@/lib/applications";
 
 export const Route = createFileRoute("/_authenticated/payments")({
   head: () => ({ meta: [{ title: "Payments — Admin" }] }),
@@ -77,43 +78,55 @@ function PaymentsContent() {
     paidAll.filter(a => inPeriod(new Date(a.paid_at!), period)),
   [paidAll, period]);
 
-  // Gross revenue for active period
-  const activeGross = useMemo(() => activeItems.reduce((s, a) => s + Number(a.fee), 0), [activeItems]);
+  // Gross revenue for active period. Fees can be charged in more than one currency
+  // (Option 1/3 = GBP, Option 2 = USD), so totals are grouped per currency rather
+  // than summed together as one meaningless number.
+  const activeGrossByCurrency = useMemo(() => sumByCurrency(activeItems, a => Number(a.fee), a => a.currency), [activeItems]);
 
   // Refunds processed in active period (by refund_processed_at)
   const activeRefunds = useMemo(() =>
     apps.filter(a =>
-      a.refund_status === "processed" &&
+      a.refund_status === "refunded" &&
       a.refund_processed_at &&
       inPeriod(new Date(a.refund_processed_at), period)
     ),
   [apps, period]);
 
-  const activeRefundTotal = useMemo(() =>
-    activeRefunds.reduce((s, a) => s + Number(a.refund_amount ?? a.fee), 0),
+  const activeRefundByCurrency = useMemo(() =>
+    sumByCurrency(activeRefunds, a => Number(a.refund_amount ?? a.fee), a => a.currency),
   [activeRefunds]);
 
-  const activeNet = activeGross - activeRefundTotal;
+  const activeNetByCurrency = useMemo(() => {
+    const net = { ...activeGrossByCurrency };
+    for (const [currency, amount] of Object.entries(activeRefundByCurrency)) net[currency] = (net[currency] ?? 0) - amount;
+    return net;
+  }, [activeGrossByCurrency, activeRefundByCurrency]);
 
   // All-time totals (independent of the selected period), refund-aware to stay
   // consistent with the period figures above.
-  const allTimeGross = useMemo(() => paidAll.reduce((s, a) => s + Number(a.fee), 0), [paidAll]);
-  const allTimeRefunds = useMemo(() => apps.filter(a => a.refund_status === "processed"), [apps]);
-  const allTimeRefundTotal = useMemo(() =>
-    allTimeRefunds.reduce((s, a) => s + Number(a.refund_amount ?? a.fee), 0),
+  const allTimeGrossByCurrency = useMemo(() => sumByCurrency(paidAll, a => Number(a.fee), a => a.currency), [paidAll]);
+  const allTimeRefunds = useMemo(() => apps.filter(a => a.refund_status === "refunded"), [apps]);
+  const allTimeRefundByCurrency = useMemo(() =>
+    sumByCurrency(allTimeRefunds, a => Number(a.refund_amount ?? a.fee), a => a.currency),
   [allTimeRefunds]);
-  const allTimeNet = allTimeGross - allTimeRefundTotal;
+  const allTimeNetByCurrency = useMemo(() => {
+    const net = { ...allTimeGrossByCurrency };
+    for (const [currency, amount] of Object.entries(allTimeRefundByCurrency)) net[currency] = (net[currency] ?? 0) - amount;
+    return net;
+  }, [allTimeGrossByCurrency, allTimeRefundByCurrency]);
+  const hasAnyRefunds = Object.values(activeRefundByCurrency).some(v => v > 0);
+  const hasAnyAllTimeRefunds = Object.values(allTimeRefundByCurrency).some(v => v > 0);
 
   // For "Last 7" and "Last 30" views, group by local date for the sub-grid
   const dateBuckets = useMemo(() => {
     if (period !== "last7" && period !== "last30") return [];
-    const map = new Map<string, { label: string; count: number; total: number }>();
+    const map = new Map<string, { label: string; count: number; totals: Record<string, number> }>();
     for (const a of activeItems) {
       const d = new Date(a.paid_at!);
       const key = localDateKey(d);
       const label = d.toLocaleDateString("en", { weekday: "short", month: "short", day: "numeric" });
-      const b = map.get(key) ?? { label, count: 0, total: 0 };
-      b.count++; b.total += Number(a.fee);
+      const b = map.get(key) ?? { label, count: 0, totals: {} };
+      b.count++; b.totals[a.currency] = (b.totals[a.currency] ?? 0) + Number(a.fee);
       map.set(key, b);
     }
     return Array.from(map.entries()).sort((a, b) => b[0].localeCompare(a[0]));
@@ -124,9 +137,9 @@ function PaymentsContent() {
   const [showRefundPanel, setShowRefundPanel] = useState(false);
 
   const exportCsv = () => {
-    const rows: string[][] = [["Reference", "Applicant", "Email", "Nationality", "Type", "Amount", "Paid at", "Refund Status", "Refund Amount", "Refund Processed At"]];
+    const rows: string[][] = [["Reference", "Applicant", "Email", "Nationality", "Type", "Amount", "Currency", "Paid at", "Refund Status", "Refund Amount", "Refund Processed At"]];
     activeItems.forEach(a => rows.push([
-      a.reference, a.full_name, a.email, a.nationality, a.type, String(a.fee), a.paid_at ?? "",
+      a.reference, a.full_name, a.email, a.nationality, a.type, String(a.fee), a.currency, a.paid_at ?? "",
       a.refund_status ?? "", a.refund_amount != null ? String(a.refund_amount) : "", a.refund_processed_at ?? "",
     ]));
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
@@ -159,19 +172,19 @@ function PaymentsContent() {
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         <div className="rounded-sm border border-border bg-card p-4 shadow-card">
           <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">All-time net revenue</div>
-          <div className="mt-1 font-serif text-2xl text-foreground">${allTimeNet.toLocaleString()}</div>
-          {allTimeRefundTotal > 0 && (
+          <div className="mt-1 font-serif text-2xl text-foreground">{formatCurrencyTotals(allTimeNetByCurrency)}</div>
+          {hasAnyAllTimeRefunds && (
             <div className="mt-0.5 text-[11px] text-muted-foreground">
-              ${allTimeGross.toLocaleString()} gross − ${allTimeRefundTotal.toLocaleString()} refunded
+              {formatCurrencyTotals(allTimeGrossByCurrency)} gross − {formatCurrencyTotals(allTimeRefundByCurrency)} refunded
             </div>
           )}
         </div>
         <div className="rounded-sm border border-border bg-card p-4 shadow-card">
           <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Period net revenue</div>
-          <div className="mt-1 font-serif text-2xl text-foreground">${activeNet.toLocaleString()}</div>
-          {activeRefundTotal > 0 && (
+          <div className="mt-1 font-serif text-2xl text-foreground">{formatCurrencyTotals(activeNetByCurrency)}</div>
+          {hasAnyRefunds && (
             <div className="mt-0.5 text-[11px] text-muted-foreground">
-              ${activeGross.toLocaleString()} gross − ${activeRefundTotal.toLocaleString()} refunded
+              {formatCurrencyTotals(activeGrossByCurrency)} gross − {formatCurrencyTotals(activeRefundByCurrency)} refunded
             </div>
           )}
         </div>
@@ -211,7 +224,7 @@ function PaymentsContent() {
                     <Link to="/applications/$id" params={{ id: a.id }} className="font-mono text-xs text-primary hover:text-accent">{a.reference}</Link>
                   </td>
                   <td className="max-w-[140px] truncate px-5 py-3 text-foreground">{a.full_name}</td>
-                  <td className="px-5 py-3 text-right font-medium">${Number(a.refund_amount ?? a.fee).toLocaleString()}</td>
+                  <td className="px-5 py-3 text-right font-medium">{formatMoney(Number(a.refund_amount ?? a.fee), a.currency)}</td>
                   <td className="max-w-[200px] truncate px-5 py-3 text-xs text-muted-foreground">{a.refund_reason ?? "—"}</td>
                   <td className="whitespace-nowrap px-5 py-3 text-xs text-muted-foreground">
                     {a.refund_requested_at ? new Date(a.refund_requested_at).toLocaleDateString() : "—"}
@@ -256,7 +269,7 @@ function PaymentsContent() {
           {dateBuckets.map(([key, b]) => (
             <div key={key} className="rounded-sm border border-border bg-card p-3 shadow-card">
               <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{b.label}</div>
-              <div className="mt-1 font-serif text-base text-accent">${b.total.toLocaleString()}</div>
+              <div className="mt-1 font-serif text-base text-accent">{formatCurrencyTotals(b.totals)}</div>
               <div className="text-xs text-muted-foreground">{b.count} txn</div>
             </div>
           ))}
@@ -271,8 +284,8 @@ function PaymentsContent() {
               Transactions · {activePeriod.label}
             </div>
             <div className="font-serif text-lg text-foreground">
-              {activeItems.length} settled · ${activeGross.toLocaleString()} gross
-              {activeRefundTotal > 0 && <span className="ml-2 text-sm text-destructive">− ${activeRefundTotal.toLocaleString()} refunded = ${activeNet.toLocaleString()} net</span>}
+              {activeItems.length} settled · {formatCurrencyTotals(activeGrossByCurrency)} gross
+              {hasAnyRefunds && <span className="ml-2 text-sm text-destructive">− {formatCurrencyTotals(activeRefundByCurrency)} refunded = {formatCurrencyTotals(activeNetByCurrency)} net</span>}
             </div>
           </div>
           <button onClick={exportCsv} disabled={activeItems.length === 0}
@@ -306,20 +319,20 @@ function PaymentsContent() {
                   </td>
                   <td className="max-w-[180px] truncate px-6 py-4 text-foreground">{a.full_name}</td>
                   <td className="px-6 py-4 text-xs uppercase">{a.type}</td>
-                  <td className="px-6 py-4 text-right font-medium">${Number(a.fee).toLocaleString()}</td>
+                  <td className="px-6 py-4 text-right font-medium">{formatMoney(Number(a.fee), a.currency)}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-xs text-muted-foreground">
                     {a.paid_at ? new Date(a.paid_at).toLocaleString() : "—"}
                   </td>
                   <td className="px-6 py-4">
                     {a.refund_status ? (
                       <span className={`inline-flex rounded-sm px-2 py-0.5 text-[10px] uppercase tracking-wider font-medium ${
-                        a.refund_status === "processed" ? "bg-success/15 text-success" :
+                        a.refund_status === "refunded" ? "bg-success/15 text-success" :
                         a.refund_status === "approved"  ? "bg-accent/15 text-accent" :
                         a.refund_status === "rejected"  ? "bg-destructive/10 text-destructive" :
                         "bg-warning/20 text-foreground"
                       }`}>
                         {a.refund_status}
-                        {a.refund_amount ? ` · $${a.refund_amount}` : ""}
+                        {a.refund_amount ? ` · ${formatMoney(Number(a.refund_amount), a.currency)}` : ""}
                       </span>
                     ) : "—"}
                   </td>
@@ -330,23 +343,19 @@ function PaymentsContent() {
               <tfoot>
                 <tr className="bg-secondary/40">
                   <td colSpan={3} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Gross total</td>
-                  <td className="px-6 py-3 text-right font-serif text-accent">${activeGross.toLocaleString()}</td>
+                  <td className="px-6 py-3 text-right font-serif text-accent">{formatCurrencyTotals(activeGrossByCurrency)}</td>
                   <td colSpan={2} />
                 </tr>
-                {activeRefundTotal > 0 && (
-                  <tr className="bg-destructive/5">
-                    <td colSpan={3} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Refunds (this period)</td>
-                    <td className="px-6 py-3 text-right font-serif text-destructive">− ${activeRefundTotal.toLocaleString()}</td>
-                    <td colSpan={2} />
-                  </tr>
-                )}
-                {activeRefundTotal > 0 && (
-                  <tr className="bg-secondary/60 font-medium">
-                    <td colSpan={3} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Net revenue</td>
-                    <td className="px-6 py-3 text-right font-serif text-foreground">${activeNet.toLocaleString()}</td>
-                    <td colSpan={2} />
-                  </tr>
-                )}
+                <tr className="bg-destructive/5">
+                  <td colSpan={3} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Refunds (this period)</td>
+                  <td className="px-6 py-3 text-right font-serif text-destructive">− {formatCurrencyTotals(activeRefundByCurrency)}</td>
+                  <td colSpan={2} />
+                </tr>
+                <tr className="bg-secondary/60 font-medium">
+                  <td colSpan={3} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Net revenue</td>
+                  <td className="px-6 py-3 text-right font-serif text-foreground">{formatCurrencyTotals(activeNetByCurrency)}</td>
+                  <td colSpan={2} />
+                </tr>
               </tfoot>
             )}
           </table>

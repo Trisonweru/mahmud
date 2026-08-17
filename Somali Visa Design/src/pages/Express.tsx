@@ -113,7 +113,7 @@ const Express = () => {
     <>
     <PageSEO
       title="Somalia eVisa Express Service — Skip the Form | eVisaSomali"
-      description={`Don't want to fill out the application? Send us your passport page and photo — our specialists prepare your Somalia eVisa application for you. From ${formatFee(PRICING_TIERS.standard.fee)}, 24/7 support.`}
+      description={`Don't want to fill out the application? Send us your passport page and photo — our specialists prepare your Somalia eVisa application for you. From ${formatFee(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}, 24/7 support.`}
       canonical="https://www.evisasomali.com/express"
     />
     <section className="container py-20 max-w-3xl">
@@ -214,7 +214,7 @@ const Express = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-border">
           <div>
             <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Service Fee</div>
-            <div className="font-serif text-3xl text-primary mt-1">${PRICING_TIERS.standard.fee} <span className="text-sm font-sans text-muted-foreground">USD</span></div>
+            <div className="font-serif text-3xl text-primary mt-1">£{PRICING_TIERS.standard.fee}</div>
           </div>
           <button
             type="submit"

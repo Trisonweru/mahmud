@@ -6,13 +6,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { AccessDenied } from "@/components/admin/AccessDenied";
 import { PageShell, PageHeader } from "@/components/admin/PageShell";
 import type { Application } from "@/lib/applications";
+import { formatCurrencyTotals } from "@/lib/applications";
 
 export const Route = createFileRoute("/_authenticated/customers")({
   head: () => ({ meta: [{ title: "Customers — Admin" }] }),
   component: CustomersPage,
 });
 
-interface Customer { name: string; email: string; nationality: string; applications: number; totalSpent: number; lastActivity: string; }
+interface Customer { name: string; email: string; nationality: string; applications: number; totalSpentByCurrency: Record<string, number>; totalSpentSortKey: number; lastActivity: string; }
 type SortKey = "lastActivity" | "totalSpent" | "applications" | "name";
 
 function CustomersPage() {
@@ -33,9 +34,13 @@ function CustomersContent() {
       const apps = (data ?? []) as Application[];
       const map = new Map<string, Customer>();
       apps.forEach(a => {
-        const c = map.get(a.email) ?? { name: a.full_name, email: a.email, nationality: a.nationality, applications: 0, totalSpent: 0, lastActivity: a.submitted_at };
+        const c = map.get(a.email) ?? { name: a.full_name, email: a.email, nationality: a.nationality, applications: 0, totalSpentByCurrency: {}, totalSpentSortKey: 0, lastActivity: a.submitted_at };
         c.applications++;
-        if (a.paid) c.totalSpent += Number(a.fee);
+        if (a.paid) {
+          c.totalSpentByCurrency[a.currency] = (c.totalSpentByCurrency[a.currency] ?? 0) + Number(a.fee);
+          // Currencies aren't comparable 1:1, but a rough combined figure is fine for sort order only — never displayed.
+          c.totalSpentSortKey += Number(a.fee);
+        }
         if (a.submitted_at > c.lastActivity) c.lastActivity = a.submitted_at;
         map.set(a.email, c);
       });
@@ -59,7 +64,7 @@ function CustomersContent() {
     list = [...list].sort((a, b) => {
       let cmp = 0;
       if (sortBy === "lastActivity") cmp = a.lastActivity.localeCompare(b.lastActivity);
-      else if (sortBy === "totalSpent") cmp = a.totalSpent - b.totalSpent;
+      else if (sortBy === "totalSpent") cmp = a.totalSpentSortKey - b.totalSpentSortKey;
       else if (sortBy === "applications") cmp = a.applications - b.applications;
       else cmp = a.name.localeCompare(b.name);
       return sortDir === "desc" ? -cmp : cmp;
@@ -126,7 +131,7 @@ function CustomersContent() {
                 <td className="max-w-[200px] truncate px-6 py-4 text-muted-foreground">{c.email}</td>
                 <td className="px-6 py-4 text-muted-foreground">{c.nationality}</td>
                 <td className="px-6 py-4">{c.applications}</td>
-                <td className="px-6 py-4 text-success">${c.totalSpent.toLocaleString()}</td>
+                <td className="px-6 py-4 text-success">{formatCurrencyTotals(c.totalSpentByCurrency)}</td>
                 <td className="whitespace-nowrap px-6 py-4 text-xs text-muted-foreground">{new Date(c.lastActivity).toLocaleDateString()}</td>
               </tr>
             ))}

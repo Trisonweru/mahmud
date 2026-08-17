@@ -23,6 +23,33 @@ export const statusLabels: Record<AppStatus, string> = {
   refunded: "Refunded",
 };
 
+export const CURRENCY_SYMBOL: Record<string, string> = { usd: "$", gbp: "£" };
+
+export function formatMoney(amount: number, currency: string | null | undefined): string {
+  const symbol = CURRENCY_SYMBOL[currency ?? "usd"] ?? "$";
+  return `${symbol}${amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+}
+
+// Fees can be charged in more than one currency (Option 1/3 = GBP, Option 2 = USD),
+// so a single summed total is meaningless — group and sum per currency instead.
+export function sumByCurrency<T>(items: T[], amountOf: (item: T) => number, currencyOf: (item: T) => string): Record<string, number> {
+  const totals: Record<string, number> = {};
+  for (const item of items) {
+    const currency = currencyOf(item);
+    totals[currency] = (totals[currency] ?? 0) + amountOf(item);
+  }
+  return totals;
+}
+
+export function formatCurrencyTotals(totals: Record<string, number>): string {
+  const entries = Object.entries(totals);
+  if (entries.length === 0) return formatMoney(0, "usd");
+  return entries
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([currency, amount]) => formatMoney(amount, currency))
+    .join(" + ");
+}
+
 export const INFO_SOURCE_NOTE_PREFIX = "info_source:";
 export const INFO_SOURCES = {
   internal: "Info Required — Us",

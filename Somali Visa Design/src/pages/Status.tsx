@@ -2,10 +2,10 @@ import { useRef, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { PageSEO } from "@/components/PageSEO";
 import { SectionHeading } from "@/components/SectionHeading";
-import { Search, Loader2, CheckCircle2, AlertTriangle, XCircle, Clock, Landmark } from "lucide-react";
+import { Search, Loader2, CheckCircle2, AlertTriangle, XCircle, Clock, Landmark, Banknote } from "lucide-react";
 import { API_URL } from "@/lib/api";
 
-type AppStatus = "pending_payment" | "awaiting_etas" | "submitted" | "in_review" | "additional_info" | "government_info_required" | "approved" | "rejected";
+type AppStatus = "pending_payment" | "awaiting_etas" | "submitted" | "in_review" | "additional_info" | "government_info_required" | "approved" | "rejected" | "refunded";
 
 // Client-side rate limit: 5 searches per 60 seconds
 let searchCount = 0;
@@ -25,6 +25,7 @@ const STATUS_UI: Record<AppStatus, { label: string; message: string; icon: typeo
   government_info_required: { label: "Government Info Required", message: "Additional information has been requested by the Government. Please check your email for instructions.",                                          icon: Landmark,      color: "text-indigo-700",  bg: "bg-indigo-50 border-indigo-300"  },
   approved:                 { label: "Approved",                 message: "Your eVisa has been sent to your email address.",                                                                                                 icon: CheckCircle2,  color: "text-green-700",   bg: "bg-green-50 border-green-200"    },
   rejected:         { label: "Denied",       message: "A notification has been sent to your email with further information.",            icon: XCircle,       color: "text-red-700",    bg: "bg-red-50 border-red-200"      },
+  refunded:         { label: "Refunded",     message: "Your payment for this application has been refunded. Please allow a few business days for it to appear on your statement.", icon: Banknote, color: "text-violet-700", bg: "bg-violet-50 border-violet-200" },
 };
 
 const Status = () => {

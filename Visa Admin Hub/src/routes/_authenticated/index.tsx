@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { PageShell, PageHeader } from "@/components/admin/PageShell";
 import type { Application } from "@/lib/applications";
+import { formatMoney, sumByCurrency, formatCurrencyTotals } from "@/lib/applications";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({ meta: [{ title: "Dashboard — Somalia eVisa Admin" }] }),
@@ -32,11 +33,19 @@ function Dashboard() {
   const recent = apps.slice(0, 20);
 
   // All-time revenue totals, consistent with the Payments page's period calculation.
+  // Fees can be charged in more than one currency, so totals are grouped per currency
+  // rather than summed together as one number.
   const paidApps = useMemo(() => apps.filter(a => a.paid && a.paid_at), [apps]);
-  const grossRevenue = useMemo(() => paidApps.reduce((s, a) => s + Number(a.fee), 0), [paidApps]);
-  const refundedApps = useMemo(() => apps.filter(a => a.refund_status === "processed"), [apps]);
-  const refundedAmount = useMemo(() => refundedApps.reduce((s, a) => s + Number(a.refund_amount ?? a.fee), 0), [refundedApps]);
-  const netRevenue = grossRevenue - refundedAmount;
+  const grossByCurrency = useMemo(() => sumByCurrency(paidApps, a => Number(a.fee), a => a.currency), [paidApps]);
+  const refundedApps = useMemo(() => apps.filter(a => a.refund_status === "refunded"), [apps]);
+  const refundedByCurrency = useMemo(() => sumByCurrency(refundedApps, a => Number(a.refund_amount ?? a.fee), a => a.currency), [refundedApps]);
+  const netByCurrency = useMemo(() => {
+    const net = { ...grossByCurrency };
+    for (const [currency, amount] of Object.entries(refundedByCurrency)) {
+      net[currency] = (net[currency] ?? 0) - amount;
+    }
+    return net;
+  }, [grossByCurrency, refundedByCurrency]);
 
   return (
     <PageShell>
@@ -55,15 +64,15 @@ function Dashboard() {
       <div className="mt-8 grid gap-3 sm:grid-cols-3">
         <div className="rounded-md border border-border bg-card p-4 shadow-card">
           <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Gross revenue</div>
-          <div className="mt-1 font-serif text-2xl text-foreground">${grossRevenue.toLocaleString()}</div>
+          <div className="mt-1 font-serif text-2xl text-foreground">{formatCurrencyTotals(grossByCurrency)}</div>
         </div>
         <div className="rounded-md border border-border bg-card p-4 shadow-card">
           <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Refunded amount</div>
-          <div className="mt-1 font-serif text-2xl text-foreground">${refundedAmount.toLocaleString()}</div>
+          <div className="mt-1 font-serif text-2xl text-foreground">{formatCurrencyTotals(refundedByCurrency)}</div>
         </div>
         <div className="rounded-md border border-border bg-card p-4 shadow-card">
           <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Net revenue</div>
-          <div className="mt-1 font-serif text-2xl text-foreground">${netRevenue.toLocaleString()}</div>
+          <div className="mt-1 font-serif text-2xl text-foreground">{formatCurrencyTotals(netByCurrency)}</div>
         </div>
       </div>
 
@@ -111,7 +120,7 @@ function Dashboard() {
                     <td className="px-6 py-3.5"><StatusBadge status={a.status} /></td>
                     <td className="px-6 py-3.5 text-xs">
                       {a.paid
-                        ? <span className="font-semibold text-success">${Number(a.fee).toLocaleString()}</span>
+                        ? <span className="font-semibold text-success">{formatMoney(Number(a.fee), a.currency)}</span>
                         : <span className="text-muted-foreground/60">unpaid</span>
                       }
                     </td>

@@ -22,7 +22,7 @@ export const SiteHeader = () => {
             <Globe2 className="h-5 w-5 text-accent" />
           </div>
           <div className="leading-tight">
-            <div className="font-serif text-xl font-semibold text-primary">Somalia eVisa Application</div>
+            <div className="font-serif text-xl font-bold text-primary">Somali Visa Application</div>
             <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Application Service</div>
           </div>
         </Link>

@@ -99,6 +99,7 @@ export type Database = {
           claimed_at: string | null
           claimed_by: string | null
           created_at: string
+          currency: string
           departure_date: string
           dob: string
           email: string
@@ -124,7 +125,8 @@ export type Database = {
           refund_reason: string | null
           refund_requested_at: string | null
           refund_requested_by: string | null
-          refund_status: "requested" | "approved" | "rejected" | "processed" | null
+          refund_status: "requested" | "approved" | "rejected" | "refunded" | null
+          sponsor_code: string | null
           status: Database["public"]["Enums"]["application_status"]
           stripe_customer_id: string | null
           stripe_payment_intent_id: string | null
@@ -140,6 +142,7 @@ export type Database = {
           claimed_at?: string | null
           claimed_by?: string | null
           created_at?: string
+          currency?: string
           departure_date: string
           dob: string
           email: string
@@ -165,7 +168,8 @@ export type Database = {
           refund_reason?: string | null
           refund_requested_at?: string | null
           refund_requested_by?: string | null
-          refund_status?: "requested" | "approved" | "rejected" | "processed" | null
+          refund_status?: "requested" | "approved" | "rejected" | "refunded" | null
+          sponsor_code?: string | null
           status?: Database["public"]["Enums"]["application_status"]
           stripe_customer_id?: string | null
           stripe_payment_intent_id?: string | null
@@ -181,6 +185,7 @@ export type Database = {
           claimed_at?: string | null
           claimed_by?: string | null
           created_at?: string
+          currency?: string
           departure_date?: string
           dob?: string
           email?: string
@@ -206,7 +211,8 @@ export type Database = {
           refund_reason?: string | null
           refund_requested_at?: string | null
           refund_requested_by?: string | null
-          refund_status?: "requested" | "approved" | "rejected" | "processed" | null
+          refund_status?: "requested" | "approved" | "rejected" | "refunded" | null
+          sponsor_code?: string | null
           status?: Database["public"]["Enums"]["application_status"]
           stripe_customer_id?: string | null
           stripe_payment_intent_id?: string | null

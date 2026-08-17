@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search, Download, Loader2, Eye, Copy, ChevronDown, ChevronRight, X, RotateCcw, Trash2, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge } from "@/components/admin/StatusBadge";
-import { ALL_STATUSES, isPlaceholderDob, isPlaceholderNationality, isRefundedOrDenied, statusLabels, docTypeLabels, waLink, type AppDocument, type AppStatus, type Application, type DocType } from "@/lib/applications";
+import { ALL_STATUSES, formatMoney, isPlaceholderDob, isPlaceholderNationality, isRefundedOrDenied, statusLabels, docTypeLabels, waLink, type AppDocument, type AppStatus, type Application, type DocType } from "@/lib/applications";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { PageShell, PageHeader } from "@/components/admin/PageShell";
 import { useAuth } from "@/hooks/useAuth";
@@ -285,10 +285,13 @@ function ApplicationsPage() {
                       </div>
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                      <span className={`text-[10px] uppercase tracking-wider ${a.type === "express" ? "font-semibold text-accent" : "text-muted-foreground"}`}>{a.type}</span>
+                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{a.type === "express" ? "Quick-apply" : "Guided form"}</span>
+                      <span className={`rounded-sm px-2 py-0.5 text-[10px] uppercase tracking-wider font-semibold ${a.processing_speed === "express" ? "bg-accent/15 text-accent" : "bg-secondary text-foreground"}`}>
+                        {a.processing_speed === "express" ? "Express" : "Standard"}
+                      </span>
                       <StatusBadge status={a.status} />
                       {a.paid
-                        ? <span className="rounded-sm bg-success/15 px-2 py-0.5 text-[10px] uppercase tracking-wider text-success">✓ ${Number(a.fee)}</span>
+                        ? <span className="rounded-sm bg-success/15 px-2 py-0.5 text-[10px] uppercase tracking-wider text-success">✓ {formatMoney(Number(a.fee), a.currency)}</span>
                         : <span className="rounded-sm bg-border px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">Payment pending</span>}
                     </div>
                   </div>
@@ -356,7 +359,7 @@ function ApplicationsPage() {
                           <option key={s.value} value={s.value}>{s.label}</option>
                         ))}
                       </select>
-                    ) : isRefundedOrDenied(a) || a.refund_status === "processed" ? (
+                    ) : isRefundedOrDenied(a) || a.refund_status === "refunded" ? (
                       <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
                         {a.status === "rejected" ? "Application denied" : "Refund processed"}
                       </span>
@@ -409,7 +412,7 @@ function ApplicationsPage() {
               <div className="mt-6 space-y-5 text-sm">
                 {viewing.type === "express" && (
                   <div className="rounded-sm border border-accent/30 bg-accent/5 px-4 py-3 text-xs text-muted-foreground">
-                    <span className="font-semibold text-accent uppercase tracking-wider text-[10px]">Express application</span>
+                    <span className="font-semibold text-accent uppercase tracking-wider text-[10px]">Quick-apply application</span>
                     <p className="mt-1">Applicant details below were extracted from passport documents via OCR. Verify against uploaded files before processing.</p>
                   </div>
                 )}
@@ -435,9 +438,9 @@ function ApplicationsPage() {
                   <DetailRow label="Passport expiry" value={new Date(viewing.passport_expiry).toLocaleDateString()} onCopy={copy} />
                 </DetailGroup>
 
-                {viewing.type === "standard" && viewing.purpose && (
+                {(viewing.purpose || viewing.arrival_date) && (
                   <DetailGroup title="Travel">
-                    <DetailRow label="Purpose" value={viewing.purpose} onCopy={copy} />
+                    {viewing.purpose && <DetailRow label="Purpose" value={viewing.purpose} onCopy={copy} />}
                     {viewing.address_in_somalia && <DetailRow label="Address in Somalia" value={viewing.address_in_somalia} onCopy={copy} />}
                     {viewing.arrival_date && <DetailRow label="Arrival" value={new Date(viewing.arrival_date).toLocaleDateString()} onCopy={copy} />}
                     {viewing.departure_date && <DetailRow label="Departure" value={new Date(viewing.departure_date).toLocaleDateString()} onCopy={copy} />}
@@ -445,8 +448,11 @@ function ApplicationsPage() {
                 )}
 
                 <DetailGroup title="Application">
-                  <DetailRow label="Type" value={viewing.type} onCopy={copy} />
-                  <DetailRow label="Fee" value={`$${Number(viewing.fee)} USD`} onCopy={copy} />
+                  <DetailRow label="Form used" value={viewing.type === "express" ? "Quick-apply" : "Guided form"} onCopy={copy} />
+                  <DetailRow label="Processing speed" value={viewing.processing_speed === "express" ? "Express (5-6hr)" : "Standard"} onCopy={copy} />
+                  {viewing.applicant_type && <DetailRow label="Applicant type" value={viewing.applicant_type === "ajnabi" ? "Foreigner (Ajnabi)" : "Diaspora (Qurba-Joog)"} onCopy={copy} />}
+                  {viewing.sponsor_code && <DetailRow label="Sponsor code" value={viewing.sponsor_code} onCopy={copy} mono />}
+                  <DetailRow label="Fee" value={formatMoney(Number(viewing.fee), viewing.currency)} onCopy={copy} />
                   <DetailRow label="Payment" value={viewing.paid ? "Paid" : "Not paid"} />
                   {viewing.etas_reference && <DetailRow label="ETAS reference" value={viewing.etas_reference} onCopy={copy} mono />}
                 </DetailGroup>

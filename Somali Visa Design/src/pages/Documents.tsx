@@ -1,14 +1,14 @@
 import { PageSEO } from "@/components/PageSEO";
 import { SectionHeading } from "@/components/SectionHeading";
 import { FileText, Camera, CreditCard, FileSignature, Calendar } from "lucide-react";
-import { PRICING_TIERS } from "@/lib/pricing";
+import { PRICING_TIERS, formatFee } from "@/lib/pricing";
 
 const docs = [
   { icon: FileText, title: "Valid Passport", body: "Valid for at least 6 months from your arrival date, with two blank pages." },
   { icon: Camera, title: "Digital Photo", body: "A recent passport-style photo on a clear background, taken within the last 6 months." },
   { icon: Calendar, title: "Travel Date", body: "Your planned arrival date in Somalia (Taariikhda Safarka)." },
   { icon: FileSignature, title: "Sponsor Document", body: "Required for foreign (Ajnabi) applicants only — a sponsor letter or invitation document from your local contact." },
-  { icon: CreditCard, title: "Payment Method", body: `A credit or debit card to complete the processing fee — from $${PRICING_TIERS.standard.fee} USD.` },
+  { icon: CreditCard, title: "Payment Method", body: `A credit or debit card to complete the processing fee — from ${formatFee(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}.` },
 ];
 
 const documentsJsonLd = {

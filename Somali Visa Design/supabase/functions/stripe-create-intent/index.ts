@@ -20,13 +20,15 @@ serve(async (req) => {
 
     const { data: app, error } = await supabase
       .from("applications")
-      .select("id, fee, email, paid, stripe_payment_intent_id")
+      .select("id, fee, currency, email, paid, stripe_payment_intent_id")
       .eq("id", application_id)
       .single();
     if (error || !app) throw new Error("Application not found");
 
+    const currency = (app.currency as string) ?? "usd";
+
     if (app.paid) {
-      return Response.json({ ok: true, already_paid: true, fee: Number(app.fee) }, { headers: cors });
+      return Response.json({ ok: true, already_paid: true, fee: Number(app.fee), currency }, { headers: cors });
     }
 
     let intent: Record<string, unknown> | null = null;
@@ -38,10 +40,12 @@ serve(async (req) => {
       }
       // Only reuse card-only intents — old intents that used automatic_payment_methods
       // (which show Link/Amazon Pay tabs) must be replaced with a card-only intent.
+      // Also never reuse an intent created in a different currency than the
+      // application currently expects (e.g. a stale intent from before a fee change).
       const isCardOnly = Array.isArray(existing.payment_method_types) &&
         (existing.payment_method_types as string[]).length === 1 &&
         (existing.payment_method_types as string[])[0] === "card";
-      if (REUSABLE_STATUSES.has(existing.status as string) && isCardOnly) {
+      if (REUSABLE_STATUSES.has(existing.status as string) && isCardOnly && existing.currency === currency) {
         intent = existing;
       }
     }
@@ -49,7 +53,7 @@ serve(async (req) => {
     if (!intent) {
       intent = await stripeRequest("POST", "/payment_intents", {
         amount: Math.round(Number(app.fee) * 100),
-        currency: "usd",
+        currency,
         payment_method_types: ["card"],
         metadata: { application_id: app.id },
       });
@@ -60,7 +64,7 @@ serve(async (req) => {
         .eq("id", app.id);
     }
 
-    return Response.json({ ok: true, client_secret: intent.client_secret, fee: Number(app.fee) }, { headers: cors });
+    return Response.json({ ok: true, client_secret: intent.client_secret, fee: Number(app.fee), currency }, { headers: cors });
   } catch (err) {
     return Response.json(
       { ok: false, error: (err as Error).message },

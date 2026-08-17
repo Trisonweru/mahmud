@@ -20,9 +20,12 @@ function corsHeaders(req: Request): Record<string, string> {
 type DocType = "passport" | "photo" | "ticket" | "sponsor" | "other";
 
 // Fee is derived server-side from the requested processing speed — never trust a
-// client-supplied dollar amount directly, to prevent price tampering.
-const PROCESSING_FEES: Record<"standard" | "express", number> = { standard: 94, express: 150 };
-const AJNABI_FEE = 94; // Option 3 — foreigner guided-form process, unchanged
+// client-supplied amount directly, to prevent price tampering.
+// Standard and Ajnabi charge GBP; Express stays USD.
+const PROCESSING_FEES: Record<"standard" | "express", number> = { standard: 64, express: 150 };
+const PROCESSING_CURRENCIES: Record<"standard" | "express", "gbp" | "usd"> = { standard: "gbp", express: "usd" };
+const AJNABI_FEE = 64; // Option 3 — foreigner guided-form process
+const AJNABI_CURRENCY = "gbp";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB per file
 const ALLOWED_MIME_TYPES = new Set([
@@ -80,6 +83,7 @@ serve(async (req) => {
     // Ajnabi (foreigner) guided-form flow keeps its own fixed fee — processing-speed
     // tiers only apply to the diaspora quick-apply flow.
     const fee = isExpressFlow ? PROCESSING_FEES[processingSpeed] : AJNABI_FEE;
+    const currency = isExpressFlow ? PROCESSING_CURRENCIES[processingSpeed] : AJNABI_CURRENCY;
 
     const insertData = {
       reference,
@@ -99,7 +103,9 @@ serve(async (req) => {
       type: (isExpressFlow ? "express" : "standard") as "standard" | "express",
       applicant_type: applicantType,
       processing_speed: isExpressFlow ? processingSpeed : "standard",
+      sponsor_code: fields["sponsorCode"] || null,
       fee,
+      currency,
       status: "pending_payment" as const,
     };
 

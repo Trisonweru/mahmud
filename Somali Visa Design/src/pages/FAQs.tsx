@@ -5,11 +5,11 @@ import { PageSEO } from "@/components/PageSEO";
 const faqs = [
   {
     q: "How long does a Somalia eVisa application take?",
-    a: "It depends on the processing option you choose: Option 1 (Standard, $94 USD) takes 24–72 hours. Option 2 (Express, $150 USD) takes just 5–6 hours during Somalia working hours. Option 3, our guided application for foreign (Ajnabi) applicants, takes 24–72 hours.",
+    a: "It depends on the processing option you choose: Option 1 (Standard, £64) takes 24–72 hours. Option 2 (Express, $150 USD) takes just 5–6 hours during Somalia working hours. Option 3, our guided application for foreign (Ajnabi) applicants, takes 24–72 hours.",
   },
   {
     q: "How much does the Somalia eVisa cost?",
-    a: "We offer three all-inclusive processing options: Option 1 Standard ($94 USD, 24–72 hours), Option 2 Express ($150 USD, 5–6 hours), and Option 3 the guided foreigner (Ajnabi) application ($94 USD, 24–72 hours). Each covers specialist preparation, submission, document review, and post-approval support for a single-entry eVisa valid for up to 180 days.",
+    a: "We offer three all-inclusive processing options: Option 1 Standard (£64, 24–72 hours), Option 2 Express ($150 USD, 5–6 hours), and Option 3 the guided foreigner (Ajnabi) application (£64, 24–72 hours). Each covers specialist preparation, submission, document review, and post-approval support for a single-entry eVisa valid for up to 180 days.",
   },
   {
     q: "What documents do I need for a Somalia eVisa?",
@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     q: "Is this an official government website?",
-    a: "No. eVisaSomali is an independent specialist service that assists travellers with preparing and submitting their eVisa applications. We are not affiliated with the Somali government. Applications are submitted to the official immigration authority on your behalf.",
+    a: "No. eVisaSomali is an independent specialist service that assists travellers with preparing and submitting their eVisa applications. We are not affiliated with the Somali government.",
   },
   {
     q: "How will I receive my Somalia eVisa?",
@@ -41,7 +41,7 @@ const faqs = [
   },
   {
     q: "Is my personal data secure?",
-    a: "Absolutely. All data is transmitted using bank-grade TLS encryption and stored securely. We never share your personal information with any third party beyond the official immigration authority processing your visa.",
+    a: "Absolutely. All data is transmitted using bank-grade TLS encryption and stored securely. We never sell or share your personal information with third parties.",
   },
   {
     q: "Is there a visa on arrival for Somalia?",

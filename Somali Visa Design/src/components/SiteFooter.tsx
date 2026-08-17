@@ -12,7 +12,7 @@ export const SiteFooter = () => {
               <Globe2 className="h-5 w-5 text-accent" />
             </div>
             <div>
-              <div className="font-serif text-xl">Somalia eVisa Application</div>
+              <div className="font-serif text-xl font-bold">Somali Visa Application</div>
               <div className="text-[10px] uppercase tracking-[0.2em] text-primary-foreground/60">Application Service</div>
             </div>
           </div>

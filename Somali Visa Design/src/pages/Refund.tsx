@@ -21,24 +21,25 @@ const Refund = () => (
 
     <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground/85">
       <Block n="1" title="Service Fee">
-        We offer three processing options, each an all-inclusive fee covering the official
-        government eTAS fee plus our service fee:
+        We offer three all-inclusive processing options, each covering the official government
+        eTAS fee plus our service fee:
         <ul className="list-disc pl-6 mt-2 space-y-1">
-          <li><strong>Option 1 — Standard, $94 USD</strong> (24–72 hour processing): $64 USD government eTAS fee (forwarded 100% to the official government portal) + $30 USD private service fee for form review, error-checking, document preparation, and submission assistance.</li>
+          <li><strong>Option 1 — Standard, £64</strong> (24–72 hour processing): covers the official government eTAS fee plus our form review, error-checking, document preparation, and submission assistance.</li>
           <li><strong>Option 2 — Express, $150 USD</strong> (5–6 hour processing, during Somalia working hours): $64 USD government eTAS fee + $86 USD private service fee, which includes priority rush handling.</li>
-          <li><strong>Option 3 — Foreigner (Ajnabi) guided application, $94 USD</strong> (24–72 hour processing): $64 USD government eTAS fee + $30 USD private service fee.</li>
+          <li><strong>Option 3 — Foreigner (Ajnabi) guided application, £64</strong> (24–72 hour processing): covers the official government eTAS fee plus our form review, error-checking, document preparation, and submission assistance.</li>
         </ul>
       </Block>
 
       <Block n="2" title="Refund Eligibility">
         You are eligible for a refund of our private service fee (the portion of your total fee
-        above the $64 USD government eTAS fee) only if we are unable to submit your application due
-        to a technical issue on our side. <strong>No other refunds will be issued.</strong>
+        that is not the government eTAS fee, which is forwarded 100% to the official government
+        portal) only if we are unable to submit your application due to a technical issue on our
+        side. <strong>No other refunds will be issued.</strong>
       </Block>
 
       <Block n="3" title="Non-Refundable Items">
         <ul className="list-disc pl-6 space-y-1">
-          <li>The government fee of $64 USD is non-refundable once it has been paid and submitted to the official government portal.</li>
+          <li>The government eTAS fee is non-refundable once it has been paid and submitted to the official government portal.</li>
           <li>Applications that have already been submitted to the government portal are non-refundable.</li>
           <li>Rejections, delays, or denials by the destination government do not qualify for a refund.</li>
           <li>Any cancellation requested by you after payment is not eligible for a refund.</li>
