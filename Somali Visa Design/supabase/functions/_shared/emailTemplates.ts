@@ -13,19 +13,12 @@ function wrapper(bodyHtml: string): string {
           <table role="presentation" width="100%" style="max-width:520px;background:#ffffff;border-radius:4px;overflow:hidden;">
             <tr>
               <td style="background:${BRAND_NAVY};padding:24px 32px;">
-                <span style="color:#ffffff;font-size:18px;font-weight:600;letter-spacing:0.02em;">eVisaSomali</span>
+                <span style="color:#ffffff;font-size:18px;font-weight:600;letter-spacing:0.02em;">eVisaSomalia</span>
               </td>
             </tr>
             <tr>
               <td style="padding:32px;color:#1a1a1a;font-size:14px;line-height:1.6;">
                 ${bodyHtml}
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:20px 32px;background:#f5f6f8;color:#6b7280;font-size:12px;line-height:1.5;">
-                eVisaSomali.com, a trading name of Passkey Technologies Limited (Company No. 16877709).
-                Independent third-party service — not affiliated with the Somali government.<br />
-                Questions? Reply to this email or WhatsApp us at +252 61 3886027.
               </td>
             </tr>
           </table>
@@ -36,7 +29,72 @@ function wrapper(bodyHtml: string): string {
 </html>`.trim();
 }
 
-export function paymentConfirmationEmail(params: { fullName: string; reference: string }): string {
+// Always derived from applications.processing_speed — never applications.type,
+// which records the form used (quick-apply vs guided), not the speed paid for.
+export function processingLabel(processingSpeed: string | null | undefined): "Standard" | "Express" {
+  return processingSpeed === "express" ? "Express" : "Standard";
+}
+
+function referenceBlock(reference: string, processingSpeed?: string | null): string {
+  const processing = processingSpeed === undefined
+    ? ""
+    : `<div style="margin-top:6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;font-weight:400;color:#4b5563;">${processingLabel(processingSpeed)} processing</div>`;
+  return `
+    <p style="margin:0 0 20px;padding:12px 16px;background:#f5f6f8;border-left:3px solid ${BRAND_GOLD};font-family:monospace;font-size:15px;font-weight:600;">
+      ${escapeHtml(reference)}${processing}
+    </p>`;
+}
+
+export function applicationReceivedEmail(params: { fullName: string; reference: string; processingSpeed: string | null }): string {
+  const statusUrl = `${SITE_URL}/status?ref=${encodeURIComponent(params.reference)}`;
+  return wrapper(`
+    <h1 style="margin:0 0 16px;font-size:20px;color:${BRAND_NAVY};">Application received</h1>
+    <p style="margin:0 0 16px;">Hi ${escapeHtml(params.fullName || "there")},</p>
+    <p style="margin:0 0 16px;">
+      Thank you for submitting your Somalia eVisa application. Your reference number is:
+    </p>
+    ${referenceBlock(params.reference, params.processingSpeed)}
+    <p style="margin:0 0 20px;">
+      Processing begins as soon as your payment is complete. If you haven't finished paying yet,
+      please return to the payment page to complete it — you'll receive a payment confirmation email once it goes through.
+    </p>
+    <p style="margin:0 0 24px;">
+      <a href="${statusUrl}" style="display:inline-block;background:${BRAND_GOLD};color:#1a1a1a;text-decoration:none;padding:12px 24px;border-radius:2px;font-weight:600;">
+        Track your application
+      </a>
+    </p>
+    <p style="margin:0;color:#6b7280;">
+      Please keep your reference number — you'll need it to track your application or contact us.
+    </p>
+  `);
+}
+
+export function applicationRejectedEmail(params: { fullName: string; reference: string; refundRequested: boolean }): string {
+  const statusUrl = `${SITE_URL}/status?ref=${encodeURIComponent(params.reference)}`;
+  const refundLine = params.refundRequested
+    ? `<p style="margin:0 0 20px;">A refund of your payment has been requested. You'll receive a separate email once it has been issued; please allow a few business days for it to appear on your statement.</p>`
+    : "";
+  return wrapper(`
+    <h1 style="margin:0 0 16px;font-size:20px;color:${BRAND_NAVY};">Update on your eVisa application</h1>
+    <p style="margin:0 0 16px;">Hi ${escapeHtml(params.fullName || "there")},</p>
+    <p style="margin:0 0 16px;">
+      We're sorry to let you know that your Somalia eVisa application could not be approved.
+      Your reference number is:
+    </p>
+    ${referenceBlock(params.reference)}
+    ${refundLine}
+    <p style="margin:0 0 24px;">
+      <a href="${statusUrl}" style="display:inline-block;background:${BRAND_GOLD};color:#1a1a1a;text-decoration:none;padding:12px 24px;border-radius:2px;font-weight:600;">
+        View application status
+      </a>
+    </p>
+    <p style="margin:0;color:#6b7280;">
+      If you have any questions about this decision, just reply to this email or reach us on WhatsApp.
+    </p>
+  `);
+}
+
+export function paymentConfirmationEmail(params: { fullName: string; reference: string; processingSpeed?: string | null }): string {
   const statusUrl = `${SITE_URL}/status?ref=${encodeURIComponent(params.reference)}`;
   return wrapper(`
     <h1 style="margin:0 0 16px;font-size:20px;color:${BRAND_NAVY};">Payment confirmed</h1>
@@ -45,9 +103,7 @@ export function paymentConfirmationEmail(params: { fullName: string; reference: 
       Your payment has been received and your Somalia eVisa application is now being processed.
       Your reference number is:
     </p>
-    <p style="margin:0 0 20px;padding:12px 16px;background:#f5f6f8;border-left:3px solid ${BRAND_GOLD};font-family:monospace;font-size:15px;font-weight:600;">
-      ${escapeHtml(params.reference)}
-    </p>
+    ${referenceBlock(params.reference, params.processingSpeed)}
     <p style="margin:0 0 20px;">
       We will review your application and begin processing it right away.
       You can track its progress at any time using the link below.
@@ -63,13 +119,13 @@ export function paymentConfirmationEmail(params: { fullName: string; reference: 
   `);
 }
 
-export function refundConfirmationEmail(params: { fullName: string; reference: string; amount: number }): string {
+export function refundConfirmationEmail(params: { fullName: string; reference: string }): string {
   const statusUrl = `${SITE_URL}/status?ref=${encodeURIComponent(params.reference)}`;
   return wrapper(`
-    <h1 style="margin:0 0 16px;font-size:20px;color:${BRAND_NAVY};">Refund processed</h1>
+    <h1 style="margin:0 0 16px;font-size:20px;color:${BRAND_NAVY};">Refund initiated</h1>
     <p style="margin:0 0 16px;">Hi ${escapeHtml(params.fullName || "there")},</p>
     <p style="margin:0 0 16px;">
-      We've processed a refund of <strong>$${params.amount.toFixed(2)} USD</strong> for your application.
+      We've initiated a refund for your application and you'll receive it shortly.
       Your reference number is:
     </p>
     <p style="margin:0 0 20px;padding:12px 16px;background:#f5f6f8;border-left:3px solid ${BRAND_GOLD};font-family:monospace;font-size:15px;font-weight:600;">
