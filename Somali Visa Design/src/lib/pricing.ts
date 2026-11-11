@@ -53,3 +53,14 @@ export const CURRENCY_SYMBOL: Record<Currency, string> = { gbp: "£", usd: "$" }
 
 export const formatFee = (fee: number, currency: Currency) =>
   `${CURRENCY_SYMBOL[currency]}${fee}`;
+
+// Flat card-payment processing fee added at checkout. Applies only to GBP-charged
+// tiers (Standard, Ajnabi) — the USD Express tier is charged at its stated $150 with
+// no processing fee added, per business decision.
+export const PAYMENT_PROCESSING_FEE = 2;
+
+export const getCheckoutTotal = (fee: number, currency: Currency) =>
+  currency === "gbp" ? fee + PAYMENT_PROCESSING_FEE : fee;
+
+export const formatCheckoutTotal = (fee: number, currency: Currency) =>
+  formatFee(getCheckoutTotal(fee, currency), currency);

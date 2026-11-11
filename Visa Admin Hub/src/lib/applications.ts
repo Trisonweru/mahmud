@@ -133,3 +133,9 @@ export function isPlaceholderNationality(a: Application): boolean {
 export function isPlaceholderDob(a: Application): boolean {
   return a.type === "express";
 }
+
+// `type` records which form was used (quick-apply vs guided), not the speed the
+// applicant paid for — always show processing_speed when labelling Standard/Express.
+export function processingLabel(a: Pick<Application, "processing_speed">): "Standard" | "Express" {
+  return a.processing_speed === "express" ? "Express" : "Standard";
+}

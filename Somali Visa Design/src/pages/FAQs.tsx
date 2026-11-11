@@ -5,11 +5,11 @@ import { PageSEO } from "@/components/PageSEO";
 const faqs = [
   {
     q: "How long does a Somalia eVisa application take?",
-    a: "It depends on the processing option you choose: Option 1 (Standard, £64) takes 24–72 hours. Option 2 (Express, $150 USD) takes just 5–6 hours during Somalia working hours. Option 3, our guided application for foreign (Ajnabi) applicants, takes 24–72 hours.",
+    a: "It depends on the processing option you choose: Option 1 (Standard, £66) takes 24–72 hours. Option 2 (Express, $150 USD) takes just 5–6 hours during Somalia working hours. Option 3, our guided application for foreign (Ajnabi) applicants, takes 24–72 hours.",
   },
   {
     q: "How much does the Somalia eVisa cost?",
-    a: "We offer three all-inclusive processing options: Option 1 Standard (£64, 24–72 hours), Option 2 Express ($150 USD, 5–6 hours), and Option 3 the guided foreigner (Ajnabi) application (£64, 24–72 hours). Each covers specialist preparation, submission, document review, and post-approval support for a single-entry eVisa valid for up to 180 days.",
+    a: "We offer three processing options: Option 1 Standard (£66, 24–72 hours), Option 2 Express ($150 USD, 5–6 hours), and Option 3 the guided foreigner (Ajnabi) application (£66, 24–72 hours). Each includes the official government eTAS fee, our specialist preparation, submission and document review service, and a £2 payment processing fee (Standard and Ajnabi only), for a single-entry eVisa valid for up to 180 days.",
   },
   {
     q: "What documents do I need for a Somalia eVisa?",

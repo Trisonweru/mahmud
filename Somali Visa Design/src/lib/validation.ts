@@ -15,3 +15,11 @@ export const isPassportExpiryValid = (dateStr: string): boolean => {
   if (isNaN(exp.getTime())) return false;
   return monthsBetween(new Date(), exp) >= 6;
 };
+
+export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+
+/** Returns an error message if the file is over the size cap, or null if it's fine. */
+export const fileSizeError = (file: File): string | null =>
+  file.size > MAX_FILE_SIZE_BYTES
+    ? `"${file.name}" is ${(file.size / (1024 * 1024)).toFixed(1)}MB, which is over the 10MB limit. Please choose a smaller file.`
+    : null;

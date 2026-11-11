@@ -21,12 +21,12 @@ const Refund = () => (
 
     <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground/85">
       <Block n="1" title="Service Fee">
-        We offer three all-inclusive processing options, each covering the official government
+        We offer three processing options, each covering the official government
         eTAS fee plus our service fee:
         <ul className="list-disc pl-6 mt-2 space-y-1">
-          <li><strong>Option 1 — Standard, £64</strong> (24–72 hour processing): covers the official government eTAS fee plus our form review, error-checking, document preparation, and submission assistance.</li>
+          <li><strong>Option 1 — Standard, £66</strong> (24–72 hour processing): £64 covers the official government eTAS fee plus our form review, error-checking, document preparation, and submission assistance, plus a £2 payment processing fee.</li>
           <li><strong>Option 2 — Express, $150 USD</strong> (5–6 hour processing, during Somalia working hours): $64 USD government eTAS fee + $86 USD private service fee, which includes priority rush handling.</li>
-          <li><strong>Option 3 — Foreigner (Ajnabi) guided application, £64</strong> (24–72 hour processing): covers the official government eTAS fee plus our form review, error-checking, document preparation, and submission assistance.</li>
+          <li><strong>Option 3 — Foreigner (Ajnabi) guided application, £66</strong> (24–72 hour processing): £64 covers the official government eTAS fee plus our form review, error-checking, document preparation, and submission assistance, plus a £2 payment processing fee.</li>
         </ul>
       </Block>
 
@@ -40,6 +40,7 @@ const Refund = () => (
       <Block n="3" title="Non-Refundable Items">
         <ul className="list-disc pl-6 space-y-1">
           <li>The government eTAS fee is non-refundable once it has been paid and submitted to the official government portal.</li>
+          <li>The £2 payment processing fee (Options 1 and 3) is non-refundable under any circumstances.</li>
           <li>Applications that have already been submitted to the government portal are non-refundable.</li>
           <li>Rejections, delays, or denials by the destination government do not qualify for a refund.</li>
           <li>Any cancellation requested by you after payment is not eligible for a refund.</li>

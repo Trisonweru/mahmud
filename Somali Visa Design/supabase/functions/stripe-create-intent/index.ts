@@ -55,7 +55,7 @@ serve(async (req) => {
         amount: Math.round(Number(app.fee) * 100),
         currency,
         payment_method_types: ["card"],
-        metadata: { application_id: app.id },
+        metadata: { application_id: app.id, website: "evisasomali.com", service: "Somalia EVISA" },
       });
 
       await supabase

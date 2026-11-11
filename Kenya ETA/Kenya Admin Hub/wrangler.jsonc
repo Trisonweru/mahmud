@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kenya-eta-admin",
+  "account_id": "b8f36a5cf935bb53a20eb1154d835266",
+  "compatibility_date": "2025-09-24",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "src/server.ts",
+  "triggers": {
+    "crons": ["0 * * * *"]
+  },
+  "vars": {
+    "SUPABASE_URL": "https://vygntmsculcdpdpbwnhy.supabase.co",
+    "SUPABASE_PUBLISHABLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Z250bXNjdWxjZHBkcGJ3bmh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3MjQ1NjIsImV4cCI6MjEwNDMwMDU2Mn0.R2bL4-dqTnt8s0quHZ3lRJ9xC4uDBsreoVHEytqpAtU",
+    "SITE_URL": "https://www.kenyaevisa.net",
+    "ADMIN_URL": "https://kenya-eta-admin.evisasomali.workers.dev"
+  }
+}

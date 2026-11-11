@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AlertTriangle, Check, Clock, Download, Copy, Eye, Loader2, Lock, Search, ShieldAlert, X, FolderOpen, Folder, XCircle, Trash2, MessageCircle } from "lucide-react";
+import { AlertTriangle, Check, Clock, Download, Copy, Eye, Loader2, Lock, Search, ShieldAlert, X, FolderOpen, Folder, XCircle, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { sendRejectionEmail } from "@/lib/emails";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { docTypeLabels, formatMoney, INFO_SOURCE_NOTE_PREFIX, INFO_SOURCES, isPlaceholderDob, isPlaceholderNationality, waLink, type AppDocument, type AppNote, type Application, type DocType, type InfoSource } from "@/lib/applications";
@@ -115,7 +116,7 @@ function QueuePage() {
   const filteredApps = useMemo(() => apps.filter(a => {
     const h = ageHours(a);
     return (
-      (typeFilter === "all" || a.type === typeFilter) &&
+      (typeFilter === "all" || a.processing_speed === typeFilter) &&
       (!overdueOnly || h >= 24) &&
       (q === "" || `${a.full_name} ${a.reference} ${a.email} ${a.nationality} ${a.passport_number}`.toLowerCase().includes(q.toLowerCase()))
     );
@@ -232,22 +233,12 @@ function QueuePage() {
     }
     setBusyId(null);
     if (error) { load(); toast.error(error.message); }
-    else toast.success(isPaid ? "Application rejected — refund request created" : "Application rejected");
+    else {
+      toast.success(isPaid ? "Application rejected — refund request created" : "Application rejected");
+      await sendRejectionEmail(a.id);
+    }
   };
 
-  const deleteApplication = async (a: Application) => {
-    if (!confirm(`Permanently delete ${a.full_name} (${a.reference}) and all associated documents? This cannot be undone.`)) return;
-    setBusyId(a.id);
-    setApps(prev => prev.filter(app => app.id !== a.id));
-    const { data: docPaths } = await supabase.from("application_documents").select("storage_path").eq("application_id", a.id);
-    if (docPaths?.length) await supabase.storage.from("application-documents").remove(docPaths.map(d => d.storage_path));
-    await supabase.from("application_documents").delete().eq("application_id", a.id);
-    await supabase.from("application_notes").delete().eq("application_id", a.id);
-    const { error } = await supabase.from("applications").delete().eq("id", a.id);
-    setBusyId(null);
-    if (error) { load(); toast.error(error.message); }
-    else toast.success("Application deleted");
-  };
 
   const setInfoSource = async (a: Application, source: InfoSource) => {
     setBusyId(a.id);
@@ -273,6 +264,7 @@ function QueuePage() {
       etas_submitted: true,
       etas_reference: ref,
       etas_submitted_by: user.id,
+      etas_submitted_at: new Date().toISOString(),
       status: "submitted",
     }).eq("id", a.id);
     setBusyId(null);
@@ -401,8 +393,8 @@ function QueuePage() {
                   <dd className="mt-0.5 text-sm text-foreground">{isPlaceholderNationality(a) ? "Not provided" : a.nationality}</dd>
                 </div>
                 <div>
-                  <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Travel Date</dt>
-                  <dd className="mt-0.5 text-sm text-foreground">{a.arrival_date ? new Date(a.arrival_date).toLocaleDateString() : "Not provided"}</dd>
+                  <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Departure Date</dt>
+                  <dd className="mt-0.5 text-sm text-foreground">{a.departure_date ? new Date(a.departure_date).toLocaleDateString() : "Not provided"}</dd>
                 </div>
                 <div>
                   <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Passport</dt>
@@ -543,16 +535,6 @@ function QueuePage() {
                 >
                   <XCircle className="h-3 w-3" /> {a.paid ? "Reject / Refund" : "Reject"}
                 </button>
-                {isSuperAdmin && (
-                  <button
-                    onClick={() => deleteApplication(a)}
-                    disabled={isBusy}
-                    className="inline-flex items-center gap-1 rounded-sm border border-destructive/60 bg-destructive/10 px-2.5 py-1.5 text-[10px] uppercase tracking-wider text-destructive hover:bg-destructive/20 disabled:opacity-50"
-                    title="Permanently delete this application"
-                  >
-                    <Trash2 className="h-3 w-3" /> Delete
-                  </button>
-                )}
                 <div className="ml-auto flex items-center gap-1.5">
                   <input
                     type="text"
@@ -628,11 +610,10 @@ function QueuePage() {
                   <DetailRow label="Passport expiry" value={new Date(viewing.passport_expiry).toLocaleDateString()} onCopy={copy} />
                 </DetailGroup>
 
-                {(viewing.purpose || viewing.arrival_date) && (
+                {(viewing.purpose || viewing.departure_date) && (
                   <DetailGroup title="Travel">
                     {viewing.purpose && <DetailRow label="Purpose" value={viewing.purpose} onCopy={copy} />}
                     {viewing.address_in_somalia && <DetailRow label="Address in Somalia" value={viewing.address_in_somalia} onCopy={copy} />}
-                    {viewing.arrival_date && <DetailRow label="Arrival" value={new Date(viewing.arrival_date).toLocaleDateString()} onCopy={copy} />}
                     {viewing.departure_date && <DetailRow label="Departure" value={new Date(viewing.departure_date).toLocaleDateString()} onCopy={copy} />}
                   </DetailGroup>
                 )}

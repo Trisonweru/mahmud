@@ -1,9 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ShieldCheck, Loader2, Eye, EyeOff, KeyRound } from "lucide-react";
+import { ShieldCheck, Loader2, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { requestPasswordReset, recordPasswordSet } from "@/lib/staff.functions";
 import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/login")({
@@ -23,6 +25,7 @@ function isInviteOrRecovery() {
 }
 
 const INITIAL_INVITE_OR_RECOVERY = isInviteOrRecovery();
+const INITIAL_IS_RECOVERY = typeof window !== "undefined" && window.location.hash.includes("type=recovery");
 
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
@@ -39,7 +42,7 @@ function checkRateLimit(): { allowed: boolean; waitSeconds: number } {
   return { allowed: true, waitSeconds: 0 };
 }
 
-type Mode = "signin" | "set_password" | "mfa_totp" | "mfa_enroll";
+type Mode = "signin" | "set_password" | "forgot";
 
 function LoginPage() {
   const nav = useNavigate();
@@ -52,10 +55,9 @@ function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [totpCode, setTotpCode] = useState("");
-  const [mfaFactorId, setMfaFactorId] = useState("");
-  const [enrollData, setEnrollData] = useState<{ qr_code: string; secret: string } | null>(null);
-  const [enrollFactorId, setEnrollFactorId] = useState("");
+  const [resetSent, setResetSent] = useState(false);
+  const sendReset = useServerFn(requestPasswordReset);
+  const recordSet = useServerFn(recordPasswordSet);
 
   const [inviteSessionState, setInviteSessionState] = useState<"checking" | "ready" | "missing">(
     INITIAL_INVITE_OR_RECOVERY ? "checking" : "ready"
@@ -66,7 +68,7 @@ function LoginPage() {
   }, []);
 
   useEffect(() => {
-    if (!loading && session && mode !== "set_password" && mode !== "mfa_totp" && mode !== "mfa_enroll" && !INITIAL_INVITE_OR_RECOVERY) {
+    if (!loading && session && mode !== "set_password" && !INITIAL_INVITE_OR_RECOVERY) {
       nav({ to: "/" });
     }
   }, [loading, session, nav, mode]);
@@ -105,31 +107,7 @@ function LoginPage() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email: parsed.data.email, password: parsed.data.password });
       if (error) throw error;
-
-      // Check MFA status after successful password auth
-      const { data: factors } = await supabase.auth.mfa.listFactors();
-      const totpFactors = factors?.totp ?? [];
-      const verifiedTotp = totpFactors.filter((f) => f.status === "verified");
-      const unverifiedTotp = totpFactors.filter((f) => f.status === "unverified");
-
-      if (verifiedTotp.length > 0) {
-        // User has a verified TOTP factor — require verification
-        setMfaFactorId(verifiedTotp[0].id);
-        setMode("mfa_totp");
-      } else {
-        // Clean up any stale unverified factors before enrolling fresh
-        for (const factor of unverifiedTotp) {
-          await supabase.auth.mfa.unenroll({ factorId: factor.id });
-        }
-        const { data: enroll, error: enrollErr } = await supabase.auth.mfa.enroll({
-          factorType: "totp",
-          friendlyName: "Authenticator App",
-        });
-        if (enrollErr || !enroll) throw enrollErr ?? new Error("Failed to start MFA enrollment");
-        setEnrollFactorId(enroll.id);
-        setEnrollData({ qr_code: enroll.totp.qr_code, secret: enroll.totp.secret });
-        setMode("mfa_enroll");
-      }
+      nav({ to: "/" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Authentication failed");
     } finally {
@@ -137,38 +115,18 @@ function LoginPage() {
     }
   };
 
-  const submitTotp = async (e: React.FormEvent) => {
+  const submitForgot = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (totpCode.length !== 6) { toast.error("Enter the 6-digit code from your authenticator app"); return; }
+    const parsed = z.string().trim().email("Enter a valid email").max(255).safeParse(email);
+    if (!parsed.success) { toast.error(parsed.error.issues[0]?.message ?? "Invalid email"); return; }
+    const { allowed, waitSeconds } = checkRateLimit();
+    if (!allowed) { toast.error(`Too many attempts. Try again in ${waitSeconds}s.`); return; }
     setBusy(true);
     try {
-      const { data: challenge, error: challengeErr } = await supabase.auth.mfa.challenge({ factorId: mfaFactorId });
-      if (challengeErr || !challenge) throw challengeErr ?? new Error("Failed to start MFA challenge");
-      const { error } = await supabase.auth.mfa.verify({ factorId: mfaFactorId, challengeId: challenge.id, code: totpCode });
-      if (error) throw error;
-      nav({ to: "/" });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Invalid code. Try again.");
-      setTotpCode("");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const submitEnroll = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (totpCode.length !== 6) { toast.error("Enter the 6-digit code to confirm setup"); return; }
-    setBusy(true);
-    try {
-      const { data: challenge, error: challengeErr } = await supabase.auth.mfa.challenge({ factorId: enrollFactorId });
-      if (challengeErr || !challenge) throw challengeErr ?? new Error("Failed to start MFA challenge");
-      const { error } = await supabase.auth.mfa.verify({ factorId: enrollFactorId, challengeId: challenge.id, code: totpCode });
-      if (error) throw error;
-      toast.success("Two-factor authentication enabled!");
-      nav({ to: "/" });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Invalid code. Please scan the QR code again and retry.");
-      setTotpCode("");
+      await sendReset({ data: { email: parsed.data } });
+      setResetSent(true);
+    } catch {
+      toast.error("Could not send the reset link. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -177,13 +135,14 @@ function LoginPage() {
   const submitSetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (inviteSessionState !== "ready") { toast.error("Please wait for your invite to finish loading."); return; }
-    if (newPassword.length < 8) { toast.error("Password must be at least 8 characters"); return; }
+    if (newPassword.length < 10 || !/[A-Za-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) { toast.error("Password must be at least 10 characters and include a letter and a number"); return; }
     if (newPassword !== confirmPassword) { toast.error("Passwords do not match"); return; }
     setBusy(true);
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-      toast.success("Password set — welcome to the console!");
+      recordSet({ data: { kind: INITIAL_IS_RECOVERY ? "recovery" : "invite" } }).catch(() => undefined);
+      toast.success(INITIAL_IS_RECOVERY ? "Password updated — you are signed in." : "Password set — welcome to the console!");
       nav({ to: "/" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to set password");
@@ -216,7 +175,7 @@ function LoginPage() {
               <>
                 <h1 className="mt-8 font-serif text-3xl text-foreground">Set your password</h1>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Choose a password to activate your staff account.
+                  {INITIAL_IS_RECOVERY ? "Choose a new password for your staff account." : "Choose a password to activate your staff account."}
                 </p>
                 {inviteSessionState === "checking" && (
                   <div className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
@@ -226,7 +185,7 @@ function LoginPage() {
                 )}
                 {inviteSessionState === "missing" && (
                   <div className="mt-6 rounded-md border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-                    This invite link has expired or has already been used. Please ask an administrator to send you a new invite.
+                    {INITIAL_IS_RECOVERY ? "This reset link has expired or has already been used. Request a new one from the sign-in page." : "This invite link has expired or has already been used. Please ask an administrator to send you a new invite."}
                   </div>
                 )}
                 {inviteSessionState === "ready" && (
@@ -238,7 +197,7 @@ function LoginPage() {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         className="w-full rounded-md border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 pr-10"
-                        placeholder="Min 8 characters"
+                        placeholder="Min 10 characters, letters + numbers"
                       />
                       <ShowToggle show={showPw} onToggle={() => setShowPw(v => !v)} />
                     </Field>
@@ -251,9 +210,44 @@ function LoginPage() {
                         className="w-full rounded-md border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40"
                       />
                     </Field>
-                    <SubmitBtn busy={busy} label="Activate account" />
+                    <SubmitBtn busy={busy} label={INITIAL_IS_RECOVERY ? "Save new password" : "Activate account"} />
                   </form>
                 )}
+              </>
+            )}
+
+            {mode === "forgot" && (
+              <>
+                <h1 className="mt-8 font-serif text-3xl text-foreground">Reset password</h1>
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                  Enter your staff email. If it belongs to an active account, we will send a secure link to choose a new password.
+                </p>
+                {resetSent ? (
+                  <div className="mt-6 rounded-md border border-success/30 bg-success/5 p-4 text-sm text-foreground">
+                    If an active staff account exists for <strong>{email}</strong>, a reset link is on its way. The link expires after one hour.
+                  </div>
+                ) : (
+                  <form onSubmit={submitForgot} className="mt-6 space-y-4">
+                    <Field label="Email">
+                      <input
+                        type="email"
+                        autoComplete="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full rounded-md border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40"
+                        placeholder="you@example.com"
+                      />
+                    </Field>
+                    <SubmitBtn busy={busy} label="Send reset link" />
+                  </form>
+                )}
+                <button
+                  type="button"
+                  onClick={() => { setMode("signin"); setResetSent(false); }}
+                  className="mt-6 block w-full text-center text-xs text-muted-foreground hover:text-foreground"
+                >
+                  ← Back to sign in
+                </button>
               </>
             )}
 
@@ -288,87 +282,19 @@ function LoginPage() {
                   </Field>
                   <SubmitBtn busy={busy} label="Sign in" />
                 </form>
+                <button
+                  type="button"
+                  onClick={() => setMode("forgot")}
+                  className="mt-3 block w-full text-center text-xs text-accent hover:underline"
+                >
+                  Forgot password?
+                </button>
                 <p className="mt-6 text-center text-[11px] text-muted-foreground">
                   Staff accounts are created by invitation only.
                 </p>
               </>
             )}
 
-            {mode === "mfa_totp" && (
-              <>
-                <div className="mt-8 flex items-center gap-2">
-                  <KeyRound className="h-5 w-5 text-accent" />
-                  <h1 className="font-serif text-2xl text-foreground">Two-factor verification</h1>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Enter the 6-digit code from your authenticator app.
-                </p>
-                <form onSubmit={submitTotp} className="mt-6 space-y-4">
-                  <Field label="Authenticator code">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      maxLength={6}
-                      value={totpCode}
-                      onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      className="w-full rounded-md border border-input bg-background px-3 py-2.5 text-sm tracking-[0.3em] text-center focus:outline-none focus:ring-2 focus:ring-accent/40"
-                      placeholder="000000"
-                    />
-                  </Field>
-                  <SubmitBtn busy={busy} label="Verify" />
-                </form>
-                <button
-                  type="button"
-                  className="mt-4 w-full text-center text-[11px] text-muted-foreground hover:underline"
-                  onClick={() => { setMode("signin"); setTotpCode(""); }}
-                >
-                  Back to sign in
-                </button>
-              </>
-            )}
-
-            {mode === "mfa_enroll" && enrollData && (
-              <>
-                <div className="mt-8 flex items-center gap-2">
-                  <KeyRound className="h-5 w-5 text-accent" />
-                  <h1 className="font-serif text-2xl text-foreground">Set up two-factor auth</h1>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Scan this QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.), then enter the 6-digit code to confirm.
-                </p>
-                <div className="mt-4 flex justify-center">
-                  <img
-                    src={enrollData.qr_code}
-                    alt="TOTP QR code"
-                    className="h-40 w-40 rounded-md border border-border"
-                  />
-                </div>
-                <details className="mt-2 text-center">
-                  <summary className="cursor-pointer text-[11px] text-muted-foreground hover:underline">
-                    Can't scan? Enter code manually
-                  </summary>
-                  <p className="mt-1 break-all rounded-md bg-muted px-3 py-2 font-mono text-[11px] text-foreground">
-                    {enrollData.secret}
-                  </p>
-                </details>
-                <form onSubmit={submitEnroll} className="mt-4 space-y-4">
-                  <Field label="Confirm code from app">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      maxLength={6}
-                      value={totpCode}
-                      onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      className="w-full rounded-md border border-input bg-background px-3 py-2.5 text-sm tracking-[0.3em] text-center focus:outline-none focus:ring-2 focus:ring-accent/40"
-                      placeholder="000000"
-                    />
-                  </Field>
-                  <SubmitBtn busy={busy} label="Enable two-factor auth" />
-                </form>
-              </>
-            )}
           </div>
         </div>
 

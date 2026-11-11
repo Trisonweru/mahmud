@@ -7,11 +7,12 @@ import heroImg from "@/assets/hero-somalia.jpg";
 import passportImg from "@/assets/passport.jpg";
 import { toast } from "sonner";
 import { setPending } from "@/lib/pendingApplication";
+import { compressImage } from "@/lib/compressImage";
 import { FUNCTIONS_URL, fnHeaders } from "@/lib/api";
 import { DateDropdown } from "@/components/DateDropdown";
-import { monthsBetween } from "@/lib/validation";
+import { fileSizeError, monthsBetween } from "@/lib/validation";
 import { extractPassport, hasExtractedData, matchNationality, UnsupportedImageError } from "@/lib/passportOcr";
-import { PRICING_TIERS, AJNABI_OPTION, formatFee, CURRENCY_SYMBOL, type ProcessingSpeed } from "@/lib/pricing";
+import { PRICING_TIERS, AJNABI_OPTION, formatCheckoutTotal, getCheckoutTotal, type ProcessingSpeed } from "@/lib/pricing";
 import {
   ArrowRight, ShieldCheck, Clock4, FileCheck2, Headphones, Lock, Sparkles,
   CheckCircle2, FileText, BadgeCheck, Plane, UploadCloud, Zap, PenLine,
@@ -112,8 +113,8 @@ const Index = () => {
       fd.append("passportExpiryDate", passportExpiryDate);
       fd.append("nationality", nationality);
       fd.append("travelDate", travelDate);
-      fd.append("passport", passport);
-      fd.append("photo", photo);
+      fd.append("passport", await compressImage(passport));
+      fd.append("photo", await compressImage(photo));
 
       const res = await fetch(`${FUNCTIONS_URL}/application-save`, {
         method: "POST",
@@ -178,7 +179,7 @@ const Index = () => {
       "provider": { "@id": "https://www.evisasomali.com/#org" },
       "areaServed": { "@type": "Country", "name": "Somalia" },
       "serviceType": "Visa Application Assistance",
-      "offers": { "@type": "Offer", "price": "64", "priceCurrency": "GBP" }
+      "offers": { "@type": "Offer", "price": String(getCheckoutTotal(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)), "priceCurrency": "GBP" }
     }
   ];
 
@@ -186,7 +187,7 @@ const Index = () => {
     <>
       <PageSEO
         title="Apply for Somalia eVisa Online | Fast & Secure | eVisaSomali"
-        description="Get your Somalia eVisa in 60 seconds. Upload your passport and photo — our specialists handle the rest. From £64, with 5-6hr Express available. WhatsApp updates. 24/7 support."
+        description={`Get your Somalia eVisa in 60 seconds. Upload your passport and photo — our specialists handle the rest. From ${formatCheckoutTotal(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}, with 5-6hr Express available. WhatsApp updates. 24/7 support.`}
         canonical="https://www.evisasomali.com/"
         jsonLd={homepageJsonLd}
       />
@@ -208,7 +209,7 @@ const Index = () => {
             <div className="text-center max-w-3xl mx-auto text-primary-foreground">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/40 bg-primary-foreground/10 px-4 py-1.5 text-xs tracking-[0.15em] text-primary-foreground backdrop-blur">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
-                Somali Visa Application · Apply Online
+                Somalia eVisa Application · Apply Online
               </div>
               <h1 className="mt-6 font-serif text-4xl md:text-6xl font-bold leading-[1.05]">
                 Choose your <span className="text-primary-foreground">application</span> type
@@ -257,7 +258,7 @@ const Index = () => {
                 Waxaan ahay Qurba-Joog
               </p>
               <p className="mt-3 text-sm text-foreground leading-relaxed">
-                Diaspora travellers holding a foreign passport. Apply in under 60 seconds by uploading your passport and photo, then providing a few essential details. {formatFee(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}, {PRICING_TIERS.standard.processingTime}.
+                Diaspora travellers holding a foreign passport. Apply in under 60 seconds by uploading your passport and photo, then providing a few essential details. {formatCheckoutTotal(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}, {PRICING_TIERS.standard.processingTime}.
               </p>
               <ul className="mt-5 space-y-2 text-sm text-foreground">
                 {[
@@ -275,7 +276,7 @@ const Index = () => {
                 <div className="rounded-sm bg-accent-soft px-3 py-2">
                   <div className="text-[10px] uppercase tracking-[0.2em] text-primary/70">Applicable fee</div>
                   <div className="font-serif text-2xl font-semibold text-primary leading-none mt-0.5">
-                    £{PRICING_TIERS.standard.fee}
+                    {formatCheckoutTotal(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}
                   </div>
                 </div>
                 <span className="inline-flex items-center gap-2 rounded-sm bg-gradient-gold px-5 py-3 text-sm font-semibold text-accent-foreground shadow-gold group-hover:shadow-elegant transition-smooth">
@@ -312,7 +313,7 @@ const Index = () => {
                 Waan degdegsanahay
               </p>
               <p className="mt-3 text-sm text-foreground leading-relaxed">
-                Same simple application as Standard, prioritized for rush processing. {formatFee(PRICING_TIERS.express.fee, PRICING_TIERS.express.currency)}, {PRICING_TIERS.express.processingTime}.
+                Same simple application as Standard, prioritized for rush processing. {formatCheckoutTotal(PRICING_TIERS.express.fee, PRICING_TIERS.express.currency)}, {PRICING_TIERS.express.processingTime}.
               </p>
               <ul className="mt-5 space-y-2 text-sm text-foreground">
                 {[
@@ -358,7 +359,7 @@ const Index = () => {
               </p>
               <p className="mt-3 text-sm text-foreground leading-relaxed">
                 Travellers holding a foreign passport. A local sponsor is required, so you'll
-                complete the official application yourself with our step-by-step guidance. {formatFee(AJNABI_OPTION.fee, AJNABI_OPTION.currency)}, {AJNABI_OPTION.processingTime}.
+                complete the official application yourself with our step-by-step guidance. {formatCheckoutTotal(AJNABI_OPTION.fee, AJNABI_OPTION.currency)}, {AJNABI_OPTION.processingTime}.
               </p>
               <ul className="mt-5 space-y-2 text-sm text-foreground">
                 {[
@@ -376,7 +377,7 @@ const Index = () => {
                 <div className="rounded-sm bg-secondary px-3 py-2">
                   <div className="text-[10px] uppercase tracking-[0.2em] text-primary/70">Applicable fee</div>
                   <div className="font-serif text-2xl font-semibold text-primary leading-none mt-0.5">
-                    £{AJNABI_OPTION.fee}
+                    {formatCheckoutTotal(AJNABI_OPTION.fee, AJNABI_OPTION.currency)}
                   </div>
                 </div>
                 <span className="inline-flex items-center gap-2 rounded-sm bg-gradient-navy px-5 py-3 text-sm font-semibold text-primary-foreground shadow-card group-hover:shadow-elegant transition-smooth">
@@ -402,7 +403,7 @@ const Index = () => {
                     ← Back to options
                   </button>
                   <div className="text-[10px] uppercase tracking-[0.25em] text-accent">
-                    {PRICING_TIERS[speed].label} · Qurba-Joog · {formatFee(PRICING_TIERS[speed].fee, PRICING_TIERS[speed].currency)}
+                    {PRICING_TIERS[speed].label} · Qurba-Joog · {formatCheckoutTotal(PRICING_TIERS[speed].fee, PRICING_TIERS[speed].currency)}
                   </div>
                   <h3 className="mt-1 font-serif text-2xl text-primary leading-tight">
                     {speed === "express" ? "Express — 5–6 hour processing" : "Apply in 60 seconds"}
@@ -538,7 +539,7 @@ const Index = () => {
                 <div className="rounded-sm bg-accent-soft px-3 py-2">
                   <div className="text-[10px] uppercase tracking-[0.2em] text-primary/70">Applicable fee · Qiimaha</div>
                   <div className="font-serif text-2xl font-semibold text-primary leading-none mt-0.5">
-                    {CURRENCY_SYMBOL[PRICING_TIERS[speed].currency]}{PRICING_TIERS[speed].fee}
+                    {formatCheckoutTotal(PRICING_TIERS[speed].fee, PRICING_TIERS[speed].currency)}
                   </div>
                 </div>
                 <button
@@ -569,7 +570,7 @@ const Index = () => {
           <div className="bg-card border border-border rounded-sm p-8 md:p-10 text-center shadow-card">
             <div className="text-[10px] uppercase tracking-[0.2em] text-accent font-semibold">Option 1 · Standard</div>
             <div className="mt-3 font-serif text-4xl md:text-5xl font-bold bg-gradient-gold bg-clip-text text-transparent">
-              {formatFee(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}
+              {formatCheckoutTotal(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}
             </div>
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
               {PRICING_TIERS.standard.processingTime} processing. All-inclusive — covers specialist
@@ -580,7 +581,7 @@ const Index = () => {
           <div className="bg-card border border-accent rounded-sm p-8 md:p-10 text-center shadow-elegant">
             <div className="text-[10px] uppercase tracking-[0.2em] text-accent font-semibold">Option 2 · Express</div>
             <div className="mt-3 font-serif text-4xl md:text-5xl font-bold bg-gradient-gold bg-clip-text text-transparent">
-              {formatFee(PRICING_TIERS.express.fee, PRICING_TIERS.express.currency)}
+              {formatCheckoutTotal(PRICING_TIERS.express.fee, PRICING_TIERS.express.currency)}
             </div>
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
               {PRICING_TIERS.express.processingTime} processing. Priority rush handling for urgent travel.
@@ -589,7 +590,7 @@ const Index = () => {
         </div>
         <p className="mt-6 max-w-2xl mx-auto text-center text-sm text-muted-foreground leading-relaxed">
           Foreign nationals (Ajnabi) completing the guided sponsor-required application (Option 3) pay
-          {" "}{formatFee(AJNABI_OPTION.fee, AJNABI_OPTION.currency)}, {AJNABI_OPTION.processingTime} processing. All fees are
+          {" "}{formatCheckoutTotal(AJNABI_OPTION.fee, AJNABI_OPTION.currency)}, {AJNABI_OPTION.processingTime} processing. All fees are
           displayed clearly before payment is completed.
         </p>
       </section>
@@ -747,7 +748,17 @@ const MiniUploader = ({ icon: Icon, label, sublabel, file, onChange, onClear, ac
         <UploadCloud className="h-5 w-5 text-accent" />
         <div className="mt-1.5 text-[11px] font-medium text-primary">Upload</div>
         <div className="text-[10px] text-muted-foreground italic">Soo gudbi</div>
-        <input type="file" accept={accept} className="hidden" onChange={(e) => e.target.files?.[0] && onChange(e.target.files[0])} />
+        <input type="file" accept={accept} className="hidden" onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (!f) return;
+          const err = fileSizeError(f);
+          if (err) {
+            toast.error(err);
+            e.target.value = "";
+            return;
+          }
+          onChange(f);
+        }} />
       </label>
     )}
   </div>

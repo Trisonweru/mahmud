@@ -26,6 +26,9 @@ const PROCESSING_FEES: Record<"standard" | "express", number> = { standard: 64, 
 const PROCESSING_CURRENCIES: Record<"standard" | "express", "gbp" | "usd"> = { standard: "gbp", express: "usd" };
 const AJNABI_FEE = 64; // Option 3 — foreigner guided-form process
 const AJNABI_CURRENCY = "gbp";
+// Flat card-payment processing fee added at checkout for GBP-charged tiers only —
+// the USD Express tier stays at its stated $150 with no fee added.
+const PAYMENT_PROCESSING_FEE_GBP = 2;
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB per file
 const ALLOWED_MIME_TYPES = new Set([
@@ -82,8 +85,9 @@ serve(async (req) => {
     const processingSpeed = fields["processingSpeed"] === "express" ? "express" : "standard";
     // Ajnabi (foreigner) guided-form flow keeps its own fixed fee — processing-speed
     // tiers only apply to the diaspora quick-apply flow.
-    const fee = isExpressFlow ? PROCESSING_FEES[processingSpeed] : AJNABI_FEE;
+    const baseFee = isExpressFlow ? PROCESSING_FEES[processingSpeed] : AJNABI_FEE;
     const currency = isExpressFlow ? PROCESSING_CURRENCIES[processingSpeed] : AJNABI_CURRENCY;
+    const fee = currency === "gbp" ? baseFee + PAYMENT_PROCESSING_FEE_GBP : baseFee;
 
     const insertData = {
       reference,
@@ -160,6 +164,9 @@ serve(async (req) => {
         size_bytes: file.size,
       });
     }
+
+    // No email here: clients get a single email ("Payment confirmed") from
+    // stripe-webhook once payment succeeds.
 
     return Response.json({ ok: true, application_id: applicationId, reference }, { headers: cors });
   } catch (err) {

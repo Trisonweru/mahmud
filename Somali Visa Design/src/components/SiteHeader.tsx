@@ -1,12 +1,14 @@
 import { NavLink, Link } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, Globe2 } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import somaliaFlag from "@/assets/somalia-flag.svg";
 
 const links = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About" },
   { to: "/apply", label: "Apply" },
+  { to: "/visa", label: "Nationality" },
   { to: "/status", label: "Status" },
   { to: "/documents", label: "Documents" },
   { to: "/faqs", label: "FAQs" },
@@ -18,11 +20,11 @@ export const SiteHeader = () => {
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/85 backdrop-blur-md">
       <div className="container flex h-20 items-center justify-between">
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-gradient-navy shadow-card">
-            <Globe2 className="h-5 w-5 text-accent" />
+          <div className="h-11 w-11 overflow-hidden rounded-sm shadow-card">
+            <img src={somaliaFlag} alt="Somalia flag" className="h-full w-full object-cover" />
           </div>
           <div className="leading-tight">
-            <div className="font-serif text-xl font-bold text-primary">Somali Visa Application</div>
+            <div className="font-serif text-xl font-bold text-primary">Somalia eVisa Application</div>
             <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Application Service</div>
           </div>
         </Link>

@@ -1,9 +1,10 @@
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import NotFound from "./NotFound";
 import { SectionHeading } from "@/components/SectionHeading";
 import { PageSEO } from "@/components/PageSEO";
 import { CheckCircle2, Clock, CreditCard, Globe2, ArrowRight } from "lucide-react";
-import { visaCountries } from "@/data/visaCountries";
-import { AJNABI_OPTION, formatFee } from "@/lib/pricing";
+import { visaCountries, visaCountriesSorted } from "@/data/visaCountries";
+import { AJNABI_OPTION, formatCheckoutTotal } from "@/lib/pricing";
 
 const requirements = [
   "A valid passport with at least 6 months' validity remaining from your travel date",
@@ -18,7 +19,9 @@ const VisaCountry = () => {
   const { country } = useParams<{ country: string }>();
   const data = visaCountries.find((c) => c.slug === country);
 
-  if (!data) return <Navigate to="/" replace />;
+  if (!data) return <NotFound />;
+
+  const related = visaCountriesSorted.filter((c) => c.region === data.region && c.slug !== data.slug).slice(0, 12);
 
   const faqs = [
     {
@@ -30,8 +33,8 @@ const VisaCountry = () => {
       a: `Most applications are reviewed by our specialists and submitted to the official Somalia eTAS portal within ${AJNABI_OPTION.processingTime} of receiving your complete documents. A 5-6 hour Express option is also available for urgent travel.`,
     },
     {
-      q: `What does the ${formatFee(AJNABI_OPTION.fee, AJNABI_OPTION.currency)} fee cover?`,
-      a: `The ${formatFee(AJNABI_OPTION.fee, AJNABI_OPTION.currency)} fee is all-inclusive: it covers the official government eTAS fee as well as our specialist review, document checks, and submission service. No hidden charges.`,
+      q: `What does the ${formatCheckoutTotal(AJNABI_OPTION.fee, AJNABI_OPTION.currency)} fee cover?`,
+      a: `The ${formatCheckoutTotal(AJNABI_OPTION.fee, AJNABI_OPTION.currency)} fee is all-inclusive: it covers the official government eTAS fee as well as our specialist review, document checks, and submission service. No hidden charges.`,
     },
     {
       q: `Can I apply from ${data.country}?`,
@@ -45,21 +48,37 @@ const VisaCountry = () => {
         title={`Somalia eVisa for ${data.demonym} Citizens | eVisaSomali`}
         description={`Apply for your Somalia eVisa from ${data.country}. ${data.intro}`}
         canonical={`https://www.evisasomali.com/visa/${data.slug}`}
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": faqs.map((f) => ({
-            "@type": "Question",
-            "name": f.q,
-            "acceptedAnswer": { "@type": "Answer", "text": f.a },
-          })),
-        }}
+        jsonLd={[
+          {
+            "@type": "FAQPage",
+            "mainEntity": faqs.map((f) => ({
+              "@type": "Question",
+              "name": f.q,
+              "acceptedAnswer": { "@type": "Answer", "text": f.a },
+            })),
+          },
+          {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.evisasomali.com/" },
+              { "@type": "ListItem", "position": 2, "name": "Visas by Nationality", "item": "https://www.evisasomali.com/visa" },
+              { "@type": "ListItem", "position": 3, "name": `Somalia Visa for ${data.country}`, "item": `https://www.evisasomali.com/visa/${data.slug}` },
+            ],
+          },
+        ]}
       />
 
       {/* Hero */}
       <section className="bg-primary text-primary-foreground py-28 relative overflow-hidden">
         <div className="absolute inset-0 opacity-15" style={{ backgroundImage: "radial-gradient(circle at 80% 20%, hsl(var(--accent)/0.5), transparent 50%)" }} />
         <div className="relative container text-center max-w-3xl">
+          <nav aria-label="Breadcrumb" className="mb-6 text-xs text-primary-foreground/60">
+            <Link to="/" className="hover:text-accent">Home</Link>
+            <span className="mx-2">/</span>
+            <Link to="/visa" className="hover:text-accent">Visas by Nationality</Link>
+            <span className="mx-2">/</span>
+            <span className="text-primary-foreground/80">{data.country}</span>
+          </nav>
           <span className="text-xs uppercase tracking-[0.25em] text-accent">{data.flag} {data.country}</span>
           <h1 className="mt-5 font-serif text-5xl md:text-6xl">Somalia eVisa for {data.demonym} Citizens</h1>
           <p className="mt-6 text-primary-foreground/75 text-lg">{data.intro}</p>
@@ -67,7 +86,7 @@ const VisaCountry = () => {
             to="/apply/start"
             className="mt-8 inline-flex items-center gap-2 rounded-sm bg-gradient-gold px-8 py-4 text-sm font-medium text-accent-foreground shadow-gold hover:shadow-elegant transition-smooth"
           >
-            Start your application — {formatFee(AJNABI_OPTION.fee, AJNABI_OPTION.currency)} <ArrowRight className="h-4 w-4" />
+            Start your application — {formatCheckoutTotal(AJNABI_OPTION.fee, AJNABI_OPTION.currency)} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>
@@ -78,7 +97,7 @@ const VisaCountry = () => {
         <div className="mt-12 grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {[
             { icon: Clock, title: "Processing Time", body: `Most applications are reviewed and submitted within ${AJNABI_OPTION.processingTime} of receiving your complete documents. Express (5-6hr) processing is also available.` },
-            { icon: CreditCard, title: "Visa Fee", body: `${formatFee(AJNABI_OPTION.fee, AJNABI_OPTION.currency)}, all-inclusive — covers the official government eTAS fee and our specialist service. No hidden charges.` },
+            { icon: CreditCard, title: "Visa Fee", body: `${formatCheckoutTotal(AJNABI_OPTION.fee, AJNABI_OPTION.currency)}, all-inclusive — covers the official government eTAS fee and our specialist service. No hidden charges.` },
             { icon: Globe2, title: "Validity", body: "Single or multiple-entry options available, valid for up to 180 days from the date of issue." },
           ].map((d) => (
             <div key={d.title} className="bg-card border border-border rounded-sm p-8 shadow-card">
@@ -126,6 +145,31 @@ const VisaCountry = () => {
           </div>
         </div>
       </section>
+
+      {/* Related nationalities */}
+      {related.length > 0 && (
+        <section className="container py-20 max-w-5xl">
+          <SectionHeading eyebrow={data.region} title={`Somalia visa for other ${data.region} nationalities`} />
+          <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((c) => (
+              <li key={c.slug}>
+                <Link
+                  to={`/visa/${c.slug}`}
+                  className="flex items-center gap-3 rounded-sm border border-border bg-card p-4 text-sm shadow-card transition-smooth hover:border-accent/60"
+                >
+                  <span aria-hidden="true">{c.flag}</span>
+                  <span className="text-foreground">Somalia Visa for {c.country}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-8 text-center">
+            <Link to="/visa" className="inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline">
+              View all nationalities <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="bg-primary text-primary-foreground py-20">

@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kenya-eta-site",
+  "account_id": "9d3a6c47866c7759dac122d1a4078eff",
+  "compatibility_date": "2025-09-24",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "src/server.ts",
+  "vars": {
+    "SITE_URL": "https://www.kenyaevisa.net"
+  }
+}

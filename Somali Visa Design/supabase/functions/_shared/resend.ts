@@ -1,6 +1,6 @@
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const RESEND_API = "https://api.resend.com/emails";
-const DEFAULT_FROM = "eVisaSomali <support@evisasomali.com>";
+const DEFAULT_FROM = "eVisa Somalia <support@evisasomali.com>";
 
 // Email sending is a side effect of payment confirmation, never the reason a
 // webhook fails — callers should not let a send error affect the response
@@ -10,10 +10,10 @@ export async function sendEmail(params: {
   subject: string;
   html: string;
   from?: string;
-}): Promise<void> {
+}): Promise<boolean> {
   if (!RESEND_API_KEY) {
     console.error("[resend] RESEND_API_KEY not configured — skipping email send.");
-    return;
+    return false;
   }
   try {
     const res = await fetch(RESEND_API, {
@@ -31,8 +31,11 @@ export async function sendEmail(params: {
     });
     if (!res.ok) {
       console.error(`[resend] Send failed (${res.status}):`, await res.text());
+      return false;
     }
+    return true;
   } catch (err) {
     console.error("[resend] Send threw:", (err as Error).message);
+    return false;
   }
 }

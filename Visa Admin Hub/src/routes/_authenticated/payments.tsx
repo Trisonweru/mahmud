@@ -1,3 +1,4 @@
+import { QUICK_RANGES, quickRange, type QuickRangeKey } from "@/components/admin/DateRangePresets";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Search, X, Download } from "lucide-react";
@@ -5,34 +6,25 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { AccessDenied } from "@/components/admin/AccessDenied";
 import { PageShell, PageHeader } from "@/components/admin/PageShell";
+import { PaymentRef } from "@/components/admin/PaymentRef";
 import type { Application } from "@/lib/applications";
-import { formatMoney, sumByCurrency, formatCurrencyTotals } from "@/lib/applications";
+import { formatMoney, processingLabel, sumByCurrency, formatCurrencyTotals } from "@/lib/applications";
 
 export const Route = createFileRoute("/_authenticated/payments")({
   head: () => ({ meta: [{ title: "Payments — Admin" }] }),
   component: PaymentsPage,
 });
 
-type Period = "today" | "last7" | "last30" | "this_month" | "this_year";
+type Period = QuickRangeKey | "custom";
 
 const PERIODS: { key: Period; label: string; sublabel: string }[] = [
-  { key: "today",      label: "Today",        sublabel: new Date().toLocaleDateString("en", { weekday: "long", month: "short", day: "numeric" }) },
-  { key: "last7",      label: "Last 7 Days",  sublabel: "Rolling week" },
-  { key: "last30",     label: "Last 30 Days", sublabel: "Rolling month" },
-  { key: "this_month", label: "This Month",   sublabel: new Date().toLocaleDateString("en", { month: "long", year: "numeric" }) },
-  { key: "this_year",  label: "This Year",    sublabel: new Date().getFullYear().toString() },
+  ...QUICK_RANGES.map(r => ({ key: r.key as Period, label: r.label, sublabel: r.description })),
+  { key: "custom", label: "Custom Date Range", sublabel: "Pick dates" },
 ];
 
-function inPeriod(d: Date, period: Period): boolean {
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  switch (period) {
-    case "today":      return d >= today;
-    case "last7":      { const c = new Date(today); c.setDate(c.getDate() - 6);  return d >= c; }
-    case "last30":     { const c = new Date(today); c.setDate(c.getDate() - 29); return d >= c; }
-    case "this_month": return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-    case "this_year":  return d.getFullYear() === now.getFullYear();
-  }
+function inPeriod(d: Date, range: { from: string; to: string }): boolean {
+  const k = localDateKey(d);
+  return (range.from === "" || k >= range.from) && (range.to === "" || k <= range.to);
 }
 
 function localDateKey(d: Date): string {
@@ -47,7 +39,10 @@ function PaymentsPage() {
 function PaymentsContent() {
   const [apps, setApps] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
-  const [period, setPeriod] = useState<Period>("this_month");
+  const [period, setPeriod] = useState<Period>("last_month");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
+  const range = period === "custom" ? { from: customFrom, to: customTo } : quickRange(period);
   const [q, setQ] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "standard" | "express">("all");
 
@@ -68,15 +63,15 @@ function PaymentsContent() {
   const paidAll = useMemo(() => apps.filter(a => {
     if (!a.paid || !a.paid_at) return false;
     return (
-      (typeFilter === "all" || a.type === typeFilter) &&
+      (typeFilter === "all" || a.processing_speed === typeFilter) &&
       (q === "" || `${a.full_name} ${a.reference} ${a.email} ${a.nationality}`.toLowerCase().includes(q.toLowerCase()))
     );
   }), [apps, typeFilter, q]);
 
   // Active period transactions (all paid, by paid_at)
   const activeItems = useMemo(() =>
-    paidAll.filter(a => inPeriod(new Date(a.paid_at!), period)),
-  [paidAll, period]);
+    paidAll.filter(a => inPeriod(new Date(a.paid_at!), range)),
+  [paidAll, range.from, range.to]);
 
   // Gross revenue for active period. Fees can be charged in more than one currency
   // (Option 1/3 = GBP, Option 2 = USD), so totals are grouped per currency rather
@@ -88,9 +83,9 @@ function PaymentsContent() {
     apps.filter(a =>
       a.refund_status === "refunded" &&
       a.refund_processed_at &&
-      inPeriod(new Date(a.refund_processed_at), period)
+      inPeriod(new Date(a.refund_processed_at), range)
     ),
-  [apps, period]);
+  [apps, range.from, range.to]);
 
   const activeRefundByCurrency = useMemo(() =>
     sumByCurrency(activeRefunds, a => Number(a.refund_amount ?? a.fee), a => a.currency),
@@ -117,9 +112,9 @@ function PaymentsContent() {
   const hasAnyRefunds = Object.values(activeRefundByCurrency).some(v => v > 0);
   const hasAnyAllTimeRefunds = Object.values(allTimeRefundByCurrency).some(v => v > 0);
 
-  // For "Last 7" and "Last 30" views, group by local date for the sub-grid
+  // For "Last Week" and "Last Month" views, group by local date for the sub-grid
   const dateBuckets = useMemo(() => {
-    if (period !== "last7" && period !== "last30") return [];
+    if (period !== "last_week" && period !== "last_month") return [];
     const map = new Map<string, { label: string; count: number; totals: Record<string, number> }>();
     for (const a of activeItems) {
       const d = new Date(a.paid_at!);
@@ -137,9 +132,9 @@ function PaymentsContent() {
   const [showRefundPanel, setShowRefundPanel] = useState(false);
 
   const exportCsv = () => {
-    const rows: string[][] = [["Reference", "Applicant", "Email", "Nationality", "Type", "Amount", "Currency", "Paid at", "Refund Status", "Refund Amount", "Refund Processed At"]];
+    const rows: string[][] = [["Reference", "Payment ID", "Applicant", "Email", "Nationality", "Processing", "Amount", "Currency", "Paid at", "Refund Status", "Refund Amount", "Refund Processed At"]];
     activeItems.forEach(a => rows.push([
-      a.reference, a.full_name, a.email, a.nationality, a.type, String(a.fee), a.currency, a.paid_at ?? "",
+      a.reference, a.stripe_payment_intent_id ?? "", a.full_name, a.email, a.nationality, processingLabel(a), String(a.fee), a.currency, a.paid_at ?? "",
       a.refund_status ?? "", a.refund_amount != null ? String(a.refund_amount) : "", a.refund_processed_at ?? "",
     ]));
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
@@ -155,7 +150,7 @@ function PaymentsContent() {
       <PageHeader eyebrow="Finance · Reconciliation" title="Payments" />
 
       {/* Period selector dropdown (#28) */}
-      <div className="mt-6 flex items-center gap-3">
+      <div className="mt-6 flex flex-wrap items-center gap-3">
         <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Period</label>
         <select
           value={period}
@@ -166,6 +161,13 @@ function PaymentsContent() {
             <option key={p.key} value={p.key}>{p.label} — {p.sublabel}</option>
           ))}
         </select>
+        {period === "custom" && (
+          <>
+            <input type="date" value={customFrom} max={customTo || undefined} onChange={(e) => setCustomFrom(e.target.value)} className="rounded-sm border border-input bg-background px-2 py-1.5 text-sm" />
+            <span className="text-xs text-muted-foreground">to</span>
+            <input type="date" value={customTo} min={customFrom || undefined} onChange={(e) => setCustomTo(e.target.value)} className="rounded-sm border border-input bg-background px-2 py-1.5 text-sm" />
+          </>
+        )}
       </div>
 
       {/* Summary row */}
@@ -299,6 +301,7 @@ function PaymentsContent() {
               <tr>
                 <th className="px-6 py-3 text-left font-medium">Reference</th>
                 <th className="px-6 py-3 text-left font-medium">Applicant</th>
+                <th className="px-6 py-3 text-left font-medium">Payment ID</th>
                 <th className="px-6 py-3 text-left font-medium">Type</th>
                 <th className="px-6 py-3 text-right font-medium">Amount</th>
                 <th className="px-6 py-3 text-left font-medium">Paid at</th>
@@ -307,10 +310,10 @@ function PaymentsContent() {
             </thead>
             <tbody>
               {loading && (
-                <tr><td colSpan={6} className="px-6 py-10 text-center text-sm text-muted-foreground">Loading…</td></tr>
+                <tr><td colSpan={7} className="px-6 py-10 text-center text-sm text-muted-foreground">Loading…</td></tr>
               )}
               {!loading && activeItems.length === 0 && (
-                <tr><td colSpan={6} className="px-6 py-10 text-center text-sm text-muted-foreground">No transactions in this period.</td></tr>
+                <tr><td colSpan={7} className="px-6 py-10 text-center text-sm text-muted-foreground">No transactions in this period.</td></tr>
               )}
               {activeItems.map(a => (
                 <tr key={a.id} className="border-b border-border last:border-0 hover:bg-secondary/40">
@@ -318,7 +321,8 @@ function PaymentsContent() {
                     <Link to="/applications/$id" params={{ id: a.id }} className="font-mono text-xs text-primary hover:text-accent">{a.reference}</Link>
                   </td>
                   <td className="max-w-[180px] truncate px-6 py-4 text-foreground">{a.full_name}</td>
-                  <td className="px-6 py-4 text-xs uppercase">{a.type}</td>
+                  <td className="max-w-[230px] px-6 py-4"><PaymentRef paymentIntentId={a.stripe_payment_intent_id} compact /></td>
+                  <td className="px-6 py-4 text-xs uppercase">{processingLabel(a)}</td>
                   <td className="px-6 py-4 text-right font-medium">{formatMoney(Number(a.fee), a.currency)}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-xs text-muted-foreground">
                     {a.paid_at ? new Date(a.paid_at).toLocaleString() : "—"}
@@ -342,17 +346,17 @@ function PaymentsContent() {
             {activeItems.length > 0 && (
               <tfoot>
                 <tr className="bg-secondary/40">
-                  <td colSpan={3} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Gross total</td>
+                  <td colSpan={4} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Gross total</td>
                   <td className="px-6 py-3 text-right font-serif text-accent">{formatCurrencyTotals(activeGrossByCurrency)}</td>
                   <td colSpan={2} />
                 </tr>
                 <tr className="bg-destructive/5">
-                  <td colSpan={3} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Refunds (this period)</td>
+                  <td colSpan={4} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Refunds (this period)</td>
                   <td className="px-6 py-3 text-right font-serif text-destructive">− {formatCurrencyTotals(activeRefundByCurrency)}</td>
                   <td colSpan={2} />
                 </tr>
                 <tr className="bg-secondary/60 font-medium">
-                  <td colSpan={3} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Net revenue</td>
+                  <td colSpan={4} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Net revenue</td>
                   <td className="px-6 py-3 text-right font-serif text-foreground">{formatCurrencyTotals(activeNetByCurrency)}</td>
                   <td colSpan={2} />
                 </tr>

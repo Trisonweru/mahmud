@@ -2,17 +2,19 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft, Mail, MapPin, Calendar, Shield, User, Briefcase,
-  MessageSquare, FileText, Loader2, Trash2, Eye, History,
+  MessageSquare, FileText, Loader2, Eye, History,
   AlertTriangle, RotateCcw, DollarSign, ChevronDown, ChevronUp, MessageCircle,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DocumentsList } from "@/components/admin/DocumentsList";
-import { ALL_STATUSES, formatMoney, INFO_SOURCE_NOTE_PREFIX, INFO_SOURCES, isPlaceholderDob, isPlaceholderNationality, isRefundedOrDenied, statusLabels, waLink, type AppNote, type AppStatus, type Application, type InfoSource } from "@/lib/applications";
+import { ALL_STATUSES, formatMoney, INFO_SOURCE_NOTE_PREFIX, INFO_SOURCES, isPlaceholderDob, isPlaceholderNationality, isRefundedOrDenied, processingLabel, statusLabels, waLink, type AppNote, type AppStatus, type Application, type InfoSource } from "@/lib/applications";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { processStripeRefund } from "@/lib/payments.functions";
+import { PaymentRef } from "@/components/admin/PaymentRef";
+import { sendRejectionEmail } from "@/lib/emails";
 
 export const Route = createFileRoute("/_authenticated/applications/$id")({
   head: ({ params }) => ({ meta: [{ title: `Application ${params.id} — Admin` }] }),
@@ -120,6 +122,7 @@ function ApplicationDetail() {
         author_id: user.id,
         body: `${AUDIT_PREFIX}Status changed: ${statusLabels[prev]} → ${statusLabels[s]}`,
       });
+      if (s === "rejected" && prev !== "rejected") await sendRejectionEmail(app.id);
       await load();
     }
   };
@@ -129,7 +132,7 @@ function ApplicationDetail() {
   const submitEtas = async () => {
     if (!etasRef.trim()) { toast.error("Enter the government reference number"); return; }
     if (!user) return;
-    await update({ etas_submitted: true, etas_reference: etasRef.trim(), etas_submitted_by: user.id, status: "in_review" });
+    await update({ etas_submitted: true, etas_reference: etasRef.trim(), etas_submitted_by: user.id, etas_submitted_at: new Date().toISOString(), status: "in_review" });
   };
 
   const approve = async () => {
@@ -165,19 +168,6 @@ function ApplicationDetail() {
     await setStatus(s);
   };
 
-  const deleteApp = async () => {
-    if (!confirm(`Permanently delete ${app.reference}? All documents and notes will be removed. This cannot be undone.`)) return;
-    setBusy(true);
-    const { data: docPaths } = await supabase.from("application_documents").select("storage_path").eq("application_id", app.id);
-    if (docPaths?.length) await supabase.storage.from("application-documents").remove(docPaths.map(d => d.storage_path));
-    await supabase.from("application_documents").delete().eq("application_id", app.id);
-    await supabase.from("application_notes").delete().eq("application_id", app.id);
-    const { error } = await supabase.from("applications").delete().eq("id", app.id);
-    setBusy(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Application deleted");
-    nav({ to: "/applications" });
-  };
 
   const addNote = async () => {
     if (!noteText.trim() || !user) return;
@@ -273,7 +263,7 @@ function ApplicationDetail() {
           <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <span>{app.nationality} passport</span>
             <span>·</span>
-            <span className="capitalize">{app.type} processing</span>
+            <span>{processingLabel(app)} processing</span>
             <span>·</span>
             <StatusBadge status={app.status} />
             {app.etas_submitted && <span className="rounded-sm bg-success/15 px-2 py-0.5 text-[11px] uppercase tracking-wider text-success">Gov. submitted: {app.etas_reference}</span>}
@@ -292,11 +282,6 @@ function ApplicationDetail() {
               <button onClick={reject} disabled={busy || isLocked} className="rounded-sm border border-destructive/40 bg-destructive/10 px-4 py-2 text-xs uppercase tracking-wider text-destructive hover:bg-destructive/15 disabled:opacity-50 disabled:cursor-not-allowed">Reject</button>
               <button onClick={approve} disabled={busy || isLocked} className="rounded-sm bg-gradient-navy px-4 py-2 text-xs uppercase tracking-wider text-primary-foreground shadow-card hover:shadow-elegant disabled:opacity-60 disabled:cursor-not-allowed">Approve &amp; issue eVisa</button>
             </>
-          )}
-          {isSuperAdmin && (
-            <button onClick={deleteApp} disabled={busy} className="inline-flex items-center gap-1.5 rounded-sm border border-destructive/50 bg-destructive/10 px-4 py-2 text-xs uppercase tracking-wider text-destructive hover:bg-destructive/20 disabled:opacity-60">
-              <Trash2 className="h-3.5 w-3.5" /> Delete
-            </button>
           )}
         </div>
       </div>
@@ -321,11 +306,10 @@ function ApplicationDetail() {
             <Field label="Passport expiry" value={new Date(app.passport_expiry).toLocaleDateString()} />
           </Section>
 
-          {(app.purpose || app.arrival_date || app.sponsor_code) && (
+          {(app.purpose || app.departure_date || app.sponsor_code) && (
             <Section title="Travel details" icon={Briefcase}>
               {app.purpose && <Field label="Purpose" value={app.purpose} />}
               {app.address_in_somalia && <Field label="Address in Somalia" value={app.address_in_somalia} icon={MapPin} />}
-              {app.arrival_date && <Field label="Arrival" value={new Date(app.arrival_date).toLocaleDateString()} icon={Calendar} />}
               {app.departure_date && <Field label="Departure" value={new Date(app.departure_date).toLocaleDateString()} icon={Calendar} />}
               {app.sponsor_code && <Field label="Sponsor code" value={app.sponsor_code} />}
             </Section>
@@ -485,6 +469,14 @@ function ApplicationDetail() {
                 <span className="inline-flex items-center rounded-sm bg-warning/20 px-2.5 py-1 text-[11px] uppercase tracking-wider text-foreground">Awaiting payment</span>
               )}
             </div>
+            {app.paid && (
+              <div className="mt-3 space-y-1.5 rounded-sm border border-border bg-secondary/40 p-3">
+                <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Payment ID</div>
+                <PaymentRef paymentIntentId={app.stripe_payment_intent_id} />
+                <div className="pt-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Application ref</div>
+                <div className="font-mono text-xs text-foreground">{app.reference}</div>
+              </div>
+            )}
 
             {/* Refund section */}
             {app.paid && isAdmin && (

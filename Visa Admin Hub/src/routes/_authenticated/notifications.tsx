@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Bell, Trash2 } from "lucide-react";
+import { Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { notificationLabels, type Notification } from "@/lib/applications";
@@ -37,27 +37,6 @@ function NotificationsPage() {
     load();
   };
 
-  const deleteOne = async (id: string) => {
-    // Optimistically remove from UI, restore on failure
-    setItems(prev => prev.filter(n => n.id !== id));
-    const { error } = await supabase.from("notifications").delete().eq("id", id);
-    if (error) {
-      toast.error("Failed to delete notification. Please try again.");
-      load(); // restore the item
-    }
-  };
-
-  const deleteAll = async () => {
-    if (!user || !confirm("Delete all notifications? This cannot be undone.")) return;
-    const snapshot = items; // keep for rollback
-    setItems([]);
-    const { error } = await supabase.from("notifications").delete().eq("recipient_id", user.id);
-    if (error) {
-      toast.error("Failed to delete notifications. Please try again.");
-      setItems(snapshot); // restore
-    }
-  };
-
   return (
     <PageShell className="max-w-3xl">
       <PageHeader
@@ -66,11 +45,6 @@ function NotificationsPage() {
         action={
           <div className="flex gap-2">
             <button onClick={markAll} className="rounded-sm border border-border bg-card px-4 py-2 text-xs uppercase tracking-wider hover:bg-secondary">Mark all read</button>
-            {items.length > 0 && (
-              <button onClick={deleteAll} className="inline-flex items-center gap-1.5 rounded-sm border border-destructive/40 bg-destructive/5 px-4 py-2 text-xs uppercase tracking-wider text-destructive hover:bg-destructive/10">
-                <Trash2 className="h-3.5 w-3.5" /> Delete all
-              </button>
-            )}
           </div>
         }
       />
@@ -94,13 +68,6 @@ function NotificationsPage() {
               <div className="mt-1 font-medium text-foreground">{n.title}</div>
               {n.body && <div className="mt-0.5 text-sm text-muted-foreground">{n.body}</div>}
             </Link>
-            <button
-              onClick={() => deleteOne(n.id)}
-              className="mt-1 shrink-0 rounded-sm p-1 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
-              title="Delete notification"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
           </div>
         ))}
       </div>
