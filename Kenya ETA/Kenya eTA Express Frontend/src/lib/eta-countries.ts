@@ -1,0 +1,361 @@
+export type CountryGuide = {
+  slug: string;
+  country: string;
+  demonym: string;
+  currencyNote: string;
+  processing: string;
+  highlights: string[];
+};
+
+export const COUNTRY_GUIDES: CountryGuide[] = [
+  {
+    slug: "uk",
+    country: "United Kingdom",
+    demonym: "UK citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Most UK passport holders receive a decision within 3 business days.",
+    highlights: [
+      "British passport holders need a Kenya eTA before boarding — it replaced the old visa on arrival.",
+      "Direct flights from London Heathrow to Nairobi land at Jomo Kenyatta International Airport (NBO).",
+      "Your British passport must be valid for at least 6 months from your arrival date.",
+    ],
+  },
+  {
+    slug: "usa",
+    country: "United States",
+    demonym: "US citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Most US passport holders receive a decision within 3 business days.",
+    highlights: [
+      "US citizens must hold an approved Kenya eTA before departure; there is no visa on arrival.",
+      "One eTA covers a single entry and a stay of up to 90 days.",
+      "Print or save your approval — airlines check it at the gate.",
+    ],
+  },
+  {
+    slug: "canada",
+    country: "Canada",
+    demonym: "Canadian citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Canadian applications are usually decided within 3 business days.",
+    highlights: [
+      "Canadian passport holders need an approved eTA for tourism, family visits or transit.",
+      "Return or onward travel proof is requested during the application.",
+      "Yellow fever vaccination proof may be requested if you arrive from a risk country.",
+    ],
+  },
+  {
+    slug: "australia",
+    country: "Australia",
+    demonym: "Australian citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Australian applications are usually decided within 3 business days.",
+    highlights: [
+      "Australian passport holders require a Kenya eTA before boarding.",
+      "Apply at least 3 days before departure to allow for review time.",
+      "The eTA is electronic and linked to your passport number.",
+    ],
+  },
+  {
+    slug: "ireland",
+    country: "Ireland",
+    demonym: "Irish citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Irish applications are usually decided within 3 business days.",
+    highlights: [
+      "Irish passport holders need an approved eTA to visit Kenya.",
+      "One application per traveller, including children with their own passports.",
+      "Single entry, valid for a stay of up to 90 days.",
+    ],
+  },
+  {
+    slug: "germany",
+    country: "Germany",
+    demonym: "German citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "German applications are usually decided within 3 business days.",
+    highlights: [
+      "German passport holders must hold a Kenya eTA before travel.",
+      "Accommodation and flight bookings are required for tourism applications.",
+      "Your passport must have at least one blank page and 6 months validity.",
+    ],
+  },
+  {
+    slug: "france",
+    country: "France",
+    demonym: "French citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "French applications are usually decided within 3 business days.",
+    highlights: [
+      "French passport holders need a Kenya eTA for tourism, family visits or transit.",
+      "The eTA is issued electronically and emailed to you as a PDF.",
+      "Children need their own separate application.",
+    ],
+  },
+  {
+    slug: "netherlands",
+    country: "Netherlands",
+    demonym: "Dutch citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Dutch applications are usually decided within 3 business days.",
+    highlights: [
+      "Dutch passport holders require an approved Kenya eTA before boarding.",
+      "KLM flies daily from Amsterdam Schiphol to Nairobi.",
+      "Single entry, up to 90 days of tourism.",
+    ],
+  },
+  {
+    slug: "italy",
+    country: "Italy",
+    demonym: "Italian citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Italian applications are usually decided within 3 business days.",
+    highlights: [
+      "Italian passport holders need a Kenya eTA before departure.",
+      "Upload a clear scan of your passport bio-data page.",
+      "Approval is linked to the passport you apply with.",
+    ],
+  },
+  {
+    slug: "spain",
+    country: "Spain",
+    demonym: "Spanish citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Spanish applications are usually decided within 3 business days.",
+    highlights: [
+      "Spanish passport holders require an approved Kenya eTA.",
+      "Your passport-style photo must be recent and on a plain background.",
+      "One eTA per traveller, single entry.",
+    ],
+  },
+  {
+    slug: "india",
+    country: "India",
+    demonym: "Indian citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Indian applications are usually decided within 3 business days.",
+    highlights: [
+      "Indian passport holders need an approved Kenya eTA before flying.",
+      "Family-visit applications require an invitation letter and host ID.",
+      "Apply early — allow up to 4 working days for review.",
+    ],
+  },
+  {
+    slug: "uae",
+    country: "United Arab Emirates",
+    demonym: "UAE residents and citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "UAE applications are usually decided within 3 business days.",
+    highlights: [
+      "Travellers from the UAE need an approved eTA for tourism, family visits or transit.",
+      "Nairobi is a short direct flight from Dubai and Abu Dhabi.",
+      "Residents apply with their passport, not their Emirates ID.",
+    ],
+  },
+  {
+    slug: "china",
+    country: "China",
+    demonym: "Chinese citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Chinese applications are usually decided within 3 business days.",
+    highlights: [
+      "Chinese passport holders need an approved Kenya eTA before boarding.",
+      "Documents in Chinese should be accompanied by an English translation.",
+      "Apply at least 5 days before departure.",
+    ],
+  },
+  {
+    slug: "japan",
+    country: "Japan",
+    demonym: "Japanese citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Japanese applications are usually decided within 3 business days.",
+    highlights: [
+      "Japanese passport holders require a Kenya eTA for tourism, family visits or transit.",
+      "Your passport must be valid 6 months beyond arrival.",
+      "The approval PDF is emailed to you.",
+    ],
+  },
+  {
+    slug: "brazil",
+    country: "Brazil",
+    demonym: "Brazilian citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Brazilian applications are usually decided within 3 business days.",
+    highlights: [
+      "Brazilian passport holders need an approved Kenya eTA.",
+      "Yellow fever certificates are commonly requested on this route.",
+      "Single entry, up to 90 days of tourism.",
+    ],
+  },
+  {
+    slug: "pakistan",
+    country: "Pakistan",
+    demonym: "Pakistani citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Pakistani applications are usually decided within 3 business days.",
+    highlights: [
+      "Pakistani passport holders need an approved Kenya eTA before flying.",
+      "Allow extra time and apply well before your departure date.",
+      "Supporting documents in Urdu should include an English translation.",
+    ],
+  },
+  {
+    slug: "bangladesh",
+    country: "Bangladesh",
+    demonym: "Bangladeshi citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Bangladeshi applications are usually decided within 3 business days.",
+    highlights: [
+      "Bangladeshi passport holders require an approved Kenya eTA.",
+      "Upload a clear passport bio-data page so details can be read.",
+      "One eTA per traveller, single entry.",
+    ],
+  },
+  {
+    slug: "philippines",
+    country: "Philippines",
+    demonym: "Filipino citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Filipino applications are usually decided within 3 business days.",
+    highlights: [
+      "Filipino passport holders need a Kenya eTA before boarding.",
+      "Transit travellers upload their onward flight booking confirmation.",
+      "The approval is emailed to you as a PDF.",
+    ],
+  },
+  {
+    slug: "indonesia",
+    country: "Indonesia",
+    demonym: "Indonesian citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Indonesian applications are usually decided within 3 business days.",
+    highlights: [
+      "Indonesian passport holders require an approved Kenya eTA.",
+      "Your passport must be valid 6 months beyond arrival.",
+      "Single entry, up to 90 days of tourism.",
+    ],
+  },
+  {
+    slug: "malaysia",
+    country: "Malaysia",
+    demonym: "Malaysian citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Malaysian applications are usually decided within 3 business days.",
+    highlights: [
+      "Malaysian passport holders need an approved Kenya eTA before departure.",
+      "Tourism applications need accommodation or itinerary details.",
+      "Print or save the approval — airlines check it at the gate.",
+    ],
+  },
+  {
+    slug: "singapore",
+    country: "Singapore",
+    demonym: "Singaporean citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Singaporean applications are usually decided within 3 business days.",
+    highlights: [
+      "Singapore passport holders apply for the eTA online before travel.",
+      "There is no visa on arrival — hold the approval before boarding.",
+      "Single entry, up to 90 days.",
+    ],
+  },
+  {
+    slug: "south-korea",
+    country: "South Korea",
+    demonym: "South Korean citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "South Korean applications are usually decided within 3 business days.",
+    highlights: [
+      "South Korean passport holders need an approved Kenya eTA.",
+      "Documents in Korean should be accompanied by an English translation.",
+      "The approval PDF is emailed to you.",
+    ],
+  },
+  {
+    slug: "turkey",
+    country: "Turkey",
+    demonym: "Turkish citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Turkish applications are usually decided within 3 business days.",
+    highlights: [
+      "Turkish passport holders require an approved Kenya eTA before flying.",
+      "Direct flights from Istanbul land at Jomo Kenyatta International Airport (NBO).",
+      "Single entry, up to 90 days.",
+    ],
+  },
+  {
+    slug: "saudi-arabia",
+    country: "Saudi Arabia",
+    demonym: "Saudi citizens and residents",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Saudi applications are usually decided within 3 business days.",
+    highlights: [
+      "Travellers from Saudi Arabia need an approved eTA for Kenya.",
+      "Residents apply with their passport, not their residency card.",
+      "Tourism applications need accommodation details.",
+    ],
+  },
+  {
+    slug: "poland",
+    country: "Poland",
+    demonym: "Polish citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Polish applications are usually decided within 3 business days.",
+    highlights: [
+      "Polish passport holders require an approved Kenya eTA.",
+      "Your passport-style photo must be recent and on a plain background.",
+      "One eTA per traveller, including children.",
+    ],
+  },
+  {
+    slug: "sweden",
+    country: "Sweden",
+    demonym: "Swedish citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Swedish applications are usually decided within 3 business days.",
+    highlights: [
+      "Swedish passport holders need an approved Kenya eTA before boarding.",
+      "Tourism applications need accommodation or safari itinerary details.",
+      "Single entry, up to 90 days.",
+    ],
+  },
+  {
+    slug: "switzerland",
+    country: "Switzerland",
+    demonym: "Swiss citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Swiss applications are usually decided within 3 business days.",
+    highlights: [
+      "Swiss passport holders require an approved Kenya eTA.",
+      "Your passport must be valid 6 months beyond your arrival date.",
+      "The approval is emailed to you as a PDF.",
+    ],
+  },
+  {
+    slug: "mexico",
+    country: "Mexico",
+    demonym: "Mexican citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "Mexican applications are usually decided within 3 business days.",
+    highlights: [
+      "Mexican passport holders need an approved Kenya eTA before departure.",
+      "Allow time for connecting flights via Europe or the Middle East.",
+      "Single entry, up to 90 days of tourism.",
+    ],
+  },
+  {
+    slug: "new-zealand",
+    country: "New Zealand",
+    demonym: "New Zealand citizens",
+    currencyNote: "Fees are charged in US dollars.",
+    processing: "New Zealand applications are usually decided within 3 business days.",
+    highlights: [
+      "New Zealand passport holders require an approved Kenya eTA.",
+      "Tourism applications need accommodation details or an itinerary.",
+      "Print or save the approval — airlines check it before boarding.",
+    ],
+  },
+];
+
+export const guideBySlug = (slug: string) => COUNTRY_GUIDES.find((g) => g.slug === slug);
