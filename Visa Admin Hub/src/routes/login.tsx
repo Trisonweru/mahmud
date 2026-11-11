@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ShieldCheck, Loader2, Eye, EyeOff, KeyRound } from "lucide-react";
+import { ShieldCheck, Loader2, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,7 +39,7 @@ function checkRateLimit(): { allowed: boolean; waitSeconds: number } {
   return { allowed: true, waitSeconds: 0 };
 }
 
-type Mode = "signin" | "set_password" | "mfa_totp" | "mfa_enroll";
+type Mode = "signin" | "set_password";
 
 function LoginPage() {
   const nav = useNavigate();
@@ -52,10 +52,6 @@ function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [totpCode, setTotpCode] = useState("");
-  const [mfaFactorId, setMfaFactorId] = useState("");
-  const [enrollData, setEnrollData] = useState<{ qr_code: string; secret: string } | null>(null);
-  const [enrollFactorId, setEnrollFactorId] = useState("");
 
   const [inviteSessionState, setInviteSessionState] = useState<"checking" | "ready" | "missing">(
     INITIAL_INVITE_OR_RECOVERY ? "checking" : "ready"
@@ -66,7 +62,7 @@ function LoginPage() {
   }, []);
 
   useEffect(() => {
-    if (!loading && session && mode !== "set_password" && mode !== "mfa_totp" && mode !== "mfa_enroll" && !INITIAL_INVITE_OR_RECOVERY) {
+    if (!loading && session && mode !== "set_password" && !INITIAL_INVITE_OR_RECOVERY) {
       nav({ to: "/" });
     }
   }, [loading, session, nav, mode]);
@@ -105,70 +101,9 @@ function LoginPage() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email: parsed.data.email, password: parsed.data.password });
       if (error) throw error;
-
-      // Check MFA status after successful password auth
-      const { data: factors } = await supabase.auth.mfa.listFactors();
-      const totpFactors = factors?.totp ?? [];
-      const verifiedTotp = totpFactors.filter((f) => f.status === "verified");
-      const unverifiedTotp = totpFactors.filter((f) => f.status === "unverified");
-
-      if (verifiedTotp.length > 0) {
-        // User has a verified TOTP factor — require verification
-        setMfaFactorId(verifiedTotp[0].id);
-        setMode("mfa_totp");
-      } else {
-        // Clean up any stale unverified factors before enrolling fresh
-        for (const factor of unverifiedTotp) {
-          await supabase.auth.mfa.unenroll({ factorId: factor.id });
-        }
-        const { data: enroll, error: enrollErr } = await supabase.auth.mfa.enroll({
-          factorType: "totp",
-          friendlyName: "Authenticator App",
-        });
-        if (enrollErr || !enroll) throw enrollErr ?? new Error("Failed to start MFA enrollment");
-        setEnrollFactorId(enroll.id);
-        setEnrollData({ qr_code: enroll.totp.qr_code, secret: enroll.totp.secret });
-        setMode("mfa_enroll");
-      }
+      nav({ to: "/" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Authentication failed");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const submitTotp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (totpCode.length !== 6) { toast.error("Enter the 6-digit code from your authenticator app"); return; }
-    setBusy(true);
-    try {
-      const { data: challenge, error: challengeErr } = await supabase.auth.mfa.challenge({ factorId: mfaFactorId });
-      if (challengeErr || !challenge) throw challengeErr ?? new Error("Failed to start MFA challenge");
-      const { error } = await supabase.auth.mfa.verify({ factorId: mfaFactorId, challengeId: challenge.id, code: totpCode });
-      if (error) throw error;
-      nav({ to: "/" });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Invalid code. Try again.");
-      setTotpCode("");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const submitEnroll = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (totpCode.length !== 6) { toast.error("Enter the 6-digit code to confirm setup"); return; }
-    setBusy(true);
-    try {
-      const { data: challenge, error: challengeErr } = await supabase.auth.mfa.challenge({ factorId: enrollFactorId });
-      if (challengeErr || !challenge) throw challengeErr ?? new Error("Failed to start MFA challenge");
-      const { error } = await supabase.auth.mfa.verify({ factorId: enrollFactorId, challengeId: challenge.id, code: totpCode });
-      if (error) throw error;
-      toast.success("Two-factor authentication enabled!");
-      nav({ to: "/" });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Invalid code. Please scan the QR code again and retry.");
-      setTotpCode("");
     } finally {
       setBusy(false);
     }
@@ -294,81 +229,6 @@ function LoginPage() {
               </>
             )}
 
-            {mode === "mfa_totp" && (
-              <>
-                <div className="mt-8 flex items-center gap-2">
-                  <KeyRound className="h-5 w-5 text-accent" />
-                  <h1 className="font-serif text-2xl text-foreground">Two-factor verification</h1>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Enter the 6-digit code from your authenticator app.
-                </p>
-                <form onSubmit={submitTotp} className="mt-6 space-y-4">
-                  <Field label="Authenticator code">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      maxLength={6}
-                      value={totpCode}
-                      onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      className="w-full rounded-md border border-input bg-background px-3 py-2.5 text-sm tracking-[0.3em] text-center focus:outline-none focus:ring-2 focus:ring-accent/40"
-                      placeholder="000000"
-                    />
-                  </Field>
-                  <SubmitBtn busy={busy} label="Verify" />
-                </form>
-                <button
-                  type="button"
-                  className="mt-4 w-full text-center text-[11px] text-muted-foreground hover:underline"
-                  onClick={() => { setMode("signin"); setTotpCode(""); }}
-                >
-                  Back to sign in
-                </button>
-              </>
-            )}
-
-            {mode === "mfa_enroll" && enrollData && (
-              <>
-                <div className="mt-8 flex items-center gap-2">
-                  <KeyRound className="h-5 w-5 text-accent" />
-                  <h1 className="font-serif text-2xl text-foreground">Set up two-factor auth</h1>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Scan this QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.), then enter the 6-digit code to confirm.
-                </p>
-                <div className="mt-4 flex justify-center">
-                  <img
-                    src={enrollData.qr_code}
-                    alt="TOTP QR code"
-                    className="h-40 w-40 rounded-md border border-border"
-                  />
-                </div>
-                <details className="mt-2 text-center">
-                  <summary className="cursor-pointer text-[11px] text-muted-foreground hover:underline">
-                    Can't scan? Enter code manually
-                  </summary>
-                  <p className="mt-1 break-all rounded-md bg-muted px-3 py-2 font-mono text-[11px] text-foreground">
-                    {enrollData.secret}
-                  </p>
-                </details>
-                <form onSubmit={submitEnroll} className="mt-4 space-y-4">
-                  <Field label="Confirm code from app">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      maxLength={6}
-                      value={totpCode}
-                      onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      className="w-full rounded-md border border-input bg-background px-3 py-2.5 text-sm tracking-[0.3em] text-center focus:outline-none focus:ring-2 focus:ring-accent/40"
-                      placeholder="000000"
-                    />
-                  </Field>
-                  <SubmitBtn busy={busy} label="Enable two-factor auth" />
-                </form>
-              </>
-            )}
           </div>
         </div>
 

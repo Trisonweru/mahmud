@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { Globe2, Mail, Shield, MapPin, Headphones, Phone } from "lucide-react";
-import { visaCountries } from "@/data/visaCountries";
+import { Mail, Shield, MapPin, Headphones, Phone } from "lucide-react";
+import { popularVisaCountries, visaCountries } from "@/data/visaCountries";
+import somaliaFlag from "@/assets/somalia-flag.svg";
 
 export const SiteFooter = () => {
   return (
@@ -8,11 +9,11 @@ export const SiteFooter = () => {
       <div className="container py-16 grid gap-12 md:grid-cols-6">
         <div className="md:col-span-2 max-w-sm">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-sm border border-accent/30">
-              <Globe2 className="h-5 w-5 text-accent" />
+            <div className="h-11 w-11 overflow-hidden rounded-sm border border-accent/30">
+              <img src={somaliaFlag} alt="Somalia flag" className="h-full w-full object-cover" />
             </div>
             <div>
-              <div className="font-serif text-xl font-bold">Somali Visa Application</div>
+              <div className="font-serif text-xl font-bold">Somalia eVisa Application</div>
               <div className="text-[10px] uppercase tracking-[0.2em] text-primary-foreground/60">Application Service</div>
             </div>
           </div>
@@ -67,11 +68,14 @@ export const SiteFooter = () => {
         <div className="container py-10">
           <h4 className="text-xs uppercase tracking-[0.2em] text-accent mb-4">Visas by Nationality</h4>
           <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm text-primary-foreground/70">
-            {visaCountries.map((c) => (
+            {popularVisaCountries.map((c) => (
               <Link key={c.slug} to={`/visa/${c.slug}`} className="hover:text-accent transition-smooth">
                 Somalia Visa for {c.country}
               </Link>
             ))}
+            <Link to="/visa" className="font-medium text-accent hover:underline">
+              View all {visaCountries.length} nationalities →
+            </Link>
           </div>
         </div>
       </div>

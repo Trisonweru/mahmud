@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getPending, clearPending } from "@/lib/pendingApplication";
 import { FUNCTIONS_URL, fnHeaders } from "@/lib/api";
+import { PAYMENT_PROCESSING_FEE } from "@/lib/pricing";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
@@ -200,6 +201,8 @@ const Payment = () => {
 
   const currencySymbol = currency === "gbp" ? "£" : "$";
   const currencyLabel = currency === "gbp" ? "" : "USD";
+  const processingFee = currency === "gbp" ? PAYMENT_PROCESSING_FEE : 0;
+  const baseFee = fee != null ? fee - processingFee : null;
 
   return (
     <section className="container py-20 max-w-5xl">
@@ -219,11 +222,15 @@ const Payment = () => {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-foreground">eVisa application fee</span>
-              <span className="font-medium">{fee != null ? `${currencySymbol}${fee.toFixed(2)}${currencyLabel ? ` ${currencyLabel}` : ""}` : "…"}</span>
+              <span className="font-medium">{baseFee != null ? `${currencySymbol}${baseFee.toFixed(2)}${currencyLabel ? ` ${currencyLabel}` : ""}` : "…"}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-foreground">Processing</span>
-              <span className="text-muted-foreground">Included</span>
+              <span className="text-foreground">Payment processing fee</span>
+              {processingFee > 0 ? (
+                <span className="font-medium">{currencySymbol}{processingFee.toFixed(2)}</span>
+              ) : (
+                <span className="text-muted-foreground">Included</span>
+              )}
             </div>
           </div>
 
@@ -296,8 +303,11 @@ const Payment = () => {
             Single entry · Valid up to 180 days
           </p>
           <div className="mt-8 space-y-3 text-sm border-t border-primary-foreground/10 pt-6">
-            <Row label="Applicable fee" value={fee != null ? `${currencySymbol}${fee.toFixed(2)}` : "…"} />
-            <Row label="Processing" value="Included" />
+            <Row label="Applicable fee" value={baseFee != null ? `${currencySymbol}${baseFee.toFixed(2)}` : "…"} />
+            <Row
+              label="Payment processing fee"
+              value={processingFee > 0 ? `${currencySymbol}${processingFee.toFixed(2)}` : "Included"}
+            />
           </div>
           <div className="mt-6 pt-6 border-t border-primary-foreground/10 flex items-end justify-between">
             <span className="text-xs uppercase tracking-[0.2em] text-primary-foreground/60">Total</span>

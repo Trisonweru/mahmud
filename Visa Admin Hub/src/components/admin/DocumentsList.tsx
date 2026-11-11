@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Download, FileText, Image as ImageIcon, Ticket, FileSignature, Loader2, Eye, Upload, Trash2 } from "lucide-react";
+import { Download, FileText, Image as ImageIcon, Ticket, FileSignature, Loader2, Eye, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { docTypeLabels, type AppDocument, type DocType } from "@/lib/applications";
 import { useAuth } from "@/hooks/useAuth";
@@ -16,7 +16,7 @@ const iconFor: Record<DocType, typeof FileText> = {
 interface Props { applicationId: string; }
 
 export function DocumentsList({ applicationId }: Props) {
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth();
   const [docs, setDocs] = useState<AppDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -95,16 +95,6 @@ export function DocumentsList({ applicationId }: Props) {
     reload();
   };
 
-  const remove = async (doc: AppDocument) => {
-    if (!confirm(`Delete "${doc.file_name}"? This cannot be undone.`)) return;
-    setBusyId(doc.id);
-    await supabase.storage.from("application-documents").remove([doc.storage_path]);
-    const { error } = await supabase.from("application_documents").delete().eq("id", doc.id);
-    setBusyId(null);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Deleted");
-    reload();
-  };
 
   const fmtBytes = (n?: number | null) => {
     if (!n) return "";
@@ -175,11 +165,6 @@ export function DocumentsList({ applicationId }: Props) {
             <button onClick={() => open(d, true)} disabled={busyId === d.id} className="inline-flex items-center gap-1.5 rounded-sm bg-primary px-3 py-1.5 text-xs uppercase tracking-wider text-primary-foreground hover:bg-primary-glow disabled:opacity-60">
               {busyId === d.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />} Download
             </button>
-            {isAdmin && (
-              <button onClick={() => remove(d)} disabled={busyId === d.id} title="Delete document" className="inline-flex items-center justify-center rounded-sm border border-destructive/40 bg-destructive/10 p-1.5 text-destructive hover:bg-destructive/15 disabled:opacity-60">
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
-            )}
           </div>
         );
       })}

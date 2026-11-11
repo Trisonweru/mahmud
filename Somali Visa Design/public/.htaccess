@@ -18,10 +18,22 @@ RewriteRule ^application/?$ /apply [R=301,L]
 RewriteRule ^apply\.html?$ / [R=301,L]
 RewriteRule ^application_status/?$ /status [R=301,L]
 
-# ── SPA fallback ──────────────────────────────────────────────────────────────
-RewriteCond %{REQUEST_FILENAME} !-f
+# Drop trailing slashes so each page has a single URL (/about/ -> /about)
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ /index.html [QSA,L]
+RewriteRule ^(.+)/$ /$1 [R=301,L]
+
+# The generated _seo/ files are internal; never serve them at their own URL
+RewriteCond %{THE_REQUEST} \s/_seo/ [NC]
+RewriteRule ^ - [R=404,L]
+
+# ── Per-page HTML (built by scripts/prerender-seo.mjs) ───────────────────────
+# Each route has its own title/description/canonical in _seo/<route>.html.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{DOCUMENT_ROOT}/_seo/$1.html -f
+RewriteRule ^(.+)$ /_seo/$1.html [L]
+
+# ── Unknown URLs: real 404 status, app renders its "page not found" view ─────
+ErrorDocument 404 /404.html
 
 # ── Security headers ──────────────────────────────────────────────────────────
 <IfModule mod_headers.c>
@@ -66,7 +78,7 @@ font-src 'self' \
   https://fonts.gstatic.com; \
 img-src 'self' data: blob: https:; \
 connect-src 'self' \
-  https://yqhzkjrwdsdlsslvmsbe.supabase.co \
+  https://hlupefnmzqwhsqrjmplh.supabase.co \
   https://tanstack-start-app.evisasomali.workers.dev \
   https://staff.evisasomali.com \
   wss://*.tawk.to https://*.tawk.to \

@@ -5,21 +5,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { AccessDenied } from "@/components/admin/AccessDenied";
 import { PageShell, PageHeader } from "@/components/admin/PageShell";
+import { PaymentRef } from "@/components/admin/PaymentRef";
 import type { Application } from "@/lib/applications";
-import { formatMoney, sumByCurrency, formatCurrencyTotals } from "@/lib/applications";
+import { formatMoney, processingLabel, sumByCurrency, formatCurrencyTotals } from "@/lib/applications";
 
 export const Route = createFileRoute("/_authenticated/payments")({
   head: () => ({ meta: [{ title: "Payments — Admin" }] }),
   component: PaymentsPage,
 });
 
-type Period = "today" | "last7" | "last30" | "this_month" | "this_year";
+type Period = "today" | "last7" | "last30" | "this_month" | "last_month" | "this_year";
 
 const PERIODS: { key: Period; label: string; sublabel: string }[] = [
   { key: "today",      label: "Today",        sublabel: new Date().toLocaleDateString("en", { weekday: "long", month: "short", day: "numeric" }) },
   { key: "last7",      label: "Last 7 Days",  sublabel: "Rolling week" },
   { key: "last30",     label: "Last 30 Days", sublabel: "Rolling month" },
   { key: "this_month", label: "This Month",   sublabel: new Date().toLocaleDateString("en", { month: "long", year: "numeric" }) },
+  { key: "last_month", label: "Last Month",   sublabel: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleDateString("en", { month: "long", year: "numeric" }) },
   { key: "this_year",  label: "This Year",    sublabel: new Date().getFullYear().toString() },
 ];
 
@@ -31,6 +33,7 @@ function inPeriod(d: Date, period: Period): boolean {
     case "last7":      { const c = new Date(today); c.setDate(c.getDate() - 6);  return d >= c; }
     case "last30":     { const c = new Date(today); c.setDate(c.getDate() - 29); return d >= c; }
     case "this_month": return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    case "last_month": { const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1); return d.getFullYear() === lm.getFullYear() && d.getMonth() === lm.getMonth(); }
     case "this_year":  return d.getFullYear() === now.getFullYear();
   }
 }
@@ -68,7 +71,7 @@ function PaymentsContent() {
   const paidAll = useMemo(() => apps.filter(a => {
     if (!a.paid || !a.paid_at) return false;
     return (
-      (typeFilter === "all" || a.type === typeFilter) &&
+      (typeFilter === "all" || a.processing_speed === typeFilter) &&
       (q === "" || `${a.full_name} ${a.reference} ${a.email} ${a.nationality}`.toLowerCase().includes(q.toLowerCase()))
     );
   }), [apps, typeFilter, q]);
@@ -137,9 +140,9 @@ function PaymentsContent() {
   const [showRefundPanel, setShowRefundPanel] = useState(false);
 
   const exportCsv = () => {
-    const rows: string[][] = [["Reference", "Applicant", "Email", "Nationality", "Type", "Amount", "Currency", "Paid at", "Refund Status", "Refund Amount", "Refund Processed At"]];
+    const rows: string[][] = [["Reference", "Payment ID", "Applicant", "Email", "Nationality", "Processing", "Amount", "Currency", "Paid at", "Refund Status", "Refund Amount", "Refund Processed At"]];
     activeItems.forEach(a => rows.push([
-      a.reference, a.full_name, a.email, a.nationality, a.type, String(a.fee), a.currency, a.paid_at ?? "",
+      a.reference, a.stripe_payment_intent_id ?? "", a.full_name, a.email, a.nationality, processingLabel(a), String(a.fee), a.currency, a.paid_at ?? "",
       a.refund_status ?? "", a.refund_amount != null ? String(a.refund_amount) : "", a.refund_processed_at ?? "",
     ]));
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
@@ -299,6 +302,7 @@ function PaymentsContent() {
               <tr>
                 <th className="px-6 py-3 text-left font-medium">Reference</th>
                 <th className="px-6 py-3 text-left font-medium">Applicant</th>
+                <th className="px-6 py-3 text-left font-medium">Payment ID</th>
                 <th className="px-6 py-3 text-left font-medium">Type</th>
                 <th className="px-6 py-3 text-right font-medium">Amount</th>
                 <th className="px-6 py-3 text-left font-medium">Paid at</th>
@@ -307,10 +311,10 @@ function PaymentsContent() {
             </thead>
             <tbody>
               {loading && (
-                <tr><td colSpan={6} className="px-6 py-10 text-center text-sm text-muted-foreground">Loading…</td></tr>
+                <tr><td colSpan={7} className="px-6 py-10 text-center text-sm text-muted-foreground">Loading…</td></tr>
               )}
               {!loading && activeItems.length === 0 && (
-                <tr><td colSpan={6} className="px-6 py-10 text-center text-sm text-muted-foreground">No transactions in this period.</td></tr>
+                <tr><td colSpan={7} className="px-6 py-10 text-center text-sm text-muted-foreground">No transactions in this period.</td></tr>
               )}
               {activeItems.map(a => (
                 <tr key={a.id} className="border-b border-border last:border-0 hover:bg-secondary/40">
@@ -318,7 +322,8 @@ function PaymentsContent() {
                     <Link to="/applications/$id" params={{ id: a.id }} className="font-mono text-xs text-primary hover:text-accent">{a.reference}</Link>
                   </td>
                   <td className="max-w-[180px] truncate px-6 py-4 text-foreground">{a.full_name}</td>
-                  <td className="px-6 py-4 text-xs uppercase">{a.type}</td>
+                  <td className="max-w-[230px] px-6 py-4"><PaymentRef paymentIntentId={a.stripe_payment_intent_id} compact /></td>
+                  <td className="px-6 py-4 text-xs uppercase">{processingLabel(a)}</td>
                   <td className="px-6 py-4 text-right font-medium">{formatMoney(Number(a.fee), a.currency)}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-xs text-muted-foreground">
                     {a.paid_at ? new Date(a.paid_at).toLocaleString() : "—"}
@@ -342,17 +347,17 @@ function PaymentsContent() {
             {activeItems.length > 0 && (
               <tfoot>
                 <tr className="bg-secondary/40">
-                  <td colSpan={3} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Gross total</td>
+                  <td colSpan={4} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Gross total</td>
                   <td className="px-6 py-3 text-right font-serif text-accent">{formatCurrencyTotals(activeGrossByCurrency)}</td>
                   <td colSpan={2} />
                 </tr>
                 <tr className="bg-destructive/5">
-                  <td colSpan={3} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Refunds (this period)</td>
+                  <td colSpan={4} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Refunds (this period)</td>
                   <td className="px-6 py-3 text-right font-serif text-destructive">− {formatCurrencyTotals(activeRefundByCurrency)}</td>
                   <td colSpan={2} />
                 </tr>
                 <tr className="bg-secondary/60 font-medium">
-                  <td colSpan={3} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Net revenue</td>
+                  <td colSpan={4} className="px-6 py-3 text-[11px] uppercase tracking-wider text-muted-foreground">Net revenue</td>
                   <td className="px-6 py-3 text-right font-serif text-foreground">{formatCurrencyTotals(activeNetByCurrency)}</td>
                   <td colSpan={2} />
                 </tr>

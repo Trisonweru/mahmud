@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Search, Download, Loader2, Eye, Copy, ChevronDown, ChevronRight, X, RotateCcw, Trash2, MessageCircle } from "lucide-react";
+import { Search, Download, Loader2, Eye, Copy, ChevronDown, ChevronRight, X, RotateCcw, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { PaymentRef } from "@/components/admin/PaymentRef";
+import { DateRangePresets } from "@/components/admin/DateRangePresets";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ALL_STATUSES, formatMoney, isPlaceholderDob, isPlaceholderNationality, isRefundedOrDenied, statusLabels, docTypeLabels, waLink, type AppDocument, type AppStatus, type Application, type DocType } from "@/lib/applications";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -37,7 +39,6 @@ function ApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [busyDoc, setBusyDoc] = useState<string | null>(null);
   const [busyStatus, setBusyStatus] = useState<string | null>(null);
-  const [bulkDeleting, setBulkDeleting] = useState(false);
   const [status, setStatus] = useState<AppStatus | "all">("submitted"); // #21 default
   const [type, setType] = useState<"all" | "standard" | "express">("all");
   const [q, setQ] = useState("");
@@ -126,7 +127,7 @@ function ApplicationsPage() {
     return (
       !QUEUE_ONLY_STATUSES.includes(a.status) && // #13 — never show queue-only statuses here
       (status === "all" || a.status === status) &&
-      (type === "all" || a.type === type) &&
+      (type === "all" || a.processing_speed === type) &&
       (nationality === "" || a.nationality === nationality) &&
       (dateFrom === "" || submittedDate >= dateFrom) &&
       (dateTo === "" || submittedDate <= dateTo) &&
@@ -137,39 +138,6 @@ function ApplicationsPage() {
   const DEFAULT_STATUS = "submitted";
   const hasFilters = status !== DEFAULT_STATUS || type !== "all" || nationality !== "" || dateFrom !== "" || dateTo !== "" || q !== "";
   const clearFilters = () => { setStatus(DEFAULT_STATUS); setType("all"); setNationality(""); setDateFrom(""); setDateTo(""); setQ(""); };
-
-  const deleteSingle = async (a: Application) => {
-    if (!confirm(`Permanently delete ${a.full_name} (${a.reference}) and all associated documents? This cannot be undone.`)) return;
-    setBulkDeleting(true);
-    await supabase.from("application_documents").delete().eq("application_id", a.id);
-    await supabase.from("application_notes").delete().eq("application_id", a.id);
-    const { error } = await supabase.from("applications").delete().eq("id", a.id);
-    setBulkDeleting(false);
-    if (error) toast.error(error.message);
-    else { toast.success("Application deleted"); load(); }
-  };
-
-  const deleteAllFiltered = async () => {
-    if (filtered.length === 0) return;
-    const count = filtered.length;
-    const phrase = prompt(
-      `This will PERMANENTLY delete ${count} application${count === 1 ? "" : "s"} matching the current filters — including all of their documents and notes. This cannot be undone.\n\nType DELETE to confirm.`
-    );
-    if (phrase === null) return;
-    if (phrase.trim().toUpperCase() !== "DELETE") {
-      toast.error("Confirmation phrase did not match — nothing was deleted");
-      return;
-    }
-    setBulkDeleting(true);
-    const ids = filtered.map(a => a.id);
-    await supabase.from("application_documents").delete().in("application_id", ids);
-    await supabase.from("application_notes").delete().in("application_id", ids);
-    const { error } = await supabase.from("applications").delete().in("id", ids);
-    setBulkDeleting(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success(`${count} application${count === 1 ? "" : "s"} deleted`);
-    load();
-  };
 
   const grouped = useMemo(() => {
     const map = new Map<string, { key: string; label: string; items: Application[] }>();
@@ -227,6 +195,7 @@ function ApplicationsPage() {
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="uppercase tracking-wider">Date range</span>
+            <DateRangePresets from={dateFrom} to={dateTo} onChange={(f, t) => { setDateFrom(f); setDateTo(t); }} />
             <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="rounded-sm border border-input bg-background px-2 py-1 text-sm" />
             <span>to</span>
             <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="rounded-sm border border-input bg-background px-2 py-1 text-sm" />
@@ -234,17 +203,6 @@ function ApplicationsPage() {
           {hasFilters && (
             <button onClick={clearFilters} className="inline-flex items-center gap-1 rounded-sm border border-border px-2.5 py-1 text-[11px] uppercase tracking-wider text-muted-foreground hover:border-destructive hover:text-destructive">
               <X className="h-3 w-3" /> Clear filters
-            </button>
-          )}
-          {isSuperAdmin && filtered.length > 0 && (
-            <button
-              onClick={deleteAllFiltered}
-              disabled={bulkDeleting}
-              className="ml-auto inline-flex items-center gap-1 rounded-sm border border-destructive/40 bg-destructive/5 px-2.5 py-1 text-[11px] uppercase tracking-wider text-destructive hover:bg-destructive/10 disabled:opacity-50"
-              title="Permanently delete every application currently shown by the filters above"
-            >
-              {bulkDeleting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
-              Delete all shown ({filtered.length})
             </button>
           )}
         </div>
@@ -296,7 +254,7 @@ function ApplicationsPage() {
                     </div>
                   </div>
 
-                  <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-5">
+                  <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-6">
                     <div>
                       <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Nationality</dt>
                       <dd className="mt-0.5 text-sm text-foreground">{isPlaceholderNationality(a) ? "Not provided — see passport" : a.nationality}</dd>
@@ -337,6 +295,12 @@ function ApplicationsPage() {
                         </dd>
                       )}
                     </div>
+                    {a.paid && (
+                      <div className="min-w-0">
+                        <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Payment ID</dt>
+                        <dd className="mt-0.5"><PaymentRef paymentIntentId={a.stripe_payment_intent_id} compact /></dd>
+                      </div>
+                    )}
                   </dl>
 
                   <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/50 pt-3">
@@ -375,17 +339,6 @@ function ApplicationsPage() {
                         title="Return to Queue"
                       >
                         <RotateCcw className="h-3 w-3" /> Return to Queue
-                      </button>
-                    )}
-                    {isSuperAdmin && (
-                      <button
-                        type="button"
-                        disabled={bulkDeleting}
-                        onClick={() => deleteSingle(a)}
-                        className="ml-auto inline-flex items-center gap-1 rounded-sm border border-destructive/40 bg-destructive/5 px-2.5 py-1.5 text-[10px] uppercase tracking-wider text-destructive hover:bg-destructive/10 disabled:opacity-50"
-                        title="Delete this application"
-                      >
-                        <Trash2 className="h-3 w-3" /> Delete
                       </button>
                     )}
                   </div>
@@ -438,11 +391,10 @@ function ApplicationsPage() {
                   <DetailRow label="Passport expiry" value={new Date(viewing.passport_expiry).toLocaleDateString()} onCopy={copy} />
                 </DetailGroup>
 
-                {(viewing.purpose || viewing.arrival_date) && (
+                {(viewing.purpose || viewing.departure_date) && (
                   <DetailGroup title="Travel">
                     {viewing.purpose && <DetailRow label="Purpose" value={viewing.purpose} onCopy={copy} />}
                     {viewing.address_in_somalia && <DetailRow label="Address in Somalia" value={viewing.address_in_somalia} onCopy={copy} />}
-                    {viewing.arrival_date && <DetailRow label="Arrival" value={new Date(viewing.arrival_date).toLocaleDateString()} onCopy={copy} />}
                     {viewing.departure_date && <DetailRow label="Departure" value={new Date(viewing.departure_date).toLocaleDateString()} onCopy={copy} />}
                   </DetailGroup>
                 )}

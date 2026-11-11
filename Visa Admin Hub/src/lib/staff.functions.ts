@@ -3,22 +3,6 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-export const deleteStaff = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ userId: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    const { userId } = context;
-    const { data: roles } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", userId);
-    const isSuper = (roles ?? []).some((r) => r.role === "super_admin");
-    if (!isSuper) throw new Error("Only super admin can delete staff");
-    if (data.userId === userId) throw new Error("Cannot delete your own account");
-    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId);
-    await supabaseAdmin.from("profiles").delete().eq("id", data.userId);
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
 const InviteSchema = z.object({
   email: z.string().email().max(255),
   full_name: z.string().min(1).max(120),

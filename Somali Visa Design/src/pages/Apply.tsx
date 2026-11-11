@@ -7,9 +7,10 @@ import { toast } from "sonner";
 import { COUNTRIES } from "@/data/countries";
 import { extractPassport, hasExtractedData, matchNationality, UnsupportedImageError } from "@/lib/passportOcr";
 import { setPending } from "@/lib/pendingApplication";
+import { compressImage } from "@/lib/compressImage";
 import { FUNCTIONS_URL, fnHeaders } from "@/lib/api";
-import { AJNABI_OPTION, formatFee } from "@/lib/pricing";
-import { isEmail, monthsBetween, todayStr } from "@/lib/validation";
+import { AJNABI_OPTION, formatCheckoutTotal } from "@/lib/pricing";
+import { fileSizeError, isEmail, monthsBetween, todayStr } from "@/lib/validation";
 
 
 const STEPS = [
@@ -253,9 +254,9 @@ const Apply = () => {
       fd.append("sponsorCode", form.sponsorCode);
       fd.append("applicantType", form.applicantType);
       fd.append("visitedBefore", form.visitedBefore);
-      if (passportFile) fd.append("passport", passportFile);
-      if (form.selfieFile) fd.append("selfieFile", form.selfieFile);
-      if (form.sponsorLetter) fd.append("sponsorLetter", form.sponsorLetter);
+      if (passportFile) fd.append("passport", await compressImage(passportFile));
+      if (form.selfieFile) fd.append("selfieFile", await compressImage(form.selfieFile));
+      if (form.sponsorLetter) fd.append("sponsorLetter", await compressImage(form.sponsorLetter));
 
       const res = await fetch(`${FUNCTIONS_URL}/application-save`, {
         method: "POST",
@@ -316,6 +317,13 @@ const Apply = () => {
 
   return (
     <section className="container py-16 max-w-3xl">
+      <button
+        type="button"
+        onClick={() => (step > 0 ? setStep(step - 1) : navigate(-1))}
+        className="mb-6 inline-flex items-center gap-1.5 rounded-sm px-2 py-1 -ml-2 text-sm font-medium text-muted-foreground transition-smooth hover:bg-secondary hover:text-primary"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back
+      </button>
       <SectionHeading eyebrow="Application · Ajnabi (Foreigner)" title="Start your eVisa application" />
 
       {/* Stepper */}
@@ -512,7 +520,7 @@ const Apply = () => {
             </div>
             <p className="text-muted-foreground">
               By submitting, you confirm all information provided is accurate. Submission incurs a one-time
-              processing fee of <strong className="text-primary">{formatFee(AJNABI_OPTION.fee, AJNABI_OPTION.currency)}</strong>.
+              processing fee of <strong className="text-primary">{formatCheckoutTotal(AJNABI_OPTION.fee, AJNABI_OPTION.currency)}</strong>.
             </p>
             <Check2
               label="I agree to the Terms of Service and Privacy Policy and confirm my information is correct. *"
@@ -683,7 +691,18 @@ const FileUpload = ({
         type="file"
         accept={accept}
         className="hidden"
-        onChange={(e) => onChange(e.target.files?.[0] || null)}
+        onChange={(e) => {
+          const f = e.target.files?.[0] || null;
+          if (f) {
+            const err = fileSizeError(f);
+            if (err) {
+              toast.error(err);
+              e.target.value = "";
+              return;
+            }
+          }
+          onChange(f);
+        }}
       />
       {file ? (
         <div className="flex items-center justify-center gap-2 text-sm text-primary">
@@ -714,7 +733,17 @@ const PassportDropzone = ({
         type="file"
         accept="image/*,application/pdf"
         className="hidden"
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); }}
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (!f) return;
+          const err = fileSizeError(f);
+          if (err) {
+            toast.error(err);
+            e.target.value = "";
+            return;
+          }
+          onFile(f);
+        }}
       />
       {loading ? (
         <div className="space-y-3">
@@ -746,12 +775,25 @@ const SelfieCapture = ({ file, onChange }: { file: File | null; onChange: (f: Fi
   const upRef = useRef<HTMLInputElement>(null);
   const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : ""), [file]);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0] || null;
+    if (f) {
+      const err = fileSizeError(f);
+      if (err) {
+        toast.error(err);
+        e.target.value = "";
+        return;
+      }
+    }
+    onChange(f);
+  };
+
   return (
     <div className="rounded-sm border-2 border-dashed border-accent/40 bg-accent-soft/20 p-6">
       <input ref={camRef} type="file" accept="image/*" capture="user" className="hidden"
-        onChange={(e) => onChange(e.target.files?.[0] || null)} />
+        onChange={handleChange} />
       <input ref={upRef} type="file" accept="image/*" className="hidden"
-        onChange={(e) => onChange(e.target.files?.[0] || null)} />
+        onChange={handleChange} />
 
       {file ? (
         <div className="flex flex-col items-center gap-4">

@@ -18,7 +18,9 @@ import Terms from "./pages/Terms.tsx";
 import Privacy from "./pages/Privacy.tsx";
 import Refund from "./pages/Refund.tsx";
 import VisaCountry from "./pages/VisaCountry.tsx";
+import VisaCountries from "./pages/VisaCountries.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import { NoIndex } from "./components/NoIndex";
 
 const queryClient = new QueryClient();
 
@@ -34,20 +36,21 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
             <Route path="/apply" element={<Index />} />
-            <Route path="/apply/start" element={<Apply />} />
+            <Route path="/apply/start" element={<><NoIndex /><Apply /></>} />
             <Route path="/express" element={<Express />} />
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/payment/return" element={<PaymentReturn />} />
+            <Route path="/payment" element={<><NoIndex /><Payment /></>} />
+            <Route path="/payment/return" element={<><NoIndex /><PaymentReturn /></>} />
             <Route path="/status" element={<Status />} />
             <Route path="/documents" element={<Documents />} />
             <Route path="/faqs" element={<FAQs />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/refund" element={<Refund />} />
+            <Route path="/visa" element={<VisaCountries />} />
             <Route path="/visa/:country" element={<VisaCountry />} />
             <Route path="/application" element={<Navigate to="/apply" replace />} />
             <Route path="/application_status" element={<Navigate to="/status" replace />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </SiteLayout>
       </BrowserRouter>

@@ -7,8 +7,8 @@ import { toast } from "sonner";
 import { setPending } from "@/lib/pendingApplication";
 import { FUNCTIONS_URL, fnHeaders } from "@/lib/api";
 import { extractPassport, hasExtractedData, UnsupportedImageError } from "@/lib/passportOcr";
-import { isEmail } from "@/lib/validation";
-import { PRICING_TIERS, formatFee } from "@/lib/pricing";
+import { fileSizeError, isEmail } from "@/lib/validation";
+import { PRICING_TIERS, formatCheckoutTotal } from "@/lib/pricing";
 
 const Express = () => {
   const navigate = useNavigate();
@@ -113,7 +113,7 @@ const Express = () => {
     <>
     <PageSEO
       title="Somalia eVisa Express Service — Skip the Form | eVisaSomali"
-      description={`Don't want to fill out the application? Send us your passport page and photo — our specialists prepare your Somalia eVisa application for you. From ${formatFee(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}, 24/7 support.`}
+      description={`Don't want to fill out the application? Send us your passport page and photo — our specialists prepare your Somalia eVisa application for you. From ${formatCheckoutTotal(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}, 24/7 support.`}
       canonical="https://www.evisasomali.com/express"
     />
     <section className="container py-20 max-w-3xl">
@@ -166,7 +166,17 @@ const Express = () => {
                 <div className="mt-2 inline-flex items-center gap-1 text-[10px] text-accent uppercase tracking-widest">
                   <ScanLine className="h-3 w-3" /> Auto-scanned with OCR
                 </div>
-                <input type="file" accept="image/*,application/pdf" className="hidden" onChange={(e) => e.target.files?.[0] && handlePassportUpload(e.target.files[0])} />
+                <input type="file" accept="image/*,application/pdf" className="hidden" onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (!f) return;
+                  const err = fileSizeError(f);
+                  if (err) {
+                    toast.error(err);
+                    e.target.value = "";
+                    return;
+                  }
+                  handlePassportUpload(f);
+                }} />
               </label>
             )}
           </div>
@@ -214,7 +224,7 @@ const Express = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-border">
           <div>
             <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Service Fee</div>
-            <div className="font-serif text-3xl text-primary mt-1">£{PRICING_TIERS.standard.fee}</div>
+            <div className="font-serif text-3xl text-primary mt-1">{formatCheckoutTotal(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}</div>
           </div>
           <button
             type="submit"
@@ -278,7 +288,17 @@ const Uploader = ({ icon: Icon, label, hint, file, onChange, onClear, accept }: 
         <UploadCloud className="h-7 w-7 text-accent" />
         <div className="mt-3 text-sm font-medium text-primary">Click to upload</div>
         <div className="mt-1 text-xs text-muted-foreground">{hint}</div>
-        <input type="file" accept={accept} className="hidden" onChange={(e) => e.target.files?.[0] && onChange(e.target.files[0])} />
+        <input type="file" accept={accept} className="hidden" onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (!f) return;
+          const err = fileSizeError(f);
+          if (err) {
+            toast.error(err);
+            e.target.value = "";
+            return;
+          }
+          onChange(f);
+        }} />
       </label>
     )}
   </div>

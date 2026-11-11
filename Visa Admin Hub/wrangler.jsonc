@@ -6,11 +6,11 @@
   "compatibility_flags": ["nodejs_compat"],
   "main": "src/server.ts",
   "triggers": {
-    "crons": ["0 3 * * *"]
+    "crons": ["0 * * * *"]
   },
   "vars": {
-    "SUPABASE_URL": "https://yqhzkjrwdsdlsslvmsbe.supabase.co",
-    "SUPABASE_PUBLISHABLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxaHpranJ3ZHNkbHNzbHZtc2JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2Mjk4MzEsImV4cCI6MjA5NTIwNTgzMX0.u5jAOarTwxKpGHZyEWFVQ-xzDoLPAvgG568a2GEgL9w",
+    "SUPABASE_URL": "https://hlupefnmzqwhsqrjmplh.supabase.co",
+    "SUPABASE_PUBLISHABLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsdXBlZm5tenF3aHNxcmptcGxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3MTQ1MTQsImV4cCI6MjEwODI5MDUxNH0.BvGp8aLPJjyTg6VGBwPUqYaijecCOqfoFPrYgRHnxlQ",
     "SITE_URL": "https://www.evisasomali.com",
     "ADMIN_URL": "https://tanstack-start-app.evisasomali.workers.dev",
     "DPO_COMPANY_TOKEN": "8D3DA73D-9D7F-4E09-96D4-3D44E7A83EA3",

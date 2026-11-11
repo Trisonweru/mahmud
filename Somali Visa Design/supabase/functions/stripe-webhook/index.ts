@@ -63,7 +63,7 @@ serve(async (req) => {
           await sendEmail({
             to: app.email,
             subject: `Refund processed — Application ${app.reference}`,
-            html: refundConfirmationEmail({ fullName: app.full_name, reference: app.reference, amount: amountRefunded }),
+            html: refundConfirmationEmail({ fullName: app.full_name, reference: app.reference }),
           });
         }
       }
@@ -90,7 +90,7 @@ serve(async (req) => {
         })
         .eq("id", applicationId)
         .eq("paid", false)
-        .select("id, email, full_name, reference");
+        .select("id, email, full_name, reference, processing_speed");
 
       if (updated && updated.length > 0) {
         await supabase.from("application_notes").insert({
@@ -104,7 +104,7 @@ serve(async (req) => {
           await sendEmail({
             to: app.email,
             subject: `Payment confirmed — Application ${app.reference}`,
-            html: paymentConfirmationEmail({ fullName: app.full_name, reference: app.reference }),
+            html: paymentConfirmationEmail({ fullName: app.full_name, reference: app.reference, processingSpeed: app.processing_speed }),
           });
         }
       }

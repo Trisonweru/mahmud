@@ -15,6 +15,11 @@ const dateOr = (s: string, fallbackDaysFromNow = 0) => {
   return d.toISOString().slice(0, 10);
 };
 
+// Standard and Ajnabi charge GBP (plus a flat £2 processing fee); Express stays USD.
+const STANDARD_FEE_GBP = 64;
+const EXPRESS_FEE_USD = 150;
+const PAYMENT_PROCESSING_FEE_GBP = 2;
+
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
   if (req.method === "OPTIONS") return optionsRes(origin);
@@ -60,6 +65,8 @@ Deno.serve(async (req: Request) => {
     const purpose = str(fd, "purpose") || (isExpress ? "Express — to be confirmed" : "Visit");
     const address = str(fd, "address") || str(fd, "somAddress") || "To be confirmed";
     const type: "standard" | "express" = isExpress ? "express" : "standard";
+    const fee = isExpress ? EXPRESS_FEE_USD : STANDARD_FEE_GBP + PAYMENT_PROCESSING_FEE_GBP;
+    const currency: "usd" | "gbp" = isExpress ? "usd" : "gbp";
 
     const { data: app, error: appErr } = await supabase
       .from("applications")
@@ -77,7 +84,8 @@ Deno.serve(async (req: Request) => {
         purpose,
         address_in_somalia: address,
         type,
-        fee: 150,
+        fee,
+        currency,
         status: "pending_payment",
         paid: false,
         paid_at: null,

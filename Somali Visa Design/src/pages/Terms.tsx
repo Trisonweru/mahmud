@@ -25,16 +25,18 @@ const Terms = () => (
       </Block>
 
       <Block n="2" title="Service Fee">
-        We offer three processing options, each all-inclusive and covering the official government
+        We offer three processing options, each covering the official government
         eTAS fee plus our service fee:
         <ul className="list-disc pl-6 mt-2 space-y-1">
-          <li><strong>Option 1 — Standard, £64</strong> (24–72 hour processing)</li>
+          <li><strong>Option 1 — Standard, £66</strong> (24–72 hour processing) — £64 government/service fee plus a £2 payment processing fee</li>
           <li><strong>Option 2 — Express, $150 USD</strong> (5–6 hour processing, during Somalia working hours)</li>
-          <li><strong>Option 3 — Foreigner (Ajnabi) guided application, £64</strong> (24–72 hour processing)</li>
+          <li><strong>Option 3 — Foreigner (Ajnabi) guided application, £66</strong> (24–72 hour processing) — £64 government/service fee plus a £2 payment processing fee</li>
         </ul>
         Every option includes the official government eTAS fee (forwarded 100% to the
         official government portal) plus our application assistance, document review, and
-        submission service fee. See our{" "}
+        submission service fee. Options 1 and 3 also include a non-refundable £2 payment
+        processing fee, charged to cover card-payment processing costs and shown as a separate
+        line item at checkout. See our{" "}
         <Link to="/refund" className="text-accent underline">Refund Policy</Link> for the full
         breakdown.
       </Block>
@@ -82,7 +84,7 @@ const Terms = () => (
 
       <Block n="9" title="Limitation of Liability">
         Our total liability for any claim arising from the use of our services is limited to the
-        total fee you paid us (£64, or $150 USD for Express, depending on the processing option
+        total fee you paid us (£66, or $150 USD for Express, depending on the processing option
         selected). We are not liable for:
         <ul className="list-disc pl-6 mt-2 space-y-1">
           <li>Visa refusals or entry denials by destination authorities</li>
