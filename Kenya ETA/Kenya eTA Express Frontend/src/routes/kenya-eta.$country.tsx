@@ -15,7 +15,7 @@ export const Route = createFileRoute("/kenya-eta/$country")({
   head: ({ params, loaderData }) => {
     const guide = loaderData?.guide;
     if (!guide) return {};
-    const title = `Kenya eTA for ${guide.demonym} — Requirements, Fees & Processing`;
+    const title = `Kenya eTA for ${guide.demonym} — Requirements & Fees`;
     const description = `Kenya Standard Single Entry eTA for ${guide.demonym}: required documents, processing time, ${money(TOTAL_FEE)} total fee and a guided online application.`;
     const url = absoluteUrl(`/kenya-eta/${params.country}`);
     return {

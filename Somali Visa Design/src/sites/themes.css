@@ -1,0 +1,78 @@
+/*
+ * Per-site look. vite.config.ts adds data-site="<domain>" to <html> for every site
+ * except eVisaSomali.com, which keeps the original navy + gold theme in index.css.
+ * Everything in the UI reads these tokens, so overriding them restyles the whole site.
+ */
+
+/* EvisaSomalia.com — deep teal + coral, editorial serif headings, softer corners */
+html[data-site="evisasomalia.com"] {
+  --background: 180 20% 97%;
+  --foreground: 190 60% 9%;
+  --card-foreground: 190 60% 9%;
+  --popover-foreground: 190 60% 9%;
+  --primary: 188 72% 15%;
+  --primary-glow: 188 60% 24%;
+  --secondary: 180 18% 94%;
+  --secondary-foreground: 188 72% 15%;
+  --muted: 180 16% 92%;
+  --muted-foreground: 190 25% 32%;
+  --accent: 12 75% 45%;
+  --accent-foreground: 0 0% 100%;
+  --accent-soft: 14 85% 95%;
+  --gold: 14 80% 55%;
+  --border: 185 18% 84%;
+  --input: 185 18% 84%;
+  --ring: 12 75% 50%;
+  --radius: 0.85rem;
+  --gradient-hero: linear-gradient(110deg, hsl(188 75% 10% / 0.88) 0%, hsl(188 70% 16% / 0.70) 55%, hsl(12 70% 30% / 0.35) 100%);
+  --gradient-gold: linear-gradient(135deg, hsl(14 82% 55%), hsl(8 72% 44%));
+  --gradient-navy: linear-gradient(135deg, hsl(188 72% 15%), hsl(186 60% 24%));
+  --shadow-elegant: 0 24px 60px -22px hsl(188 72% 15% / 0.40);
+  --shadow-card: 0 6px 24px -8px hsl(188 72% 15% / 0.16), 0 1px 3px hsl(188 72% 15% / 0.08);
+  --shadow-gold: 0 10px 30px -10px hsl(12 75% 45% / 0.55);
+}
+html[data-site="evisasomalia.com"] body {
+  font-family: "DM Sans", system-ui, sans-serif;
+}
+html[data-site="evisasomalia.com"] :is(h1, h2, h3, .font-serif) {
+  font-family: "Fraunces", Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+/* Somaliavisa.net — Somali flag blue, clean sans-serif throughout, rounded cards */
+html[data-site="somaliavisa.net"] {
+  --background: 210 40% 98%;
+  --foreground: 214 60% 10%;
+  --card-foreground: 214 60% 10%;
+  --popover-foreground: 214 60% 10%;
+  --primary: 212 85% 24%;
+  --primary-glow: 210 80% 34%;
+  --secondary: 208 45% 95%;
+  --secondary-foreground: 212 85% 24%;
+  --muted: 208 35% 93%;
+  --muted-foreground: 213 25% 34%;
+  --accent: 211 72% 46%;
+  --accent-foreground: 0 0% 100%;
+  --accent-soft: 208 90% 95%;
+  --gold: 211 75% 58%;
+  --border: 210 30% 86%;
+  --input: 210 30% 86%;
+  --ring: 211 72% 50%;
+  --radius: 1.1rem;
+  --gradient-hero: linear-gradient(180deg, hsl(212 85% 20% / 0.55), hsl(212 90% 14% / 0.85));
+  --gradient-gold: linear-gradient(135deg, hsl(208 80% 56%), hsl(213 75% 44%));
+  --gradient-navy: linear-gradient(135deg, hsl(212 85% 24%), hsl(208 75% 36%));
+  --shadow-elegant: 0 20px 50px -20px hsl(212 85% 24% / 0.35);
+  --shadow-card: 0 4px 20px -6px hsl(212 85% 24% / 0.12), 0 1px 3px hsl(212 85% 24% / 0.06);
+  --shadow-gold: 0 10px 28px -10px hsl(211 72% 46% / 0.55);
+}
+html[data-site="somaliavisa.net"] body,
+html[data-site="somaliavisa.net"] :is(h1, h2, h3, .font-serif) {
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+}
+html[data-site="somaliavisa.net"] :is(h1, h2, h3) {
+  letter-spacing: -0.02em;
+}
+html[data-site="somaliavisa.net"] .font-serif.italic {
+  font-style: normal;
+}

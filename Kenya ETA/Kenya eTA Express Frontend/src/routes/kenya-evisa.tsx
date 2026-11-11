@@ -47,7 +47,7 @@ export const Route = createFileRoute("/kenya-evisa")({
       {
         name: "description",
         content:
-          "The Kenya eVisa is no longer issued — travellers now apply for the Kenya eTA. See what changed, the documents required, fees from $70 all inclusive and processing times.",
+          "The Kenya eVisa is no longer issued: travellers now apply for the Kenya eTA. See what changed, documents required, fees from $70 and processing times.",
       },
       { property: "og:title", content: "Kenya eVisa is now the Kenya eTA" },
       {

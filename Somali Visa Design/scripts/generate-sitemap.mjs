@@ -1,11 +1,13 @@
-// Pre-build step: writes public/sitemap.xml from the static page list plus every
+// Post-build step: writes <build output>/sitemap.xml from the static page list plus every
 // country in src/data/visaCountries.ts, so new nationalities are always indexed.
 //
-// Usage: npm run build (runs automatically before vite build).
+// Usage: npm run build (runs automatically after vite build).
 
 import { readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { SITE as SITE_CFG, OUT_DIR } from "./site.mjs";
 
-const SITE = "https://www.evisasomali.com";
+const SITE = SITE_CFG.url;
 const today = new Date().toISOString().slice(0, 10);
 
 const PAGES = [
@@ -39,5 +41,5 @@ ${urls
   .join("\n")}
 </urlset>
 `;
-await writeFile("public/sitemap.xml", xml);
-console.log(`generate-sitemap: ${urls.length} URLs`);
+await writeFile(path.join(OUT_DIR, "sitemap.xml"), xml);
+console.log(`generate-sitemap: ${urls.length} URLs for ${SITE}`);

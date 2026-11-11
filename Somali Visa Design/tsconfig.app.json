@@ -23,7 +23,8 @@
     "noFallthroughCasesInSwitch": false,
 
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@site-content": ["./src/sites/evisasomali.com.ts"]
     }
   },
   "include": ["src"]

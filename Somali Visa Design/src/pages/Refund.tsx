@@ -1,22 +1,23 @@
 import { Link } from "react-router-dom";
 import { SectionHeading } from "@/components/SectionHeading";
 import { PageSEO } from "@/components/PageSEO";
+import { SITE } from "@/config/site";
 
 const Refund = () => (
   <>
   <PageSEO
     title="Refund Policy — Somalia eVisa Application Service"
     description="Refund and cancellation policy for Somalia eVisa applications. Understand your rights before you apply."
-    canonical="https://www.evisasomali.com/refund"
+    canonical={`${SITE.url}/refund`}
   />
   <section className="container py-20 max-w-3xl">
-    <SectionHeading eyebrow="Legal" title="Refund Policy" />
+    <SectionHeading as="h1" eyebrow="Legal" title="Refund Policy" />
     <p className="mt-6 text-sm text-muted-foreground">Last Updated: 10 March 2026</p>
 
     <p className="mt-8 text-sm leading-relaxed text-foreground/85">
-      At <strong>eVisaSomali</strong>, we strive to provide high-quality visa
+      At <strong>{SITE.brand}</strong>, we strive to provide high-quality visa
       application assistance. This Refund Policy explains the conditions under which refunds are
-      issued for our services on evisasomali.com.
+      issued for our services on {SITE.host}.
     </p>
 
     <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground/85">
@@ -50,8 +51,8 @@ const Refund = () => (
 
       <Block n="4" title="How to Request a Refund">
         Email{" "}
-        <a href="mailto:refunds@evisasomali.com" className="text-accent underline">
-          refunds@evisasomali.com
+        <a href={`mailto:${SITE.refundsEmail}`} className="text-accent underline">
+          {SITE.refundsEmail}
         </a>{" "}
         with your full name, application reference number, and the reason. We respond within 48
         hours; approved refunds are processed within 3–5 business days, less non-refundable gateway
@@ -72,15 +73,15 @@ const Refund = () => (
         <h2 className="font-serif text-2xl text-primary">Contact Us</h2>
         <p className="mt-3">
           Email:{" "}
-          <a href="mailto:refunds@evisasomali.com" className="text-accent underline">
-            refunds@evisasomali.com
+          <a href={`mailto:${SITE.refundsEmail}`} className="text-accent underline">
+            {SITE.refundsEmail}
           </a>
           <br />
           Phone / WhatsApp: +252 61 3886027
           <br />
           Registered Office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom
           <br />
-          Company Name: Passkey Technologies Limited (trading as eVisaSomali.com)
+          Company Name: Passkey Technologies Limited (trading as {SITE.domain})
           <br />
           Company No.: 16877709
         </p>

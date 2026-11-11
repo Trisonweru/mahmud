@@ -3,7 +3,8 @@
   "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@site-content": ["./src/sites/evisasomali.com.ts"]
     },
     "noImplicitAny": false,
     "noUnusedParameters": false,

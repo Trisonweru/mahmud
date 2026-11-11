@@ -1,49 +1,45 @@
 import { PageSEO } from "@/components/PageSEO";
 import { SectionHeading } from "@/components/SectionHeading";
 import { FileText, Camera, CreditCard, FileSignature, Calendar } from "lucide-react";
-import { PRICING_TIERS, formatCheckoutTotal } from "@/lib/pricing";
+import { SITE } from "@/config/site";
+import content from "@site-content";
 
-const docs = [
-  { icon: FileText, title: "Valid Passport", body: "Valid for at least 6 months from your arrival date, with two blank pages." },
-  { icon: Camera, title: "Digital Photo", body: "A recent passport-style photo on a clear background, taken within the last 6 months." },
-  { icon: Calendar, title: "Travel Date", body: "Your planned arrival date in Somalia (Taariikhda Safarka)." },
-  { icon: FileSignature, title: "Sponsor Document", body: "Required for foreign (Ajnabi) applicants only — a sponsor letter or invitation document from your local contact." },
-  { icon: CreditCard, title: "Payment Method", body: `A credit or debit card to complete the processing fee — from ${formatCheckoutTotal(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}.` },
-];
+const d = content.documents;
+const docs = d.items.map((item, i) => ({ ...item, icon: [FileText, Camera, Calendar, FileSignature, CreditCard][i] ?? FileText }));
 
 const documentsJsonLd = {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Apply for a Somalia eVisa",
-  "description": "Documents required to apply for a Somalia eVisa online. Have these ready before starting your application.",
-  "step": docs.map((d, i) => ({
+  "name": d.howToName,
+  "description": d.howToDescription,
+  "step": docs.map((x, i) => ({
     "@type": "HowToStep",
     "position": i + 1,
-    "name": d.title,
-    "text": d.body,
+    "name": x.title,
+    "text": x.body,
   })),
   "totalTime": "PT5M",
-  "supply": docs.map((d) => ({ "@type": "HowToSupply", "name": d.title })),
+  "supply": docs.map((x) => ({ "@type": "HowToSupply", "name": x.title })),
 };
 
 const Documents = () => (
   <>
     <PageSEO
-      title="Somalia eVisa Requirements — Documents You Need | eVisaSomali"
-      description="Find out exactly what documents you need for a Somalia eVisa: valid passport, digital photo, travel date and (for foreign applicants) a sponsor document. Apply online in minutes."
-      canonical="https://www.evisasomali.com/documents"
+      title={d.seoTitle}
+      description={d.seoDescription}
+      canonical={`${SITE.url}/documents`}
       jsonLd={documentsJsonLd}
     />
   <section className="container py-20">
-    <SectionHeading eyebrow="Required Documents" title="What you need to apply." description="Have these ready before you start so we can review your application quickly." />
+    <SectionHeading as="h1" eyebrow={d.eyebrow} title={d.title} description={d.description} />
     <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-      {docs.map((d) => (
-        <div key={d.title} className="bg-card border border-border rounded-sm p-8 shadow-card hover:shadow-elegant transition-smooth">
+      {docs.map((doc) => (
+        <div key={doc.title} className="bg-card border border-border rounded-sm p-8 shadow-card hover:shadow-elegant transition-smooth">
           <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-gradient-navy text-accent">
-            <d.icon className="h-5 w-5" />
+            <doc.icon className="h-5 w-5" />
           </div>
-          <h3 className="mt-6 font-serif text-xl text-primary">{d.title}</h3>
-          <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{d.body}</p>
+          <h3 className="mt-6 font-serif text-xl text-primary">{doc.title}</h3>
+          <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{doc.body}</p>
         </div>
       ))}
     </div>

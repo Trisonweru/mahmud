@@ -1,20 +1,21 @@
 import { Link } from "react-router-dom";
 import { SectionHeading } from "@/components/SectionHeading";
 import { PageSEO } from "@/components/PageSEO";
+import { SITE } from "@/config/site";
 
 const Privacy = () => (
   <>
   <PageSEO
     title="Privacy Policy — Somalia eVisa Application Service"
-    description="How eVisaSomali collects, uses and protects your personal data when you apply for a Somalia eVisa. Bank-grade encryption. Never shared with third parties."
-    canonical="https://www.evisasomali.com/privacy"
+    description={`How ${SITE.brand} collects, uses and protects your personal data when you apply for a Somalia eVisa. Bank-grade encryption. Never shared with third parties.`}
+    canonical={`${SITE.url}/privacy`}
   />
   <section className="container py-20 max-w-3xl">
-    <SectionHeading eyebrow="Legal" title="Privacy Policy" />
+    <SectionHeading as="h1" eyebrow="Legal" title="Privacy Policy" />
     <p className="mt-6 text-sm text-muted-foreground">Last Updated: 10 March 2026</p>
 
     <p className="mt-8 text-sm leading-relaxed text-foreground/85">
-      This Privacy Policy explains how <strong>eVisaSomali</strong> ("we," "us," or
+      This Privacy Policy explains how <strong>{SITE.brand}</strong> ("we," "us," or
       "our") collects, uses, and protects your personal information when you use our website and
       related visa assistance services ("Services"). By using our Website, you agree to the
       practices described in this Privacy Policy.
@@ -22,7 +23,7 @@ const Privacy = () => (
 
     <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground/85">
       <Block n="1" title="Data Controller">
-        <strong>eVisaSomali.com</strong> — a trading name of Passkey Technologies Limited,
+        <strong>{SITE.domain}</strong> — a trading name of Passkey Technologies Limited,
         registered in England &amp; Wales (Company No. 16877709), registered office: 71–75 Shelton Street, Covent Garden,
         London WC2H 9JQ, United Kingdom. We are an
         independent third-party service provider and are not affiliated with, endorsed by, or
@@ -72,8 +73,8 @@ const Privacy = () => (
       <Block n="7" title="Your Rights under UK GDPR">
         You have the right to access, correct, request deletion of, object to or restrict
         processing, and withdraw consent for your data. Contact us at{" "}
-        <a href="mailto:support@evisasomali.com" className="text-accent underline">
-          support@evisasomali.com
+        <a href={`mailto:${SITE.email}`} className="text-accent underline">
+          {SITE.email}
         </a>. You may also lodge a complaint with the Information Commissioner's Office (ICO).
       </Block>
 
@@ -91,15 +92,15 @@ const Privacy = () => (
         <h2 className="font-serif text-2xl text-primary">Contact Us</h2>
         <p className="mt-3">
           Email:{" "}
-          <a href="mailto:support@evisasomali.com" className="text-accent underline">
-            support@evisasomali.com
+          <a href={`mailto:${SITE.email}`} className="text-accent underline">
+            {SITE.email}
           </a>
           <br />
           Phone / WhatsApp: +252 61 3886027
           <br />
           Registered Office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom
           <br />
-          Company Name: Passkey Technologies Limited (trading as eVisaSomali.com)
+          Company Name: Passkey Technologies Limited (trading as {SITE.domain})
           <br />
           Company No.: 16877709
         </p>

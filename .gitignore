@@ -48,3 +48,9 @@ deno.lock
 # Local screenshots / email previews
 screenshots/
 email-previews/
+
+# Per-site public builds
+dist-sites/
+
+# Client quotations / requirements — keep out of the public repo
+docs/

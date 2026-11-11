@@ -1,4 +1,3 @@
-import Tesseract from "tesseract.js";
 
 // Client-side passport OCR (no server round-trip, no third-party AI gateway).
 // Runs Tesseract.js entirely in the browser: one pass over the full page for
@@ -288,6 +287,10 @@ export async function scanPassport(file: File): Promise<PassportScanResult> {
     const fullCanvas = buildFullCanvas(img);
     const mrzCanvas = buildMrzCanvas(img);
 
+    // Loaded on demand: tesseract.js references Node's __dirname at import time,
+    // which crashes server rendering on Cloudflare Workers (the whole /apply page
+    // then rendered empty for search engines). It only ever runs in the browser.
+    const { default: Tesseract } = await import("tesseract.js");
     const [mrzPass, fullPass] = await Promise.all([
       Tesseract.recognize(mrzCanvas, "eng"),
       Tesseract.recognize(fullCanvas, "eng"),

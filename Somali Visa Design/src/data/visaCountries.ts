@@ -1,3 +1,4 @@
+import { SITE } from "@/config/site";
 export const VISA_REGIONS = [
   "Africa",
   "Europe",
@@ -32,7 +33,7 @@ export const visaCountries: VisaCountryInfo[] = [
     region: "North America",
     popular: true,
     intro:
-      "U.S. passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps American applicants complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `U.S. passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps American applicants complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "We support tourist, business, and family-visit applications for U.S. citizens, including return visits for the Somali-American diaspora.",
   },
@@ -56,7 +57,7 @@ export const visaCountries: VisaCountryInfo[] = [
     region: "Europe",
     popular: true,
     intro:
-      "Swedish passport holders need an approved eVisa to enter Somalia. eVisaSomali assists applicants across Sweden with document preparation and submission to the official portal.",
+      `Swedish passport holders need an approved eVisa to enter Somalia. ${SITE.brand} assists applicants across Sweden with document preparation and submission to the official portal.`,
     highlight:
       "We regularly help members of the large Somali community in Sweden travelling home to visit family or attend to personal matters.",
   },
@@ -68,7 +69,7 @@ export const visaCountries: VisaCountryInfo[] = [
     region: "Africa",
     popular: true,
     intro:
-      "Kenyan citizens require an electronic visa to travel to Somalia. eVisaSomali helps applicants in Kenya — including the wider East African Somali diaspora — prepare a complete, accurate application.",
+      `Kenyan citizens require an electronic visa to travel to Somalia. ${SITE.brand} helps applicants in Kenya — including the wider East African Somali diaspora — prepare a complete, accurate application.`,
     highlight:
       "Given the close ties and frequent travel between Kenya and Somalia, we pay special attention to getting documentation right the first time to help avoid delays at the border.",
   },
@@ -92,7 +93,7 @@ export const visaCountries: VisaCountryInfo[] = [
     region: "North America",
     popular: true,
     intro:
-      "Canadian citizens need a valid eVisa to enter Somalia. eVisaSomali provides a straightforward online application process for travellers across Canada, with updates sent directly to your email and WhatsApp.",
+      `Canadian citizens need a valid eVisa to enter Somalia. ${SITE.brand} provides a straightforward online application process for travellers across Canada, with updates sent directly to your email and WhatsApp.`,
     highlight:
       "We support both first-time travellers and returning members of the Somali-Canadian community.",
   },
@@ -116,7 +117,7 @@ export const visaCountries: VisaCountryInfo[] = [
     region: "Europe",
     popular: true,
     intro:
-      "German citizens must hold an approved eVisa to enter Somalia. eVisaSomali assists applicants based in Germany with document review and submission to the official Somalia eTAS system.",
+      `German citizens must hold an approved eVisa to enter Somalia. ${SITE.brand} assists applicants based in Germany with document review and submission to the official Somalia eTAS system.`,
     highlight:
       "We regularly support the Somali-German community travelling for family visits, business, and community events.",
   },
@@ -140,7 +141,7 @@ export const visaCountries: VisaCountryInfo[] = [
     region: "Africa",
     popular: true,
     intro:
-      "South African citizens are required to obtain an eVisa before entering Somalia. eVisaSomali supports applicants across South Africa with a simple online process and specialist document checks.",
+      `South African citizens are required to obtain an eVisa before entering Somalia. ${SITE.brand} supports applicants across South Africa with a simple online process and specialist document checks.`,
     highlight:
       "We help travellers from South Africa's Somali business and diaspora communities prepare complete applications quickly.",
   },
@@ -151,7 +152,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇩🇿",
     region: "Africa",
     intro:
-      "Algerian passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Algeria complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Algerian passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Algeria complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travel between Algeria and Somalia is common for business, trade and family reasons. We check every document carefully so Algerian applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -173,7 +174,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇧🇯",
     region: "Africa",
     intro:
-      "Beninese citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Benin, checking your passport, photo and travel details before anything is submitted.",
+      `Beninese citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Benin, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travel between Benin and Somalia is common for business, trade and family reasons. We check every document carefully so Beninese applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -195,7 +196,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇧🇫",
     region: "Africa",
     intro:
-      "Burkinabè passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Burkina Faso complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Burkinabè passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Burkina Faso complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travel between Burkina Faso and Somalia is common for business, trade and family reasons. We check every document carefully so Burkinabè applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -217,7 +218,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇨🇻",
     region: "Africa",
     intro:
-      "Cabo Verdean citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Cabo Verde, checking your passport, photo and travel details before anything is submitted.",
+      `Cabo Verdean citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Cabo Verde, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travel between Cabo Verde and Somalia is common for business, trade and family reasons. We check every document carefully so Cabo Verdean applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -239,7 +240,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇨🇫",
     region: "Africa",
     intro:
-      "Central African passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Central African Republic complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Central African passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Central African Republic complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travel between Central African Republic and Somalia is common for business, trade and family reasons. We check every document carefully so Central African applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -261,7 +262,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇰🇲",
     region: "Africa",
     intro:
-      "Comorian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Comoros, checking your passport, photo and travel details before anything is submitted.",
+      `Comorian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Comoros, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travel between Comoros and Somalia is common for business, trade and family reasons. We check every document carefully so Comorian applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -283,7 +284,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇨🇩",
     region: "Africa",
     intro:
-      "Congolese (DRC) passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Democratic Republic of the Congo complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Congolese (DRC) passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Democratic Republic of the Congo complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travel between Democratic Republic of the Congo and Somalia is common for business, trade and family reasons. We check every document carefully so Congolese (DRC) applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -305,7 +306,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇩🇯",
     region: "Africa",
     intro:
-      "Djiboutian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Djibouti, checking your passport, photo and travel details before anything is submitted.",
+      `Djiboutian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Djibouti, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "We regularly help members of the Somali community in Djibouti travelling home to visit family, as well as Djiboutian business, humanitarian and tourist travellers.",
   },
@@ -327,7 +328,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇬🇶",
     region: "Africa",
     intro:
-      "Equatoguinean passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Equatorial Guinea complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Equatoguinean passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Equatorial Guinea complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travel between Equatorial Guinea and Somalia is common for business, trade and family reasons. We check every document carefully so Equatoguinean applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -349,7 +350,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇸🇿",
     region: "Africa",
     intro:
-      "Swazi citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Eswatini, checking your passport, photo and travel details before anything is submitted.",
+      `Swazi citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Eswatini, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travel between Eswatini and Somalia is common for business, trade and family reasons. We check every document carefully so Swazi applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -371,7 +372,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇬🇦",
     region: "Africa",
     intro:
-      "Gabonese passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Gabon complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Gabonese passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Gabon complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travel between Gabon and Somalia is common for business, trade and family reasons. We check every document carefully so Gabonese applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -393,7 +394,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇬🇭",
     region: "Africa",
     intro:
-      "Ghanaian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Ghana, checking your passport, photo and travel details before anything is submitted.",
+      `Ghanaian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Ghana, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travel between Ghana and Somalia is common for business, trade and family reasons. We check every document carefully so Ghanaian applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -415,7 +416,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇬🇼",
     region: "Africa",
     intro:
-      "Bissau-Guinean passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Guinea-Bissau complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Bissau-Guinean passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Guinea-Bissau complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travel between Guinea-Bissau and Somalia is common for business, trade and family reasons. We check every document carefully so Bissau-Guinean applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -437,7 +438,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇱🇷",
     region: "Africa",
     intro:
-      "Liberian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Liberia, checking your passport, photo and travel details before anything is submitted.",
+      `Liberian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Liberia, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travel between Liberia and Somalia is common for business, trade and family reasons. We check every document carefully so Liberian applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -459,7 +460,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇲🇬",
     region: "Africa",
     intro:
-      "Malagasy passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Madagascar complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Malagasy passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Madagascar complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travel between Madagascar and Somalia is common for business, trade and family reasons. We check every document carefully so Malagasy applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -481,7 +482,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇲🇱",
     region: "Africa",
     intro:
-      "Malian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Mali, checking your passport, photo and travel details before anything is submitted.",
+      `Malian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Mali, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travel between Mali and Somalia is common for business, trade and family reasons. We check every document carefully so Malian applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -503,7 +504,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇲🇺",
     region: "Africa",
     intro:
-      "Mauritian passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Mauritius complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Mauritian passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Mauritius complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travel between Mauritius and Somalia is common for business, trade and family reasons. We check every document carefully so Mauritian applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -525,7 +526,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇲🇿",
     region: "Africa",
     intro:
-      "Mozambican citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Mozambique, checking your passport, photo and travel details before anything is submitted.",
+      `Mozambican citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Mozambique, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travel between Mozambique and Somalia is common for business, trade and family reasons. We check every document carefully so Mozambican applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -547,7 +548,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇳🇪",
     region: "Africa",
     intro:
-      "Nigerien passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Niger complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Nigerien passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Niger complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travel between Niger and Somalia is common for business, trade and family reasons. We check every document carefully so Nigerien applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -569,7 +570,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇷🇼",
     region: "Africa",
     intro:
-      "Rwandan citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Rwanda, checking your passport, photo and travel details before anything is submitted.",
+      `Rwandan citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Rwanda, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travel between Rwanda and Somalia is common for business, trade and family reasons. We check every document carefully so Rwandan applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -591,7 +592,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇸🇳",
     region: "Africa",
     intro:
-      "Senegalese passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Senegal complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Senegalese passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Senegal complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travel between Senegal and Somalia is common for business, trade and family reasons. We check every document carefully so Senegalese applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -613,7 +614,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇸🇱",
     region: "Africa",
     intro:
-      "Sierra Leonean citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Sierra Leone, checking your passport, photo and travel details before anything is submitted.",
+      `Sierra Leonean citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Sierra Leone, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travel between Sierra Leone and Somalia is common for business, trade and family reasons. We check every document carefully so Sierra Leonean applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -635,7 +636,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇸🇩",
     region: "Africa",
     intro:
-      "Sudanese passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Sudan complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Sudanese passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Sudan complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travel between Sudan and Somalia is common for business, trade and family reasons. We check every document carefully so Sudanese applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -657,7 +658,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇹🇬",
     region: "Africa",
     intro:
-      "Togolese citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Togo, checking your passport, photo and travel details before anything is submitted.",
+      `Togolese citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Togo, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travel between Togo and Somalia is common for business, trade and family reasons. We check every document carefully so Togolese applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -679,7 +680,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇺🇬",
     region: "Africa",
     intro:
-      "Ugandan passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Uganda complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Ugandan passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Uganda complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "We regularly help members of the Somali community in Uganda travelling home to visit family, as well as Ugandan business, humanitarian and tourist travellers.",
   },
@@ -701,7 +702,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇿🇼",
     region: "Africa",
     intro:
-      "Zimbabwean citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Zimbabwe, checking your passport, photo and travel details before anything is submitted.",
+      `Zimbabwean citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Zimbabwe, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travel between Zimbabwe and Somalia is common for business, trade and family reasons. We check every document carefully so Zimbabwean applicants avoid delays on arrival in Mogadishu, Hargeisa or Garowe.",
   },
@@ -723,7 +724,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇦🇩",
     region: "Europe",
     intro:
-      "Andorran passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Andorra complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Andorran passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Andorra complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Most travellers from Andorra reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -745,7 +746,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇧🇾",
     region: "Europe",
     intro:
-      "Belarusian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Belarus, checking your passport, photo and travel details before anything is submitted.",
+      `Belarusian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Belarus, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Most travellers from Belarus reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -767,7 +768,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇧🇦",
     region: "Europe",
     intro:
-      "Bosnian passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Bosnia and Herzegovina complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Bosnian passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Bosnia and Herzegovina complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Most travellers from Bosnia and Herzegovina reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -789,7 +790,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇭🇷",
     region: "Europe",
     intro:
-      "Croatian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Croatia, checking your passport, photo and travel details before anything is submitted.",
+      `Croatian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Croatia, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Most travellers from Croatia reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -811,7 +812,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇨🇿",
     region: "Europe",
     intro:
-      "Czech passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Czechia complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Czech passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Czechia complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Most travellers from Czechia reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -833,7 +834,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇫🇮",
     region: "Europe",
     intro:
-      "Finnish citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Finland, checking your passport, photo and travel details before anything is submitted.",
+      `Finnish citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Finland, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "We regularly help members of the Somali community in Finland travelling home to visit family, as well as Finnish business, humanitarian and tourist travellers.",
   },
@@ -855,7 +856,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇭🇺",
     region: "Europe",
     intro:
-      "Hungarian passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Hungary complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Hungarian passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Hungary complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Most travellers from Hungary reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -877,7 +878,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇮🇪",
     region: "Europe",
     intro:
-      "Irish citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Ireland, checking your passport, photo and travel details before anything is submitted.",
+      `Irish citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Ireland, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "We regularly help members of the Somali community in Ireland travelling home to visit family, as well as Irish business, humanitarian and tourist travellers.",
   },
@@ -899,7 +900,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇽🇰",
     region: "Europe",
     intro:
-      "Kosovar passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Kosovo complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Kosovar passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Kosovo complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Most travellers from Kosovo reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -921,7 +922,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇱🇮",
     region: "Europe",
     intro:
-      "Liechtensteiner citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Liechtenstein, checking your passport, photo and travel details before anything is submitted.",
+      `Liechtensteiner citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Liechtenstein, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Most travellers from Liechtenstein reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -943,7 +944,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇱🇺",
     region: "Europe",
     intro:
-      "Luxembourgish passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Luxembourg complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Luxembourgish passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Luxembourg complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Most travellers from Luxembourg reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -965,7 +966,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇲🇩",
     region: "Europe",
     intro:
-      "Moldovan citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Moldova, checking your passport, photo and travel details before anything is submitted.",
+      `Moldovan citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Moldova, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Most travellers from Moldova reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -987,7 +988,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇲🇪",
     region: "Europe",
     intro:
-      "Montenegrin passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Montenegro complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Montenegrin passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Montenegro complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Most travellers from Montenegro reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -1009,7 +1010,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇳🇴",
     region: "Europe",
     intro:
-      "Norwegian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Norway, checking your passport, photo and travel details before anything is submitted.",
+      `Norwegian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Norway, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "We regularly help members of the Somali community in Norway travelling home to visit family, as well as Norwegian business, humanitarian and tourist travellers.",
   },
@@ -1031,7 +1032,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇵🇹",
     region: "Europe",
     intro:
-      "Portuguese passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Portugal complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Portuguese passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Portugal complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Most travellers from Portugal reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -1053,7 +1054,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇷🇺",
     region: "Europe",
     intro:
-      "Russian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Russia, checking your passport, photo and travel details before anything is submitted.",
+      `Russian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Russia, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Most travellers from Russia reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -1075,7 +1076,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇷🇸",
     region: "Europe",
     intro:
-      "Serbian passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Serbia complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Serbian passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Serbia complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Most travellers from Serbia reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -1097,7 +1098,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇸🇮",
     region: "Europe",
     intro:
-      "Slovenian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Slovenia, checking your passport, photo and travel details before anything is submitted.",
+      `Slovenian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Slovenia, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Most travellers from Slovenia reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -1119,7 +1120,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇨🇭",
     region: "Europe",
     intro:
-      "Swiss passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Switzerland complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Swiss passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Switzerland complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "We regularly help members of the Somali community in Switzerland travelling home to visit family, as well as Swiss business, humanitarian and tourist travellers.",
   },
@@ -1141,7 +1142,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇻🇦",
     region: "Europe",
     intro:
-      "Vatican citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Vatican City, checking your passport, photo and travel details before anything is submitted.",
+      `Vatican citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Vatican City, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Most travellers from Vatican City reach Somalia via connecting hubs such as Istanbul, Dubai, Doha or Addis Ababa. We make sure your eVisa is approved before you board, so you can travel with confidence.",
   },
@@ -1163,7 +1164,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇮🇷",
     region: "Middle East",
     intro:
-      "Iranian passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Iran complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Iranian passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Iran complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "With frequent direct and connecting flights from the Gulf and wider Middle East, Iranian travellers often visit Somalia for business, trade and family. We prepare your application so it is ready well before your flight.",
   },
@@ -1185,7 +1186,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇯🇴",
     region: "Middle East",
     intro:
-      "Jordanian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Jordan, checking your passport, photo and travel details before anything is submitted.",
+      `Jordanian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Jordan, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "With frequent direct and connecting flights from the Gulf and wider Middle East, Jordanian travellers often visit Somalia for business, trade and family. We prepare your application so it is ready well before your flight.",
   },
@@ -1207,7 +1208,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇱🇧",
     region: "Middle East",
     intro:
-      "Lebanese passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Lebanon complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Lebanese passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Lebanon complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "With frequent direct and connecting flights from the Gulf and wider Middle East, Lebanese travellers often visit Somalia for business, trade and family. We prepare your application so it is ready well before your flight.",
   },
@@ -1229,7 +1230,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇵🇸",
     region: "Middle East",
     intro:
-      "Palestinian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Palestine, checking your passport, photo and travel details before anything is submitted.",
+      `Palestinian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Palestine, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "With frequent direct and connecting flights from the Gulf and wider Middle East, Palestinian travellers often visit Somalia for business, trade and family. We prepare your application so it is ready well before your flight.",
   },
@@ -1251,7 +1252,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇸🇦",
     region: "Middle East",
     intro:
-      "Saudi passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Saudi Arabia complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Saudi passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Saudi Arabia complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "We regularly help members of the Somali community in Saudi Arabia travelling home to visit family, as well as Saudi business, humanitarian and tourist travellers.",
   },
@@ -1273,7 +1274,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇹🇷",
     region: "Middle East",
     intro:
-      "Turkish citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Türkiye, checking your passport, photo and travel details before anything is submitted.",
+      `Turkish citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Türkiye, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "We regularly help members of the Somali community in Türkiye travelling home to visit family, as well as Turkish business, humanitarian and tourist travellers.",
   },
@@ -1295,7 +1296,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇾🇪",
     region: "Middle East",
     intro:
-      "Yemeni passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Yemen complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Yemeni passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Yemen complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "We regularly help members of the Somali community in Yemen travelling home to visit family, as well as Yemeni business, humanitarian and tourist travellers.",
   },
@@ -1317,7 +1318,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇦🇲",
     region: "Asia",
     intro:
-      "Armenian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Armenia, checking your passport, photo and travel details before anything is submitted.",
+      `Armenian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Armenia, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Armenian visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from Armenia.",
   },
@@ -1339,7 +1340,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇧🇩",
     region: "Asia",
     intro:
-      "Bangladeshi passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Bangladesh complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Bangladeshi passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Bangladesh complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Bangladeshi visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from Bangladesh.",
   },
@@ -1361,7 +1362,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇧🇳",
     region: "Asia",
     intro:
-      "Bruneian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Brunei, checking your passport, photo and travel details before anything is submitted.",
+      `Bruneian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Brunei, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Bruneian visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from Brunei.",
   },
@@ -1383,7 +1384,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇨🇳",
     region: "Asia",
     intro:
-      "Chinese passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from China complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Chinese passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from China complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Chinese visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from China.",
   },
@@ -1405,7 +1406,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇭🇰",
     region: "Asia",
     intro:
-      "Hong Kong citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Hong Kong, checking your passport, photo and travel details before anything is submitted.",
+      `Hong Kong citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Hong Kong, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Hong Kong visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from Hong Kong.",
   },
@@ -1427,7 +1428,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇮🇩",
     region: "Asia",
     intro:
-      "Indonesian passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Indonesia complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Indonesian passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Indonesia complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Indonesian visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from Indonesia.",
   },
@@ -1449,7 +1450,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇰🇿",
     region: "Asia",
     intro:
-      "Kazakhstani citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Kazakhstan, checking your passport, photo and travel details before anything is submitted.",
+      `Kazakhstani citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Kazakhstan, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Kazakhstani visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from Kazakhstan.",
   },
@@ -1471,7 +1472,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇱🇦",
     region: "Asia",
     intro:
-      "Lao passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Laos complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Lao passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Laos complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Lao visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from Laos.",
   },
@@ -1493,7 +1494,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇲🇻",
     region: "Asia",
     intro:
-      "Maldivian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Maldives, checking your passport, photo and travel details before anything is submitted.",
+      `Maldivian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Maldives, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Maldivian visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from Maldives.",
   },
@@ -1515,7 +1516,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇲🇲",
     region: "Asia",
     intro:
-      "Myanmar passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Myanmar complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Myanmar passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Myanmar complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Myanmar visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from Myanmar.",
   },
@@ -1537,7 +1538,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇰🇵",
     region: "Asia",
     intro:
-      "North Korean citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in North Korea, checking your passport, photo and travel details before anything is submitted.",
+      `North Korean citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in North Korea, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "North Korean visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from North Korea.",
   },
@@ -1559,7 +1560,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇵🇭",
     region: "Asia",
     intro:
-      "Filipino passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Philippines complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Filipino passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Philippines complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Filipino visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from Philippines.",
   },
@@ -1581,7 +1582,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇰🇷",
     region: "Asia",
     intro:
-      "South Korean citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in South Korea, checking your passport, photo and travel details before anything is submitted.",
+      `South Korean citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in South Korea, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "South Korean visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from South Korea.",
   },
@@ -1603,7 +1604,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇹🇼",
     region: "Asia",
     intro:
-      "Taiwanese passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Taiwan complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Taiwanese passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Taiwan complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Taiwanese visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from Taiwan.",
   },
@@ -1625,7 +1626,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇹🇭",
     region: "Asia",
     intro:
-      "Thai citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Thailand, checking your passport, photo and travel details before anything is submitted.",
+      `Thai citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Thailand, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Thai visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from Thailand.",
   },
@@ -1647,7 +1648,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇹🇲",
     region: "Asia",
     intro:
-      "Turkmen passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Turkmenistan complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Turkmen passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Turkmenistan complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Turkmen visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from Turkmenistan.",
   },
@@ -1669,7 +1670,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇻🇳",
     region: "Asia",
     intro:
-      "Vietnamese citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Vietnam, checking your passport, photo and travel details before anything is submitted.",
+      `Vietnamese citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Vietnam, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Vietnamese visitors usually travel to Somalia via Dubai, Doha, Istanbul or Addis Ababa. We handle the eTAS paperwork for business, investment, humanitarian and tourist trips from Vietnam.",
   },
@@ -1691,7 +1692,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇦🇬",
     region: "Central America & Caribbean",
     intro:
-      "Antiguan passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Antigua and Barbuda complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Antiguan passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Antigua and Barbuda complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travellers from Antigua and Barbuda usually reach Somalia through connecting flights in Europe or the Middle East. We guide Antiguan applicants through every requirement so nothing is missed.",
   },
@@ -1713,7 +1714,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇧🇧",
     region: "Central America & Caribbean",
     intro:
-      "Barbadian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Barbados, checking your passport, photo and travel details before anything is submitted.",
+      `Barbadian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Barbados, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travellers from Barbados usually reach Somalia through connecting flights in Europe or the Middle East. We guide Barbadian applicants through every requirement so nothing is missed.",
   },
@@ -1735,7 +1736,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇨🇷",
     region: "Central America & Caribbean",
     intro:
-      "Costa Rican passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Costa Rica complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Costa Rican passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Costa Rica complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travellers from Costa Rica usually reach Somalia through connecting flights in Europe or the Middle East. We guide Costa Rican applicants through every requirement so nothing is missed.",
   },
@@ -1757,7 +1758,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇩🇲",
     region: "Central America & Caribbean",
     intro:
-      "Dominican (Dominica) citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Dominica, checking your passport, photo and travel details before anything is submitted.",
+      `Dominican (Dominica) citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Dominica, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travellers from Dominica usually reach Somalia through connecting flights in Europe or the Middle East. We guide Dominican (Dominica) applicants through every requirement so nothing is missed.",
   },
@@ -1779,7 +1780,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇸🇻",
     region: "Central America & Caribbean",
     intro:
-      "Salvadoran passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from El Salvador complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Salvadoran passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from El Salvador complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travellers from El Salvador usually reach Somalia through connecting flights in Europe or the Middle East. We guide Salvadoran applicants through every requirement so nothing is missed.",
   },
@@ -1801,7 +1802,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇬🇹",
     region: "Central America & Caribbean",
     intro:
-      "Guatemalan citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Guatemala, checking your passport, photo and travel details before anything is submitted.",
+      `Guatemalan citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Guatemala, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travellers from Guatemala usually reach Somalia through connecting flights in Europe or the Middle East. We guide Guatemalan applicants through every requirement so nothing is missed.",
   },
@@ -1823,7 +1824,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇭🇳",
     region: "Central America & Caribbean",
     intro:
-      "Honduran passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Honduras complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Honduran passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Honduras complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travellers from Honduras usually reach Somalia through connecting flights in Europe or the Middle East. We guide Honduran applicants through every requirement so nothing is missed.",
   },
@@ -1845,7 +1846,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇳🇮",
     region: "Central America & Caribbean",
     intro:
-      "Nicaraguan citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Nicaragua, checking your passport, photo and travel details before anything is submitted.",
+      `Nicaraguan citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Nicaragua, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travellers from Nicaragua usually reach Somalia through connecting flights in Europe or the Middle East. We guide Nicaraguan applicants through every requirement so nothing is missed.",
   },
@@ -1867,7 +1868,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇰🇳",
     region: "Central America & Caribbean",
     intro:
-      "Kittitian passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Saint Kitts and Nevis complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Kittitian passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Saint Kitts and Nevis complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travellers from Saint Kitts and Nevis usually reach Somalia through connecting flights in Europe or the Middle East. We guide Kittitian applicants through every requirement so nothing is missed.",
   },
@@ -1889,7 +1890,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇻🇨",
     region: "Central America & Caribbean",
     intro:
-      "Vincentian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Saint Vincent and the Grenadines, checking your passport, photo and travel details before anything is submitted.",
+      `Vincentian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Saint Vincent and the Grenadines, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travellers from Saint Vincent and the Grenadines usually reach Somalia through connecting flights in Europe or the Middle East. We guide Vincentian applicants through every requirement so nothing is missed.",
   },
@@ -1911,7 +1912,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇦🇷",
     region: "South America",
     intro:
-      "Argentine passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Argentina complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Argentine passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Argentina complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Argentine travellers generally fly to Somalia via Europe, the Gulf or Addis Ababa. Our team checks your application end to end so it is approved before your departure.",
   },
@@ -1933,7 +1934,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇧🇷",
     region: "South America",
     intro:
-      "Brazilian citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Brazil, checking your passport, photo and travel details before anything is submitted.",
+      `Brazilian citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Brazil, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Brazilian travellers generally fly to Somalia via Europe, the Gulf or Addis Ababa. Our team checks your application end to end so it is approved before your departure.",
   },
@@ -1955,7 +1956,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇨🇴",
     region: "South America",
     intro:
-      "Colombian passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Colombia complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Colombian passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Colombia complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Colombian travellers generally fly to Somalia via Europe, the Gulf or Addis Ababa. Our team checks your application end to end so it is approved before your departure.",
   },
@@ -1977,7 +1978,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇬🇾",
     region: "South America",
     intro:
-      "Guyanese citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Guyana, checking your passport, photo and travel details before anything is submitted.",
+      `Guyanese citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Guyana, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Guyanese travellers generally fly to Somalia via Europe, the Gulf or Addis Ababa. Our team checks your application end to end so it is approved before your departure.",
   },
@@ -1999,7 +2000,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇵🇪",
     region: "South America",
     intro:
-      "Peruvian passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Peru complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Peruvian passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Peru complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Peruvian travellers generally fly to Somalia via Europe, the Gulf or Addis Ababa. Our team checks your application end to end so it is approved before your departure.",
   },
@@ -2021,7 +2022,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇺🇾",
     region: "South America",
     intro:
-      "Uruguayan citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Uruguay, checking your passport, photo and travel details before anything is submitted.",
+      `Uruguayan citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Uruguay, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Uruguayan travellers generally fly to Somalia via Europe, the Gulf or Addis Ababa. Our team checks your application end to end so it is approved before your departure.",
   },
@@ -2043,7 +2044,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇦🇺",
     region: "Oceania",
     intro:
-      "Australian passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Australia complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Australian passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Australia complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "We regularly help members of the Somali community in Australia travelling home to visit family, as well as Australian business, humanitarian and tourist travellers.",
   },
@@ -2065,7 +2066,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇰🇮",
     region: "Oceania",
     intro:
-      "I-Kiribati citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Kiribati, checking your passport, photo and travel details before anything is submitted.",
+      `I-Kiribati citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Kiribati, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travellers from Kiribati usually connect through the Gulf or Asia on the way to Somalia. Apply early and our specialists will make sure your eVisa is ready before you fly.",
   },
@@ -2087,7 +2088,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇫🇲",
     region: "Oceania",
     intro:
-      "Micronesian passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Micronesia complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Micronesian passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Micronesia complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travellers from Micronesia usually connect through the Gulf or Asia on the way to Somalia. Apply early and our specialists will make sure your eVisa is ready before you fly.",
   },
@@ -2109,7 +2110,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇳🇿",
     region: "Oceania",
     intro:
-      "New Zealand citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in New Zealand, checking your passport, photo and travel details before anything is submitted.",
+      `New Zealand citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in New Zealand, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "We regularly help members of the Somali community in New Zealand travelling home to visit family, as well as New Zealand business, humanitarian and tourist travellers.",
   },
@@ -2131,7 +2132,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇵🇬",
     region: "Oceania",
     intro:
-      "Papua New Guinean passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Papua New Guinea complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Papua New Guinean passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Papua New Guinea complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travellers from Papua New Guinea usually connect through the Gulf or Asia on the way to Somalia. Apply early and our specialists will make sure your eVisa is ready before you fly.",
   },
@@ -2153,7 +2154,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇸🇧",
     region: "Oceania",
     intro:
-      "Solomon Islander citizens require an electronic visa to enter Somalia. eVisaSomali makes the process simple for applicants in Solomon Islands, checking your passport, photo and travel details before anything is submitted.",
+      `Solomon Islander citizens require an electronic visa to enter Somalia. ${SITE.brand} makes the process simple for applicants in Solomon Islands, checking your passport, photo and travel details before anything is submitted.`,
     highlight:
       "Travellers from Solomon Islands usually connect through the Gulf or Asia on the way to Somalia. Apply early and our specialists will make sure your eVisa is ready before you fly.",
   },
@@ -2175,7 +2176,7 @@ export const visaCountries: VisaCountryInfo[] = [
     flag: "🇹🇻",
     region: "Oceania",
     intro:
-      "Tuvaluan passport holders need an approved eVisa before travelling to Somalia. eVisaSomali helps applicants from Tuvalu complete the official Somalia eTAS application accurately, with specialist review before submission.",
+      `Tuvaluan passport holders need an approved eVisa before travelling to Somalia. ${SITE.brand} helps applicants from Tuvalu complete the official Somalia eTAS application accurately, with specialist review before submission.`,
     highlight:
       "Travellers from Tuvalu usually connect through the Gulf or Asia on the way to Somalia. Apply early and our specialists will make sure your eVisa is ready before you fly.",
   },

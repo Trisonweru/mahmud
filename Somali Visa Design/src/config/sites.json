@@ -1,0 +1,32 @@
+{
+  "evisasomali.com": {
+    "url": "https://www.evisasomali.com",
+    "host": "evisasomali.com",
+    "brand": "eVisaSomali",
+    "domain": "eVisaSomali.com",
+    "email": "support@evisasomali.com",
+    "refundsEmail": "refunds@evisasomali.com",
+    "googleVerificationFile": "googleea96b0f2199bc8a2.html",
+    "tawkWidget": "1jiqajdbf"
+  },
+  "evisasomalia.com": {
+    "url": "https://www.evisasomalia.com",
+    "host": "evisasomalia.com",
+    "brand": "EvisaSomalia",
+    "domain": "EvisaSomalia.com",
+    "email": "support@evisasomali.com",
+    "refundsEmail": "refunds@evisasomali.com",
+    "googleVerificationFile": null,
+    "tawkWidget": "1k75mi30m"
+  },
+  "somaliavisa.net": {
+    "url": "https://www.somaliavisa.net",
+    "host": "somaliavisa.net",
+    "brand": "SomaliaVisa",
+    "domain": "SomaliaVisa.net",
+    "email": "support@evisasomali.com",
+    "refundsEmail": "refunds@evisasomali.com",
+    "googleVerificationFile": null,
+    "tawkWidget": "1k75mj5cc"
+  }
+}
