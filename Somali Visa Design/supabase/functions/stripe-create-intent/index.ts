@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
 import { stripeRequest } from "../_shared/stripe.ts";
+import { siteConfig } from "../_shared/sites.ts";
 
 const REUSABLE_STATUSES = new Set(["requires_payment_method", "requires_confirmation", "requires_action"]);
 
@@ -20,7 +21,7 @@ serve(async (req) => {
 
     const { data: app, error } = await supabase
       .from("applications")
-      .select("id, fee, currency, email, paid, stripe_payment_intent_id")
+      .select("id, reference, fee, currency, email, paid, stripe_payment_intent_id, source_site")
       .eq("id", application_id)
       .single();
     if (error || !app) throw new Error("Application not found");
@@ -55,7 +56,13 @@ serve(async (req) => {
         amount: Math.round(Number(app.fee) * 100),
         currency,
         payment_method_types: ["card"],
-        metadata: { application_id: app.id, website: "evisasomali.com", service: "Somalia EVISA" },
+        description: `${siteConfig(app.source_site).brand} – Somalia eVisa ${app.reference}`,
+        metadata: {
+          application_id: app.id,
+          reference: app.reference,
+          website: siteConfig(app.source_site).key,
+          service: "Somalia EVISA",
+        },
       });
 
       await supabase

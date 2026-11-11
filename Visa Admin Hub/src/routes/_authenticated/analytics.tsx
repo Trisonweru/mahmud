@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { AccessDenied } from "@/components/admin/AccessDenied";
 import { PageShell, PageHeader } from "@/components/admin/PageShell";
 import type { Application } from "@/lib/applications";
+import { formatCurrencyTotals, sumByCurrency } from "@/lib/applications";
+import { SITES, type SiteFilterValue } from "@/lib/sites";
+import { SiteSelect } from "@/components/admin/SiteBadge";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
 export const Route = createFileRoute("/_authenticated/analytics")({
@@ -22,13 +25,43 @@ function AnalyticsContent() {
   useEffect(() => {
     supabase.from("applications").select("*").then(({ data }) => setApps((data ?? []) as Application[]));
   }, []);
-  const byNat = aggregate(apps, a => a.nationality).slice(0, 10);
-  const byPurpose = aggregate(apps, a => a.purpose).slice(0, 8);
+  const [site, setSite] = useState<SiteFilterValue>("all");
+  const scoped = useMemo(() => (site === "all" ? apps : apps.filter(a => a.source_site === site)), [apps, site]);
+  const byNat = aggregate(scoped, a => a.nationality).slice(0, 10);
+  const byPurpose = aggregate(scoped, a => a.purpose).slice(0, 8);
+  const bySite = SITES.map(s => {
+    const list = apps.filter(a => a.source_site === s.key);
+    const paid = list.filter(a => a.paid);
+    return { ...s, applications: list.length, paid: paid.length, revenue: sumByCurrency(paid, a => Number(a.fee), a => a.currency) };
+  });
 
   return (
     <PageShell>
       <PageHeader eyebrow="Insights" title="Analytics" />
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-6">
+        <Card title="By website">
+          <table className="w-full text-sm">
+            <thead className="border-b border-border text-[11px] uppercase tracking-wider text-muted-foreground">
+              <tr><th className="py-2 text-left">Website</th><th className="py-2 text-right">Applications</th><th className="py-2 text-right">Paid</th><th className="py-2 text-right">Gross revenue</th></tr>
+            </thead>
+            <tbody>
+              {bySite.map(s => (
+                <tr key={s.key} className="border-b border-border last:border-0">
+                  <td className="py-2">{s.label}</td>
+                  <td className="py-2 text-right">{s.applications}</td>
+                  <td className="py-2 text-right">{s.paid}</td>
+                  <td className="py-2 text-right">{formatCurrencyTotals(s.revenue)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      </div>
+      <div className="mt-6 flex items-center gap-3">
+        <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Charts for</span>
+        <SiteSelect value={site} onChange={setSite} />
+      </div>
+      <div className="mt-4 grid gap-6 lg:grid-cols-2">
         <Card title="Top nationalities">
           <div className="h-72"><ResponsiveContainer><BarChart data={byNat}><CartesianGrid strokeDasharray="3 3" stroke="oklch(0.9 0.01 260)" /><XAxis dataKey="name" fontSize={11} stroke="oklch(0.46 0.02 260)" /><YAxis fontSize={11} stroke="oklch(0.46 0.02 260)" /><Tooltip /><Bar dataKey="value" fill="oklch(0.34 0.07 260)" /></BarChart></ResponsiveContainer></div>
         </Card>

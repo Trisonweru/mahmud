@@ -7,13 +7,15 @@ import { AccessDenied } from "@/components/admin/AccessDenied";
 import { PageShell, PageHeader } from "@/components/admin/PageShell";
 import type { Application } from "@/lib/applications";
 import { formatCurrencyTotals } from "@/lib/applications";
+import { SiteBadge, SiteSelect } from "@/components/admin/SiteBadge";
+import type { SiteFilterValue } from "@/lib/sites";
 
 export const Route = createFileRoute("/_authenticated/customers")({
   head: () => ({ meta: [{ title: "Customers — Admin" }] }),
   component: CustomersPage,
 });
 
-interface Customer { name: string; email: string; nationality: string; applications: number; totalSpentByCurrency: Record<string, number>; totalSpentSortKey: number; lastActivity: string; }
+interface Customer { name: string; email: string; nationality: string; applications: number; totalSpentByCurrency: Record<string, number>; totalSpentSortKey: number; lastActivity: string; sites: string[]; }
 type SortKey = "lastActivity" | "totalSpent" | "applications" | "name";
 
 function CustomersPage() {
@@ -26,6 +28,7 @@ function CustomersContent() {
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [nationality, setNationality] = useState("");
+  const [site, setSite] = useState<SiteFilterValue>("all");
   const [sortBy, setSortBy] = useState<SortKey>("lastActivity");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
@@ -34,7 +37,8 @@ function CustomersContent() {
       const apps = (data ?? []) as Application[];
       const map = new Map<string, Customer>();
       apps.forEach(a => {
-        const c = map.get(a.email) ?? { name: a.full_name, email: a.email, nationality: a.nationality, applications: 0, totalSpentByCurrency: {}, totalSpentSortKey: 0, lastActivity: a.submitted_at };
+        const c = map.get(a.email) ?? { name: a.full_name, email: a.email, nationality: a.nationality, applications: 0, totalSpentByCurrency: {}, totalSpentSortKey: 0, lastActivity: a.submitted_at, sites: [] };
+        if (!c.sites.includes(a.source_site)) c.sites.push(a.source_site);
         c.applications++;
         if (a.paid) {
           c.totalSpentByCurrency[a.currency] = (c.totalSpentByCurrency[a.currency] ?? 0) + Number(a.fee);
@@ -59,6 +63,7 @@ function CustomersContent() {
   const filtered = useMemo(() => {
     let list = customers.filter(c =>
       (nationality === "" || c.nationality === nationality) &&
+      (site === "all" || c.sites.includes(site)) &&
       (q === "" || `${c.name} ${c.email} ${c.nationality}`.toLowerCase().includes(q.toLowerCase()))
     );
     list = [...list].sort((a, b) => {
@@ -70,10 +75,10 @@ function CustomersContent() {
       return sortDir === "desc" ? -cmp : cmp;
     });
     return list;
-  }, [customers, q, nationality, sortBy, sortDir]);
+  }, [customers, q, nationality, site, sortBy, sortDir]);
 
-  const hasFilters = q !== "" || nationality !== "";
-  const clearFilters = () => { setQ(""); setNationality(""); };
+  const hasFilters = q !== "" || nationality !== "" || site !== "all";
+  const clearFilters = () => { setQ(""); setNationality(""); setSite("all"); };
 
   const SortTh = ({ col, label }: { col: SortKey; label: string }) => (
     <th
@@ -102,6 +107,7 @@ function CustomersContent() {
             <option value="">All nationalities</option>
             {nationalities.map(n => <option key={n} value={n}>{n}</option>)}
           </select>
+          <SiteSelect value={site} onChange={setSite} />
           {hasFilters && (
             <button onClick={clearFilters} className="inline-flex items-center gap-1 rounded-sm border border-border px-2.5 py-1 text-[11px] uppercase tracking-wider text-muted-foreground hover:border-destructive hover:text-destructive">
               <X className="h-3 w-3" /> Clear
@@ -127,7 +133,10 @@ function CustomersContent() {
             {!loading && filtered.length === 0 && <tr><td colSpan={6} className="px-6 py-10 text-center text-sm text-muted-foreground">No customers match your filters.</td></tr>}
             {filtered.map(c => (
               <tr key={c.email} className="border-b border-border last:border-0 hover:bg-secondary/40">
-                <td className="max-w-[160px] truncate px-6 py-4 text-foreground">{c.name}</td>
+                <td className="max-w-[200px] px-6 py-4 text-foreground">
+                  <div className="truncate">{c.name}</div>
+                  <div className="mt-1 flex flex-wrap gap-1">{c.sites.map(s => <SiteBadge key={s} site={s} />)}</div>
+                </td>
                 <td className="max-w-[200px] truncate px-6 py-4 text-muted-foreground">{c.email}</td>
                 <td className="px-6 py-4 text-muted-foreground">{c.nationality}</td>
                 <td className="px-6 py-4">{c.applications}</td>

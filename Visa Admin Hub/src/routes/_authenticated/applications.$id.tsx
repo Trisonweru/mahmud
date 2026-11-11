@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DocumentsList } from "@/components/admin/DocumentsList";
 import { ALL_STATUSES, formatMoney, INFO_SOURCE_NOTE_PREFIX, INFO_SOURCES, isPlaceholderDob, isPlaceholderNationality, isRefundedOrDenied, processingLabel, statusLabels, waLink, type AppNote, type AppStatus, type Application, type InfoSource } from "@/lib/applications";
+import { siteInfo } from "@/lib/sites";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { processStripeRefund } from "@/lib/payments.functions";
@@ -296,6 +297,7 @@ function ApplicationDetail() {
           )}
 
           <Section title="Personal information" icon={User}>
+            <Field label="Submitted on website" value={siteInfo(app.source_site).label} />
             <Field label={app.type === "express" ? "Name (from passport)" : "Full legal name"} value={app.full_name} />
             <Field label="Date of birth" value={isPlaceholderDob(app) ? "Not provided — see passport" : new Date(app.dob).toLocaleDateString()} />
             <Field label="Nationality" value={isPlaceholderNationality(app) ? "Not provided — see passport" : app.nationality} />

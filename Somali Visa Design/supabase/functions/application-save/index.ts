@@ -1,21 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const ALLOWED_ORIGINS = new Set([
-  "https://evisasomali.com",
-  "https://www.evisasomali.com",
-  "http://localhost:8080",
-]);
-
-function corsHeaders(req: Request): Record<string, string> {
-  const origin = req.headers.get("origin") ?? "";
-  const allowed = ALLOWED_ORIGINS.has(origin) ? origin : "https://www.evisasomali.com";
-  return {
-    "Access-Control-Allow-Origin": allowed,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Vary": "Origin",
-  };
-}
+import { corsHeaders } from "../_shared/cors.ts";
+import { siteFromOrigin } from "../_shared/sites.ts";
 
 type DocType = "passport" | "photo" | "ticket" | "sponsor" | "other";
 
@@ -111,6 +97,9 @@ serve(async (req) => {
       fee,
       currency,
       status: "pending_payment" as const,
+      // Which public website the applicant used — derived from the browser Origin,
+      // never from a form field.
+      source_site: siteFromOrigin(req.headers.get("origin")),
     };
 
     const { data: inserted, error: dbError } = await supabase

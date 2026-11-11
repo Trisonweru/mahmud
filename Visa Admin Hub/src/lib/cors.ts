@@ -1,6 +1,11 @@
+// Every public website served by this backend (see src/lib/sites.ts).
 const ALLOWED_ORIGINS = [
   "https://www.evisasomali.com",
   "https://evisasomali.com",
+  "https://www.evisasomalia.com",
+  "https://evisasomalia.com",
+  "https://www.somaliavisa.net",
+  "https://somaliavisa.net",
 ];
 
 export function corsHeaders(origin: string | null) {

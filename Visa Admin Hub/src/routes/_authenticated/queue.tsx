@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, Check, Clock, Download, Copy, Eye, Loader2, Lock, Search, ShieldAlert, X, FolderOpen, Folder, XCircle, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { SiteBadge, SiteSelect } from "@/components/admin/SiteBadge";
+import type { SiteFilterValue } from "@/lib/sites";
 import { sendRejectionEmail } from "@/lib/emails";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -35,6 +37,7 @@ function QueuePage() {
   const [q, setQ] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "standard" | "express">("all");
   const [overdueOnly, setOverdueOnly] = useState(false);
+  const [site, setSite] = useState<SiteFilterValue>("all");
   const [rejectingId, setRejectingId] = useState<string | null>(null);
 
   // 20-minute countdown for the active claim
@@ -118,12 +121,13 @@ function QueuePage() {
     return (
       (typeFilter === "all" || a.processing_speed === typeFilter) &&
       (!overdueOnly || h >= 24) &&
+      (site === "all" || a.source_site === site) &&
       (q === "" || `${a.full_name} ${a.reference} ${a.email} ${a.nationality} ${a.passport_number}`.toLowerCase().includes(q.toLowerCase()))
     );
-  }), [apps, typeFilter, overdueOnly, q]);
+  }), [apps, typeFilter, overdueOnly, site, q]);
 
-  const hasFilters = q !== "" || typeFilter !== "all" || overdueOnly;
-  const clearFilters = () => { setQ(""); setTypeFilter("all"); setOverdueOnly(false); };
+  const hasFilters = q !== "" || typeFilter !== "all" || overdueOnly || site !== "all";
+  const clearFilters = () => { setQ(""); setTypeFilter("all"); setOverdueOnly(false); setSite("all"); };
 
   // Atomically claim the application and open the sheet.
   // Uses a conditional UPDATE — if the row is already claimed by another officer
@@ -315,6 +319,7 @@ function QueuePage() {
             <option value="standard">Standard</option>
             <option value="express">Express</option>
           </select>
+          <SiteSelect value={site} onChange={setSite} />
           <label className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground">
             <input type="checkbox" checked={overdueOnly} onChange={(e) => setOverdueOnly(e.target.checked)} className="rounded border-input" />
             Overdue only (&gt;24h)
@@ -365,6 +370,7 @@ function QueuePage() {
                       <Lock className="h-3 w-3" /> Claimed by you
                     </span>
                   )}
+                  <SiteBadge site={a.source_site} />
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{a.type === "express" ? "Quick-apply" : "Guided form"}</span>
                   <span className={`rounded-sm px-2 py-0.5 text-[10px] uppercase tracking-wider font-semibold ${a.processing_speed === "express" ? "bg-accent/15 text-accent" : "bg-secondary text-foreground"}`}>
                     {a.processing_speed === "express" ? "Express" : "Standard"} · {formatMoney(Number(a.fee), a.currency)}

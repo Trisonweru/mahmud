@@ -1,8 +1,10 @@
-const SITE_URL = "https://www.evisasomali.com";
+import { siteConfig } from "./sites.ts";
+
 const BRAND_GOLD = "#c9a227";
 const BRAND_NAVY = "#0b1f3a";
 
-function wrapper(bodyHtml: string): string {
+function wrapper(bodyHtml: string, site?: string | null): string {
+  const brand = siteConfig(site).brand;
   return `
 <!DOCTYPE html>
 <html>
@@ -13,7 +15,7 @@ function wrapper(bodyHtml: string): string {
           <table role="presentation" width="100%" style="max-width:520px;background:#ffffff;border-radius:4px;overflow:hidden;">
             <tr>
               <td style="background:${BRAND_NAVY};padding:24px 32px;">
-                <span style="color:#ffffff;font-size:18px;font-weight:600;letter-spacing:0.02em;">eVisaSomalia</span>
+                <span style="color:#ffffff;font-size:18px;font-weight:600;letter-spacing:0.02em;">${escapeHtml(brand)}</span>
               </td>
             </tr>
             <tr>
@@ -45,8 +47,8 @@ function referenceBlock(reference: string, processingSpeed?: string | null): str
     </p>`;
 }
 
-export function applicationReceivedEmail(params: { fullName: string; reference: string; processingSpeed: string | null }): string {
-  const statusUrl = `${SITE_URL}/status?ref=${encodeURIComponent(params.reference)}`;
+export function applicationReceivedEmail(params: { site?: string | null; fullName: string; reference: string; processingSpeed: string | null }): string {
+  const statusUrl = `${siteConfig(params.site).url}/status?ref=${encodeURIComponent(params.reference)}`;
   return wrapper(`
     <h1 style="margin:0 0 16px;font-size:20px;color:${BRAND_NAVY};">Application received</h1>
     <p style="margin:0 0 16px;">Hi ${escapeHtml(params.fullName || "there")},</p>
@@ -66,11 +68,11 @@ export function applicationReceivedEmail(params: { fullName: string; reference: 
     <p style="margin:0;color:#6b7280;">
       Please keep your reference number — you'll need it to track your application or contact us.
     </p>
-  `);
+  `, params.site);
 }
 
-export function applicationRejectedEmail(params: { fullName: string; reference: string; refundRequested: boolean }): string {
-  const statusUrl = `${SITE_URL}/status?ref=${encodeURIComponent(params.reference)}`;
+export function applicationRejectedEmail(params: { site?: string | null; fullName: string; reference: string; refundRequested: boolean }): string {
+  const statusUrl = `${siteConfig(params.site).url}/status?ref=${encodeURIComponent(params.reference)}`;
   const refundLine = params.refundRequested
     ? `<p style="margin:0 0 20px;">A refund of your payment has been requested. You'll receive a separate email once it has been issued; please allow a few business days for it to appear on your statement.</p>`
     : "";
@@ -91,11 +93,11 @@ export function applicationRejectedEmail(params: { fullName: string; reference: 
     <p style="margin:0;color:#6b7280;">
       If you have any questions about this decision, just reply to this email or reach us on WhatsApp.
     </p>
-  `);
+  `, params.site);
 }
 
-export function paymentConfirmationEmail(params: { fullName: string; reference: string; processingSpeed?: string | null }): string {
-  const statusUrl = `${SITE_URL}/status?ref=${encodeURIComponent(params.reference)}`;
+export function paymentConfirmationEmail(params: { site?: string | null; fullName: string; reference: string; processingSpeed?: string | null }): string {
+  const statusUrl = `${siteConfig(params.site).url}/status?ref=${encodeURIComponent(params.reference)}`;
   return wrapper(`
     <h1 style="margin:0 0 16px;font-size:20px;color:${BRAND_NAVY};">Payment confirmed</h1>
     <p style="margin:0 0 16px;">Hi ${escapeHtml(params.fullName || "there")},</p>
@@ -116,11 +118,11 @@ export function paymentConfirmationEmail(params: { fullName: string; reference: 
     <p style="margin:0;color:#6b7280;">
       We'll also send updates by WhatsApp and email as your application progresses.
     </p>
-  `);
+  `, params.site);
 }
 
-export function refundConfirmationEmail(params: { fullName: string; reference: string }): string {
-  const statusUrl = `${SITE_URL}/status?ref=${encodeURIComponent(params.reference)}`;
+export function refundConfirmationEmail(params: { site?: string | null; fullName: string; reference: string }): string {
+  const statusUrl = `${siteConfig(params.site).url}/status?ref=${encodeURIComponent(params.reference)}`;
   return wrapper(`
     <h1 style="margin:0 0 16px;font-size:20px;color:${BRAND_NAVY};">Refund initiated</h1>
     <p style="margin:0 0 16px;">Hi ${escapeHtml(params.fullName || "there")},</p>
@@ -142,7 +144,7 @@ export function refundConfirmationEmail(params: { fullName: string; reference: s
     <p style="margin:0;color:#6b7280;">
       If you have any questions about this refund, just reply to this email or reach us on WhatsApp.
     </p>
-  `);
+  `, params.site);
 }
 
 function escapeHtml(s: string): string {

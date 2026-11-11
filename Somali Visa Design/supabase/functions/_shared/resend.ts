@@ -10,6 +10,7 @@ export async function sendEmail(params: {
   subject: string;
   html: string;
   from?: string;
+  replyTo?: string;
 }): Promise<boolean> {
   if (!RESEND_API_KEY) {
     console.error("[resend] RESEND_API_KEY not configured — skipping email send.");
@@ -27,6 +28,7 @@ export async function sendEmail(params: {
         to: params.to,
         subject: params.subject,
         html: params.html,
+        ...(params.replyTo ? { reply_to: params.replyTo } : {}),
       }),
     });
     if (!res.ok) {

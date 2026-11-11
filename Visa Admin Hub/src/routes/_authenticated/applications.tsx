@@ -3,6 +3,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search, Download, Loader2, Eye, Copy, ChevronDown, ChevronRight, X, RotateCcw, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PaymentRef } from "@/components/admin/PaymentRef";
+import { SiteBadge, SiteSelect } from "@/components/admin/SiteBadge";
+import { siteInfo, type SiteFilterValue } from "@/lib/sites";
 import { DateRangeFilter } from "@/components/admin/DateRangePresets";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ALL_STATUSES, formatMoney, isPlaceholderDob, isPlaceholderNationality, isRefundedOrDenied, statusLabels, docTypeLabels, waLink, type AppDocument, type AppStatus, type Application, type DocType } from "@/lib/applications";
@@ -45,6 +47,7 @@ function ApplicationsPage() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [nationality, setNationality] = useState("");
+  const [site, setSite] = useState<SiteFilterValue>("all");
   const [viewing, setViewing] = useState<Application | null>(null);
   const [openMonths, setOpenMonths] = useState<Record<string, boolean>>({});
 
@@ -129,15 +132,16 @@ function ApplicationsPage() {
       (status === "all" || a.status === status) &&
       (type === "all" || a.processing_speed === type) &&
       (nationality === "" || a.nationality === nationality) &&
+      (site === "all" || a.source_site === site) &&
       (dateFrom === "" || submittedDate >= dateFrom) &&
       (dateTo === "" || submittedDate <= dateTo) &&
       (q === "" || `${a.full_name} ${a.reference} ${a.email} ${a.nationality} ${a.passport_number}`.toLowerCase().includes(q.toLowerCase()))
     );
-  }), [apps, status, type, nationality, dateFrom, dateTo, q]);
+  }), [apps, status, type, nationality, site, dateFrom, dateTo, q]);
 
   const DEFAULT_STATUS = "submitted";
-  const hasFilters = status !== DEFAULT_STATUS || type !== "all" || nationality !== "" || dateFrom !== "" || dateTo !== "" || q !== "";
-  const clearFilters = () => { setStatus(DEFAULT_STATUS); setType("all"); setNationality(""); setDateFrom(""); setDateTo(""); setQ(""); };
+  const hasFilters = status !== DEFAULT_STATUS || type !== "all" || nationality !== "" || site !== "all" || dateFrom !== "" || dateTo !== "" || q !== "";
+  const clearFilters = () => { setStatus(DEFAULT_STATUS); setType("all"); setNationality(""); setSite("all"); setDateFrom(""); setDateTo(""); setQ(""); };
 
   const grouped = useMemo(() => {
     const map = new Map<string, { key: string; label: string; items: Application[] }>();
@@ -191,6 +195,7 @@ function ApplicationsPage() {
             <option value="">All nationalities</option>
             {nationalities.map(n => <option key={n} value={n}>{n}</option>)}
           </select>
+          <SiteSelect value={site} onChange={setSite} />
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -240,6 +245,7 @@ function ApplicationsPage() {
                       </div>
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                      <SiteBadge site={a.source_site} />
                       <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{a.type === "express" ? "Quick-apply" : "Guided form"}</span>
                       <span className={`rounded-sm px-2 py-0.5 text-[10px] uppercase tracking-wider font-semibold ${a.processing_speed === "express" ? "bg-accent/15 text-accent" : "bg-secondary text-foreground"}`}>
                         {a.processing_speed === "express" ? "Express" : "Standard"}
@@ -374,6 +380,7 @@ function ApplicationsPage() {
                   ) : (
                     <DetailRow label="Date of birth" value={new Date(viewing.dob).toLocaleDateString()} onCopy={copy} />
                   )}
+                  <DetailRow label="Website" value={siteInfo(viewing.source_site).label} />
                   {isPlaceholderNationality(viewing) ? (
                     <DetailRow label="Nationality" value="Not provided — see passport" />
                   ) : (
