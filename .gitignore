@@ -51,3 +51,6 @@ email-previews/
 
 # Per-site public builds
 dist-sites/
+
+# Client quotations / requirements — keep out of the public repo
+docs/
