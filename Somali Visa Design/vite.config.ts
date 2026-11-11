@@ -5,6 +5,18 @@ import { componentTagger } from "lovable-tagger";
 import { readFile, writeFile, rm } from "node:fs/promises";
 import { SITE, SITE_KEY, DEFAULT, DEFAULT_SITE, OUT_DIR } from "./scripts/site.mjs";
 
+// Fonts and browser theme colour for sites with their own look (see src/sites/themes.css).
+const SITE_THEMES: Record<string, { fonts: string; color: string }> = {
+  "evisasomalia.com": {
+    fonts: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap",
+    color: "#0b3b40",
+  },
+  "somaliavisa.net": {
+    fonts: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap",
+    color: "#093a73",
+  },
+};
+
 // Rewrites evisasomali.com identity in index.html and static public files for the
 // site being built (VITE_SITE). Building evisasomali.com itself changes nothing.
 function siteIdentity() {
@@ -18,12 +30,22 @@ function siteIdentity() {
       .split(`/${DEFAULT.tawkWidget}'`).join(`/${SITE.tawkWidget}'`);
   return {
     name: "site-identity",
-    transformIndexHtml: (html: string) => swap(html),
+    transformIndexHtml: (html: string) => {
+      const out = swap(html);
+      const theme = SITE_THEMES[SITE_KEY];
+      if (!theme) return out;
+      // Per-site palette and fonts (src/sites/themes.css keys off data-site).
+      return out
+        .replace("<html lang=\"en\">", `<html lang="en" data-site="${SITE_KEY}">`)
+        .replace("</head>", `  <link rel="stylesheet" href="${theme.fonts}" />\n  </head>`);
+    },
     async closeBundle() {
       if (SITE_KEY === DEFAULT_SITE) return;
       for (const f of ["robots.txt", "site.webmanifest"]) {
         const file = path.join(OUT_DIR, f);
-        await writeFile(file, swap(await readFile(file, "utf8")));
+        let text = swap(await readFile(file, "utf8"));
+        if (f === "site.webmanifest" && SITE_THEMES[SITE_KEY]) text = text.replace("#0a0f1e", SITE_THEMES[SITE_KEY].color);
+        await writeFile(file, text);
       }
       if (DEFAULT.googleVerificationFile) await rm(path.join(OUT_DIR, DEFAULT.googleVerificationFile), { force: true });
     },
@@ -58,6 +80,8 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Per-site copy (src/sites/<domain>.ts); only the site being built is bundled.
+      "@site-content": path.resolve(__dirname, `./src/sites/${SITE_KEY}.ts`),
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
   },

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { Fragment, useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { PageSEO } from "@/components/PageSEO";
 import { SectionHeading } from "@/components/SectionHeading";
@@ -14,6 +14,10 @@ import { fileSizeError, monthsBetween } from "@/lib/validation";
 import { extractPassport, hasExtractedData, matchNationality, UnsupportedImageError } from "@/lib/passportOcr";
 import { PRICING_TIERS, AJNABI_OPTION, formatCheckoutTotal, getCheckoutTotal, type ProcessingSpeed } from "@/lib/pricing";
 import { SITE } from "@/config/site";
+import content from "@site-content";
+import type { HomeSection } from "@/sites/types";
+
+const home = content.home;
 import {
   ArrowRight, ShieldCheck, Clock4, FileCheck2, Headphones, Lock, Sparkles,
   CheckCircle2, FileText, BadgeCheck, Plane, UploadCloud, Zap, PenLine,
@@ -26,6 +30,144 @@ const sixMonthsFromNowISO = () => {
   const d = new Date();
   d.setMonth(d.getMonth() + 6);
   return d.toISOString().slice(0, 10);
+};
+
+/** Marketing sections below the application cards; each site sets its own order and copy. */
+const renderSection = (key: HomeSection) => {
+  switch (key) {
+    case "pricing":
+      return (
+        <section className="container py-20">
+          <SectionHeading
+            eyebrow={home.pricing.eyebrow}
+            title={home.pricing.title}
+            description={home.pricing.description}
+          />
+          <div className="mt-12 grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            <div className="bg-card border border-border rounded-sm p-8 md:p-10 text-center shadow-card">
+              <div className="text-[10px] uppercase tracking-[0.2em] text-accent font-semibold">Option 1 · Standard</div>
+              <div className="mt-3 font-serif text-4xl md:text-5xl font-bold bg-gradient-gold bg-clip-text text-transparent">
+                {formatCheckoutTotal(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                {home.pricing.standardBody(PRICING_TIERS.standard.processingTime)}
+              </p>
+            </div>
+            <div className="bg-card border border-accent rounded-sm p-8 md:p-10 text-center shadow-elegant">
+              <div className="text-[10px] uppercase tracking-[0.2em] text-accent font-semibold">Option 2 · Express</div>
+              <div className="mt-3 font-serif text-4xl md:text-5xl font-bold bg-gradient-gold bg-clip-text text-transparent">
+                {formatCheckoutTotal(PRICING_TIERS.express.fee, PRICING_TIERS.express.currency)}
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                {home.pricing.expressBody(PRICING_TIERS.express.processingTime)}
+              </p>
+            </div>
+          </div>
+          <p className="mt-6 max-w-2xl mx-auto text-center text-sm text-muted-foreground leading-relaxed">
+            {home.pricing.ajnabiNote(formatCheckoutTotal(AJNABI_OPTION.fee, AJNABI_OPTION.currency), AJNABI_OPTION.processingTime)}
+          </p>
+        </section>
+      );
+    case "how":
+      return (
+        <section className="container py-20">
+          <SectionHeading eyebrow={home.how.eyebrow} title={home.how.title} description={home.how.description} />
+          <div className="mt-12 grid md:grid-cols-3 gap-6">
+            {home.how.steps.map((c, i) => {
+              const Icon = [UploadCloud, PenLine, BadgeCheck][i] ?? BadgeCheck;
+              return (
+                <div key={c.title} className="bg-card border border-border rounded-sm p-8 shadow-card hover:shadow-elegant transition-smooth">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-accent-soft text-primary">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-6 font-serif text-2xl text-primary">{c.title}</h3>
+                  <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{c.body}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      );
+    case "why":
+      return (
+        <section className="container py-20 grid lg:grid-cols-2 gap-16 items-center">
+          <div className="relative">
+            <img
+              src={passportImg}
+              alt={home.why.imageAlt}
+              className="rounded-sm shadow-elegant w-full object-cover aspect-[4/5]"
+              loading="lazy"
+              width={1280}
+              height={1280}
+            />
+            <div className="absolute -bottom-6 -right-6 hidden md:block bg-gradient-navy text-primary-foreground p-6 rounded-sm shadow-elegant max-w-[220px]">
+              <div className="font-serif text-4xl text-accent">{home.why.stat}</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-primary-foreground/70 mt-1">
+                {home.why.statLabel}
+              </div>
+            </div>
+          </div>
+          <div>
+            <SectionHeading align="left" eyebrow={home.why.eyebrow} title={home.why.title} description={home.why.description} />
+            <ul className="mt-10 space-y-5">
+              {home.why.points.map((t) => (
+                <li key={t} className="flex items-start gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-accent mt-0.5 shrink-0" />
+                  <span className="text-foreground/85">{t}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      );
+    case "services":
+      return (
+        <section className="bg-secondary/60 py-20">
+          <div className="container">
+            <SectionHeading
+              eyebrow={home.services.eyebrow}
+              title={home.services.title}
+              description={home.services.description}
+            />
+            <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-border rounded-sm overflow-hidden shadow-card">
+              {home.services.items.map((s, i) => {
+                const Icon = [FileCheck2, Sparkles, Clock4, Headphones, Lock, Plane][i] ?? Sparkles;
+                return (
+                  <div key={s.title} className="bg-card p-10 hover:bg-secondary/40 transition-smooth">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-gradient-navy text-accent">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <h3 className="mt-6 font-serif text-xl text-primary">{s.title}</h3>
+                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{s.body}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      );
+    case "cta":
+      return (
+        <section className="container pb-20">
+          <div className="rounded-sm bg-primary text-primary-foreground p-12 md:p-16 text-center shadow-elegant relative overflow-hidden">
+            <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 20% 30%, hsl(var(--accent)/0.4), transparent 50%)" }} />
+            <div className="relative">
+              <span className="gold-divider mx-auto" />
+              <h2 className="mt-6 font-serif text-4xl md:text-5xl">{home.cta.title}</h2>
+              <p className="mt-3 font-serif italic text-xl text-primary-foreground/80">{home.cta.somali}</p>
+              <p className="mt-4 text-primary-foreground/70 max-w-xl mx-auto">{home.cta.body}</p>
+              <a
+                href="#top"
+                onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                className="mt-10 inline-flex items-center gap-2 rounded-sm bg-gradient-gold px-8 py-4 text-sm font-medium text-accent-foreground shadow-gold hover:shadow-elegant transition-smooth"
+              >
+                {home.cta.button} <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        </section>
+      );
+  }
 };
 
 const Index = () => {
@@ -176,7 +318,7 @@ const Index = () => {
     {
       "@type": "Service",
       "name": "Somalia eVisa Application Service",
-      "description": "Apply for your Somalia eVisa online. Upload your passport and photo — our specialists prepare and submit your application in 60 seconds.",
+      "description": home.serviceDescription,
       "provider": { "@id": `${SITE.url}/#org` },
       "areaServed": { "@type": "Country", "name": "Somalia" },
       "serviceType": "Visa Application Assistance",
@@ -187,8 +329,8 @@ const Index = () => {
   return (
     <>
       <PageSEO
-        title={`Apply for Somalia eVisa Online | Fast & Secure | ${SITE.brand}`}
-        description={`Get your Somalia eVisa in 60 seconds. Upload your passport and photo — our specialists handle the rest. From ${formatCheckoutTotal(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}, with 5-6hr Express available. WhatsApp updates. 24/7 support.`}
+        title={home.seoTitle}
+        description={home.seoDescription}
         canonical={`${SITE.url}/`}
         jsonLd={homepageJsonLd}
       />
@@ -198,7 +340,7 @@ const Index = () => {
         <div className="relative isolate overflow-hidden">
           <img
             src={heroImg}
-            alt="Somalia eVisa online application — passport and airplane ready for travel"
+            alt={home.heroImageAlt}
             className="absolute inset-0 h-full w-full object-cover"
             width={1920}
             height={1080}
@@ -207,20 +349,20 @@ const Index = () => {
           />
           <div className="absolute inset-0 bg-gradient-hero" />
           <div className="relative container py-14 md:py-20">
-            <div className="text-center max-w-3xl mx-auto text-primary-foreground">
+            <div className={home.heroAlign === "left" ? "text-left max-w-3xl text-primary-foreground" : "text-center max-w-3xl mx-auto text-primary-foreground"}>
               <div className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/40 bg-primary-foreground/10 px-4 py-1.5 text-xs tracking-[0.15em] text-primary-foreground backdrop-blur">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
-                Somalia eVisa Application · Apply Online
+                {home.heroBadge}
               </div>
               <h1 className="mt-6 font-serif text-4xl md:text-6xl font-bold leading-[1.05]">
-                Choose your <span className="text-primary-foreground">application</span> type
+                {home.heroTitle.before}<span className="text-primary-foreground">{home.heroTitle.highlight}</span>{home.heroTitle.after}
               </h1>
               <p className="mt-3 font-serif font-semibold text-xl md:text-2xl text-primary-foreground/95">
-                Dooro nooca codsigaaga
+                {home.heroSomali}
               </p>
               <p className="mt-5 text-base text-primary-foreground/95">
-                Three clear options — pick the one that matches you, then continue. ·
-                <span> Saddex ikhtiyaar oo cad — dooro tan kugu habboon.</span>
+                {home.heroSub}
+                <span>{home.heroSubSomali}</span>
               </p>
             </div>
           </div>
@@ -250,24 +392,19 @@ const Index = () => {
                 <Users className="h-5 w-5" />
               </div>
               <div className="mt-5 text-[10px] uppercase tracking-[0.25em] text-accent font-semibold">
-                Diaspora Service · Adeeg Qurba-Joog
+                {home.cards.standard.kicker}
               </div>
               <h2 className="mt-2 font-serif text-2xl font-semibold text-primary leading-tight">
-                I am a Foreigner (Qurba-Joog)
+                {home.cards.standard.title}
               </h2>
               <p className="mt-1 font-serif italic text-base font-medium text-primary">
-                Waxaan ahay Qurba-Joog
+                {home.cards.standard.somali}
               </p>
               <p className="mt-3 text-sm text-foreground leading-relaxed">
-                Diaspora travellers holding a foreign passport. Apply in under 60 seconds by uploading your passport and photo, then providing a few essential details. {formatCheckoutTotal(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}, {PRICING_TIERS.standard.processingTime}.
+                {home.cards.standard.body}
               </p>
               <ul className="mt-5 space-y-2 text-sm text-foreground">
-                {[
-                  "Fast 60-second application",
-                  "Simple document upload",
-                  "Minimal information required",
-                  "Updates via WhatsApp & email",
-                ].map((t) => (
+                {home.cards.standard.bullets.map((t) => (
                   <li key={t} className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-accent mt-0.5" /> {t}
                   </li>
@@ -281,7 +418,7 @@ const Index = () => {
                   </div>
                 </div>
                 <span className="inline-flex items-center gap-2 rounded-sm bg-gradient-gold px-5 py-3 text-sm font-semibold text-accent-foreground shadow-gold group-hover:shadow-elegant transition-smooth">
-                  Use Standard <ArrowRight className="h-4 w-4" />
+                  {home.cards.standard.button} <ArrowRight className="h-4 w-4" />
                 </span>
               </div>
             </button>
@@ -305,24 +442,19 @@ const Index = () => {
                 <Zap className="h-5 w-5" />
               </div>
               <div className="mt-5 text-[10px] uppercase tracking-[0.25em] text-accent font-semibold">
-                Rush Service · Adeeg Degdeg ah
+                {home.cards.express.kicker}
               </div>
               <h2 className="mt-2 font-serif text-2xl font-semibold text-primary leading-tight">
-                I need it Fast (Express)
+                {home.cards.express.title}
               </h2>
               <p className="mt-1 font-serif italic text-base font-medium text-primary">
-                Waan degdegsanahay
+                {home.cards.express.somali}
               </p>
               <p className="mt-3 text-sm text-foreground leading-relaxed">
-                Same simple application as Standard, prioritized for rush processing. {formatCheckoutTotal(PRICING_TIERS.express.fee, PRICING_TIERS.express.currency)}, {PRICING_TIERS.express.processingTime}.
+                {home.cards.express.body}
               </p>
               <ul className="mt-5 space-y-2 text-sm text-foreground">
-                {[
-                  "Priority rush processing",
-                  "5–6 hour turnaround",
-                  "Simple document upload",
-                  "Updates via WhatsApp & email",
-                ].map((t) => (
+                {home.cards.express.bullets.map((t) => (
                   <li key={t} className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-accent mt-0.5" /> {t}
                   </li>
@@ -336,7 +468,7 @@ const Index = () => {
                   </div>
                 </div>
                 <span className="inline-flex items-center gap-2 rounded-sm bg-gradient-gold px-5 py-3 text-sm font-semibold text-accent-foreground shadow-gold group-hover:shadow-elegant transition-smooth">
-                  Use Express <ArrowRight className="h-4 w-4" />
+                  {home.cards.express.button} <ArrowRight className="h-4 w-4" />
                 </span>
               </div>
             </button>
@@ -353,22 +485,16 @@ const Index = () => {
                 <Globe2 className="h-5 w-5" />
               </div>
               <h2 className="mt-6 font-serif text-2xl font-semibold text-primary leading-tight">
-                Non Somali Applicants
+                {home.cards.ajnabi.title}
               </h2>
               <p className="mt-1 font-serif italic text-base font-medium text-primary">
-                Waxaan ahay Ajnabi
+                {home.cards.ajnabi.somali}
               </p>
               <p className="mt-3 text-sm text-foreground leading-relaxed">
-                Travellers holding a foreign passport. A local sponsor is required, so you'll
-                complete the official application yourself with our step-by-step guidance. {formatCheckoutTotal(AJNABI_OPTION.fee, AJNABI_OPTION.currency)}, {AJNABI_OPTION.processingTime}.
+                {home.cards.ajnabi.body}
               </p>
               <ul className="mt-5 space-y-2 text-sm text-foreground">
-                {[
-                  "Sponsor details required",
-                  "Guided form",
-                  "Same official eVisa",
-                ].map((t) => (
-
+                {home.cards.ajnabi.bullets.map((t) => (
                   <li key={t} className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-accent mt-0.5" /> {t}
                   </li>
@@ -382,7 +508,7 @@ const Index = () => {
                   </div>
                 </div>
                 <span className="inline-flex items-center gap-2 rounded-sm bg-gradient-navy px-5 py-3 text-sm font-semibold text-primary-foreground shadow-card group-hover:shadow-elegant transition-smooth">
-                  Start Form <ArrowRight className="h-4 w-4 text-accent" />
+                  {home.cards.ajnabi.button} <ArrowRight className="h-4 w-4 text-accent" />
                 </span>
               </div>
             </Link>
@@ -560,157 +686,9 @@ const Index = () => {
         </div>
       </section>
 
-      {/* TRANSPARENT PRICING */}
-      <section className="container py-20">
-        <SectionHeading
-          eyebrow="Pricing"
-          title="Transparent Pricing"
-          description="No hidden fees. Choose the processing speed that suits your travel plans."
-        />
-        <div className="mt-12 grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
-          <div className="bg-card border border-border rounded-sm p-8 md:p-10 text-center shadow-card">
-            <div className="text-[10px] uppercase tracking-[0.2em] text-accent font-semibold">Option 1 · Standard</div>
-            <div className="mt-3 font-serif text-4xl md:text-5xl font-bold bg-gradient-gold bg-clip-text text-transparent">
-              {formatCheckoutTotal(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}
-            </div>
-            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-              {PRICING_TIERS.standard.processingTime} processing. All-inclusive — covers specialist
-              application assistance, document review, and submission through the official Somalia
-              eTAS portal.
-            </p>
-          </div>
-          <div className="bg-card border border-accent rounded-sm p-8 md:p-10 text-center shadow-elegant">
-            <div className="text-[10px] uppercase tracking-[0.2em] text-accent font-semibold">Option 2 · Express</div>
-            <div className="mt-3 font-serif text-4xl md:text-5xl font-bold bg-gradient-gold bg-clip-text text-transparent">
-              {formatCheckoutTotal(PRICING_TIERS.express.fee, PRICING_TIERS.express.currency)}
-            </div>
-            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-              {PRICING_TIERS.express.processingTime} processing. Priority rush handling for urgent travel.
-            </p>
-          </div>
-        </div>
-        <p className="mt-6 max-w-2xl mx-auto text-center text-sm text-muted-foreground leading-relaxed">
-          Foreign nationals (Ajnabi) completing the guided sponsor-required application (Option 3) pay
-          {" "}{formatCheckoutTotal(AJNABI_OPTION.fee, AJNABI_OPTION.currency)}, {AJNABI_OPTION.processingTime} processing. All fees are
-          displayed clearly before payment is completed.
-        </p>
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section className="container py-20">
-        <SectionHeading
-          eyebrow="How it works"
-          title="Simple, transparent, professional."
-          description="Whether you fill the form yourself or use our Express service, we make the eVisa journey effortless from start to finish."
-        />
-        <div className="mt-12 grid md:grid-cols-3 gap-6">
-          {[
-            { icon: UploadCloud, title: "Choose & submit", body: "Pick the path that matches you, then submit your details or documents." },
-            { icon: PenLine, title: "We review & process", body: "Our specialists review every document and prepare a complete, accurate application." },
-            { icon: BadgeCheck, title: "eVisa to your inbox", body: "Once approved, your eVisa arrives by email and WhatsApp — ready to travel." },
-          ].map((c) => (
-            <div key={c.title} className="bg-card border border-border rounded-sm p-8 shadow-card hover:shadow-elegant transition-smooth">
-              <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-accent-soft text-primary">
-                <c.icon className="h-5 w-5" />
-              </div>
-              <h3 className="mt-6 font-serif text-2xl text-primary">{c.title}</h3>
-              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{c.body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* TRUSTED PARTNER */}
-      <section className="container py-20 grid lg:grid-cols-2 gap-16 items-center">
-        <div className="relative">
-          <img
-            src={passportImg}
-            alt="Passport ready for travel"
-            className="rounded-sm shadow-elegant w-full object-cover aspect-[4/5]"
-            loading="lazy"
-            width={1280}
-            height={1280}
-          />
-          <div className="absolute -bottom-6 -right-6 hidden md:block bg-gradient-navy text-primary-foreground p-6 rounded-sm shadow-elegant max-w-[220px]">
-            <div className="font-serif text-4xl text-accent">10k+</div>
-            <div className="text-xs uppercase tracking-[0.2em] text-primary-foreground/70 mt-1">
-              Applications assisted
-            </div>
-          </div>
-        </div>
-        <div>
-          <SectionHeading
-            align="left"
-            eyebrow="Why choose us"
-            title="A partner you can trust for your eVisa."
-            description="We make your visa effortless — clear instructions, careful review, and a team ready to help when you need it."
-          />
-          <ul className="mt-10 space-y-5">
-            {[
-              "Personal review by an expert",
-              "Step-by-step guidance at every stage",
-              "Priority, fast-track processing",
-              "Bank-grade security for your data",
-            ].map((t) => (
-              <li key={t} className="flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-accent mt-0.5 shrink-0" />
-                <span className="text-foreground/85">{t}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* SERVICES */}
-      <section className="bg-secondary/60 py-20">
-        <div className="container">
-          <SectionHeading
-            eyebrow="Our Services"
-            title="Everything you need, from start to finish."
-            description="A careful service that lifts the burden of the eVisa application off your shoulders."
-          />
-          <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-border rounded-sm overflow-hidden shadow-card">
-            {[
-              { icon: FileCheck2, title: "Document Preparation", body: "We make sure every document meets the requirements." },
-              { icon: Sparkles, title: "Step-by-Step Guidance", body: "Clear instructions tailored to your country and travel purpose." },
-              { icon: Clock4, title: "Fast Processing", body: "Priority review designed for urgent travel." },
-              { icon: Headphones, title: "24/7 Support", body: "Talk to a real specialist any time, day or night." },
-              { icon: Lock, title: "Secure Data", body: "Bank-grade encryption protects every detail you share." },
-              { icon: Plane, title: "Ready to Travel", body: "Receive your eVisa with a concise travel-ready summary." },
-            ].map((s) => (
-              <div key={s.title} className="bg-card p-10 hover:bg-secondary/40 transition-smooth">
-                <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-gradient-navy text-accent">
-                  <s.icon className="h-5 w-5" />
-                </div>
-                <h3 className="mt-6 font-serif text-xl text-primary">{s.title}</h3>
-                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{s.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="container pb-20">
-        <div className="rounded-sm bg-primary text-primary-foreground p-12 md:p-16 text-center shadow-elegant relative overflow-hidden">
-          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 20% 30%, hsl(var(--accent)/0.4), transparent 50%)" }} />
-          <div className="relative">
-            <span className="gold-divider mx-auto" />
-            <h2 className="mt-6 font-serif text-4xl md:text-5xl">Ready for your journey?</h2>
-            <p className="mt-3 font-serif italic text-xl text-primary-foreground/80">Diyaar ma u tahay safarkaaga?</p>
-            <p className="mt-4 text-primary-foreground/70 max-w-xl mx-auto">
-              Submit your eVisa application today and travel with complete confidence.
-            </p>
-            <a
-              href="#top"
-              onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-              className="mt-10 inline-flex items-center gap-2 rounded-sm bg-gradient-gold px-8 py-4 text-sm font-medium text-accent-foreground shadow-gold hover:shadow-elegant transition-smooth"
-            >
-              Apply Now <ArrowRight className="h-4 w-4" />
-            </a>
-          </div>
-        </div>
-      </section>
+      {home.sections.map((key) => (
+        <Fragment key={key}>{renderSection(key)}</Fragment>
+      ))}
     </>
   );
 };

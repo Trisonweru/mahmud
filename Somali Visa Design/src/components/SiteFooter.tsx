@@ -3,6 +3,7 @@ import { Mail, Shield, MapPin, Headphones, Phone } from "lucide-react";
 import { popularVisaCountries, visaCountries } from "@/data/visaCountries";
 import somaliaFlag from "@/assets/somalia-flag.svg";
 import { SITE } from "@/config/site";
+import content from "@site-content";
 
 export const SiteFooter = () => {
   return (
@@ -14,8 +15,8 @@ export const SiteFooter = () => {
               <img src={somaliaFlag} alt="Somalia flag" className="h-full w-full object-cover" />
             </div>
             <div>
-              <div className="font-serif text-xl font-bold">Somalia eVisa Application</div>
-              <div className="text-[10px] uppercase tracking-[0.2em] text-primary-foreground/60">Application Service</div>
+              <div className="font-serif text-xl font-bold">{content.logo.title}</div>
+              <div className="text-[10px] uppercase tracking-[0.2em] text-primary-foreground/60">{content.logo.tagline}</div>
             </div>
           </div>
           <p className="mt-6 text-sm leading-relaxed text-primary-foreground/70">

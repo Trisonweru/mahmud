@@ -4,6 +4,9 @@ import { ArrowRight, Search } from "lucide-react";
 import { PageSEO } from "@/components/PageSEO";
 import { visaCountriesByRegion, visaCountriesSorted } from "@/data/visaCountries";
 import { SITE } from "@/config/site";
+import content from "@site-content";
+
+const vi = content.visaIndex;
 
 
 const VisaCountries = () => {
@@ -25,18 +28,18 @@ const VisaCountries = () => {
   return (
     <>
       <PageSEO
-        title={`Somalia Visa by Nationality — Requirements by Country | ${SITE.brand}`}
-        description={`Somalia eVisa requirements for all ${visaCountriesSorted.length} nationalities. Find the documents, processing time and fees for your passport — from the United States, United Kingdom, Sweden, Kenya and more.`}
+        title={vi.seoTitle}
+        description={vi.seoDescription(visaCountriesSorted.length)}
         canonical={`${SITE.url}/visa`}
         jsonLd={[
           {
             "@type": "ItemList",
-            name: "Somalia visa requirements by nationality",
+            name: vi.listName,
             numberOfItems: visaCountriesSorted.length,
             itemListElement: visaCountriesSorted.map((c, i) => ({
               "@type": "ListItem",
               position: i + 1,
-              name: `Somalia Visa for ${c.country}`,
+              name: vi.label(c.country),
               url: `${SITE.url}/visa/${c.slug}`,
             })),
           },
@@ -54,20 +57,14 @@ const VisaCountries = () => {
       <section className="bg-primary text-primary-foreground py-24 relative overflow-hidden">
         <div className="absolute inset-0 opacity-15" style={{ backgroundImage: "radial-gradient(circle at 80% 20%, hsl(var(--accent)/0.5), transparent 50%)" }} />
         <div className="relative container text-center max-w-3xl">
-          <span className="text-xs uppercase tracking-[0.25em] text-accent">Visas by Nationality</span>
-          <h1 className="mt-5 font-serif text-5xl md:text-6xl">Somalia eVisa requirements by nationality</h1>
-          <p className="mt-6 text-primary-foreground/75 text-lg">
-            Choose your passport country for the documents, processing time and fees that apply to your Somalia eVisa.
-          </p>
+          <span className="text-xs uppercase tracking-[0.25em] text-accent">{vi.eyebrow}</span>
+          <h1 className="mt-5 font-serif text-5xl md:text-6xl">{vi.h1}</h1>
+          <p className="mt-6 text-primary-foreground/75 text-lg">{vi.intro}</p>
         </div>
       </section>
 
       <section className="container py-16">
-        <p className="mx-auto max-w-3xl rounded-sm border border-border bg-secondary/40 p-4 text-sm text-muted-foreground">
-          All foreign nationals need an approved eVisa (eTAS) before travelling to Somalia. Somali-born travellers holding a
-          foreign passport (Qurba-Joog diaspora) also apply online through the same process. Select your nationality below for
-          country-specific guidance.
-        </p>
+        <p className="mx-auto max-w-3xl rounded-sm border border-border bg-secondary/40 p-4 text-sm text-muted-foreground">{vi.note}</p>
 
         <div className="mx-auto mt-8 max-w-md">
           <label htmlFor="country-search" className="sr-only">Search your nationality</label>
@@ -103,8 +100,8 @@ const VisaCountries = () => {
                     <span className="flex items-center gap-3">
                       <span className="text-xl" aria-hidden="true">{c.flag}</span>
                       <span>
-                        <span className="block text-sm font-semibold text-foreground">Somalia Visa for {c.country}</span>
-                        <span className="block text-xs text-muted-foreground">{c.demonym} passport holders</span>
+                        <span className="block text-sm font-semibold text-foreground">{vi.label(c.country)}</span>
+                        <span className="block text-xs text-muted-foreground">{vi.sublabel(c.demonym)}</span>
                       </span>
                     </span>
                     <ArrowRight className="h-4 w-4 shrink-0 text-accent" aria-hidden="true" />

@@ -104,7 +104,8 @@ try {
         "--dump-dom",
         `http://localhost:${PORT}${route}`,
       ],
-      { maxBuffer: 32 * 1024 * 1024 },
+      // A headless Chrome occasionally never exits; kill it so the retry can run.
+      { maxBuffer: 32 * 1024 * 1024, timeout: 60_000, killSignal: "SIGKILL" },
     );
 
     const head = stdout.match(/<head>([\s\S]*?)<\/head>/)?.[1] ?? "";

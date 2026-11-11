@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import somaliaFlag from "@/assets/somalia-flag.svg";
+import content from "@site-content";
 
 const links = [
   { to: "/", label: "Home" },
@@ -24,8 +25,8 @@ export const SiteHeader = () => {
             <img src={somaliaFlag} alt="Somalia flag" className="h-full w-full object-cover" />
           </div>
           <div className="leading-tight">
-            <div className="font-serif text-xl font-bold text-primary">Somalia eVisa Application</div>
-            <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Application Service</div>
+            <div className="font-serif text-xl font-bold text-primary">{content.logo.title}</div>
+            <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{content.logo.tagline}</div>
           </div>
         </Link>
 

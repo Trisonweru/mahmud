@@ -4,17 +4,8 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { PageSEO } from "@/components/PageSEO";
 import { CheckCircle2, Clock, CreditCard, Globe2, ArrowRight } from "lucide-react";
 import { visaCountries, visaCountriesSorted } from "@/data/visaCountries";
-import { AJNABI_OPTION, formatCheckoutTotal } from "@/lib/pricing";
 import { SITE } from "@/config/site";
-
-const requirements = [
-  "A valid passport with at least 6 months' validity remaining from your travel date",
-  "A recent passport-style photo on a plain, light-coloured background",
-  "A clear scanned copy of your passport's bio-data page",
-  "Your planned travel (arrival) date",
-  "A sponsor document, if applying as a foreign (Ajnabi) national",
-  "A valid email address to receive your approved eVisa",
-];
+import content from "@site-content";
 
 const VisaCountry = () => {
   const { country } = useParams<{ country: string }>();
@@ -24,30 +15,14 @@ const VisaCountry = () => {
 
   const related = visaCountriesSorted.filter((c) => c.region === data.region && c.slug !== data.slug).slice(0, 12);
 
-  const faqs = [
-    {
-      q: `Do ${data.demonym} citizens need a visa for Somalia?`,
-      a: `Yes. ${data.demonym} passport holders must obtain an approved eVisa before travelling to Somalia. ${SITE.brand} helps you prepare and submit this application online.`,
-    },
-    {
-      q: "How long does processing take?",
-      a: `Most applications are reviewed by our specialists and submitted to the official Somalia eTAS portal within ${AJNABI_OPTION.processingTime} of receiving your complete documents. A 5-6 hour Express option is also available for urgent travel.`,
-    },
-    {
-      q: `What does the ${formatCheckoutTotal(AJNABI_OPTION.fee, AJNABI_OPTION.currency)} fee cover?`,
-      a: `The ${formatCheckoutTotal(AJNABI_OPTION.fee, AJNABI_OPTION.currency)} fee is all-inclusive: it covers the official government eTAS fee as well as our specialist review, document checks, and submission service. No hidden charges.`,
-    },
-    {
-      q: `Can I apply from ${data.country}?`,
-      a: `Yes. The application is completed entirely online, so you can apply from anywhere in ${data.country} (or abroad), regardless of your departure location.`,
-    },
-  ];
+  const copy = content.country(data);
+  const faqs = copy.faqs;
 
   return (
     <>
       <PageSEO
-        title={`Somalia eVisa for ${data.demonym} Citizens | ${SITE.brand}`}
-        description={`Apply for your Somalia eVisa from ${data.country}. ${data.intro}`}
+        title={copy.seoTitle}
+        description={copy.seoDescription}
         canonical={`${SITE.url}/visa/${data.slug}`}
         jsonLd={[
           {
@@ -63,7 +38,7 @@ const VisaCountry = () => {
             "itemListElement": [
               { "@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE.url}/` },
               { "@type": "ListItem", "position": 2, "name": "Visas by Nationality", "item": `${SITE.url}/visa` },
-              { "@type": "ListItem", "position": 3, "name": `Somalia Visa for ${data.country}`, "item": `${SITE.url}/visa/${data.slug}` },
+              { "@type": "ListItem", "position": 3, "name": copy.breadcrumb, "item": `${SITE.url}/visa/${data.slug}` },
             ],
           },
         ]}
@@ -81,26 +56,22 @@ const VisaCountry = () => {
             <span className="text-primary-foreground/80">{data.country}</span>
           </nav>
           <span className="text-xs uppercase tracking-[0.25em] text-accent">{data.flag} {data.country}</span>
-          <h1 className="mt-5 font-serif text-5xl md:text-6xl">Somalia eVisa for {data.demonym} Citizens</h1>
-          <p className="mt-6 text-primary-foreground/75 text-lg">{data.intro}</p>
+          <h1 className="mt-5 font-serif text-5xl md:text-6xl">{copy.h1}</h1>
+          <p className="mt-6 text-primary-foreground/75 text-lg">{copy.intro}</p>
           <Link
             to="/apply/start"
             className="mt-8 inline-flex items-center gap-2 rounded-sm bg-gradient-gold px-8 py-4 text-sm font-medium text-accent-foreground shadow-gold hover:shadow-elegant transition-smooth"
           >
-            Start your application — {formatCheckoutTotal(AJNABI_OPTION.fee, AJNABI_OPTION.currency)} <ArrowRight className="h-4 w-4" />
+            {copy.cta} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>
 
       {/* Key details */}
       <section className="container py-20">
-        <SectionHeading eyebrow="Key Details" title={`What ${data.demonym} travellers need to know`} />
+        <SectionHeading eyebrow={copy.detailsEyebrow} title={copy.detailsTitle} />
         <div className="mt-12 grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {[
-            { icon: Clock, title: "Processing Time", body: `Most applications are reviewed and submitted within ${AJNABI_OPTION.processingTime} of receiving your complete documents. Express (5-6hr) processing is also available.` },
-            { icon: CreditCard, title: "Visa Fee", body: `${formatCheckoutTotal(AJNABI_OPTION.fee, AJNABI_OPTION.currency)}, all-inclusive — covers the official government eTAS fee and our specialist service. No hidden charges.` },
-            { icon: Globe2, title: "Validity", body: "Single or multiple-entry options available, valid for up to 180 days from the date of issue." },
-          ].map((d) => (
+          {copy.details.map((d, i) => ({ ...d, icon: [Clock, CreditCard, Globe2][i] })).map((d) => (
             <div key={d.title} className="bg-card border border-border rounded-sm p-8 shadow-card">
               <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-gradient-navy text-accent">
                 <d.icon className="h-5 w-5" />
@@ -115,9 +86,9 @@ const VisaCountry = () => {
       {/* Requirements */}
       <section className="bg-secondary/40 border-y border-border py-20">
         <div className="container max-w-3xl">
-          <SectionHeading eyebrow="Requirements" title={`Documents ${data.demonym} citizens need`} />
+          <SectionHeading eyebrow={copy.requirementsEyebrow} title={copy.requirementsTitle} />
           <ul className="mt-10 space-y-4 text-sm text-foreground/85">
-            {requirements.map((r) => (
+            {copy.requirements.map((r) => (
               <li key={r} className="flex gap-3">
                 <CheckCircle2 className="h-4 w-4 text-accent mt-0.5 shrink-0" />
                 {r}
@@ -129,13 +100,13 @@ const VisaCountry = () => {
 
       {/* Highlight */}
       <section className="container py-20 max-w-3xl">
-        <SectionHeading eyebrow={data.country} title="Helping you travel with confidence" description={data.highlight} />
+        <SectionHeading eyebrow={copy.highlightEyebrow} title={copy.highlightTitle} description={copy.highlight} />
       </section>
 
       {/* FAQ */}
       <section className="bg-secondary/40 border-y border-border py-20">
         <div className="container max-w-3xl">
-          <SectionHeading eyebrow="FAQ" title={`${data.country} — Frequently Asked Questions`} />
+          <SectionHeading eyebrow="FAQ" title={copy.faqTitle} />
           <div className="mt-12 space-y-6">
             {faqs.map((f) => (
               <div key={f.q} className="bg-card border border-border rounded-sm p-6 shadow-card">
@@ -150,7 +121,7 @@ const VisaCountry = () => {
       {/* Related nationalities */}
       {related.length > 0 && (
         <section className="container py-20 max-w-5xl">
-          <SectionHeading eyebrow={data.region} title={`Somalia visa for other ${data.region} nationalities`} />
+          <SectionHeading eyebrow={data.region} title={copy.relatedTitle} />
           <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((c) => (
               <li key={c.slug}>
@@ -159,7 +130,7 @@ const VisaCountry = () => {
                   className="flex items-center gap-3 rounded-sm border border-border bg-card p-4 text-sm shadow-card transition-smooth hover:border-accent/60"
                 >
                   <span aria-hidden="true">{c.flag}</span>
-                  <span className="text-foreground">Somalia Visa for {c.country}</span>
+                  <span className="text-foreground">{copy.relatedLabel(c.country)}</span>
                 </Link>
               </li>
             ))}
@@ -175,11 +146,8 @@ const VisaCountry = () => {
       {/* CTA */}
       <section className="bg-primary text-primary-foreground py-20">
         <div className="container text-center max-w-2xl">
-          <h2 className="font-serif text-4xl">Ready to apply?</h2>
-          <p className="mt-4 text-primary-foreground/70">
-            Start your Somalia eVisa application today. It takes less than five minutes and our team
-            will handle the rest.
-          </p>
+          <h2 className="font-serif text-4xl">{copy.ctaTitle}</h2>
+          <p className="mt-4 text-primary-foreground/70">{copy.ctaBody}</p>
           <Link
             to="/apply/start"
             className="mt-8 inline-flex items-center gap-2 rounded-sm bg-gradient-gold px-8 py-4 text-sm font-medium text-accent-foreground shadow-gold hover:shadow-elegant transition-smooth"
