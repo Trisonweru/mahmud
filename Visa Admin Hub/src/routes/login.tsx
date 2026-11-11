@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import { ShieldCheck, Loader2, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { requestPasswordReset, recordPasswordSet } from "@/lib/staff.functions";
 import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/login")({
@@ -23,6 +25,7 @@ function isInviteOrRecovery() {
 }
 
 const INITIAL_INVITE_OR_RECOVERY = isInviteOrRecovery();
+const INITIAL_IS_RECOVERY = typeof window !== "undefined" && window.location.hash.includes("type=recovery");
 
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
@@ -39,7 +42,7 @@ function checkRateLimit(): { allowed: boolean; waitSeconds: number } {
   return { allowed: true, waitSeconds: 0 };
 }
 
-type Mode = "signin" | "set_password";
+type Mode = "signin" | "set_password" | "forgot";
 
 function LoginPage() {
   const nav = useNavigate();
@@ -52,6 +55,9 @@ function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  const sendReset = useServerFn(requestPasswordReset);
+  const recordSet = useServerFn(recordPasswordSet);
 
   const [inviteSessionState, setInviteSessionState] = useState<"checking" | "ready" | "missing">(
     INITIAL_INVITE_OR_RECOVERY ? "checking" : "ready"
@@ -109,16 +115,34 @@ function LoginPage() {
     }
   };
 
+  const submitForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const parsed = z.string().trim().email("Enter a valid email").max(255).safeParse(email);
+    if (!parsed.success) { toast.error(parsed.error.issues[0]?.message ?? "Invalid email"); return; }
+    const { allowed, waitSeconds } = checkRateLimit();
+    if (!allowed) { toast.error(`Too many attempts. Try again in ${waitSeconds}s.`); return; }
+    setBusy(true);
+    try {
+      await sendReset({ data: { email: parsed.data } });
+      setResetSent(true);
+    } catch {
+      toast.error("Could not send the reset link. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const submitSetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (inviteSessionState !== "ready") { toast.error("Please wait for your invite to finish loading."); return; }
-    if (newPassword.length < 8) { toast.error("Password must be at least 8 characters"); return; }
+    if (newPassword.length < 10 || !/[A-Za-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) { toast.error("Password must be at least 10 characters and include a letter and a number"); return; }
     if (newPassword !== confirmPassword) { toast.error("Passwords do not match"); return; }
     setBusy(true);
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-      toast.success("Password set — welcome to the console!");
+      recordSet({ data: { kind: INITIAL_IS_RECOVERY ? "recovery" : "invite" } }).catch(() => undefined);
+      toast.success(INITIAL_IS_RECOVERY ? "Password updated — you are signed in." : "Password set — welcome to the console!");
       nav({ to: "/" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to set password");
@@ -151,7 +175,7 @@ function LoginPage() {
               <>
                 <h1 className="mt-8 font-serif text-3xl text-foreground">Set your password</h1>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Choose a password to activate your staff account.
+                  {INITIAL_IS_RECOVERY ? "Choose a new password for your staff account." : "Choose a password to activate your staff account."}
                 </p>
                 {inviteSessionState === "checking" && (
                   <div className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
@@ -161,7 +185,7 @@ function LoginPage() {
                 )}
                 {inviteSessionState === "missing" && (
                   <div className="mt-6 rounded-md border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-                    This invite link has expired or has already been used. Please ask an administrator to send you a new invite.
+                    {INITIAL_IS_RECOVERY ? "This reset link has expired or has already been used. Request a new one from the sign-in page." : "This invite link has expired or has already been used. Please ask an administrator to send you a new invite."}
                   </div>
                 )}
                 {inviteSessionState === "ready" && (
@@ -173,7 +197,7 @@ function LoginPage() {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         className="w-full rounded-md border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 pr-10"
-                        placeholder="Min 8 characters"
+                        placeholder="Min 10 characters, letters + numbers"
                       />
                       <ShowToggle show={showPw} onToggle={() => setShowPw(v => !v)} />
                     </Field>
@@ -186,9 +210,44 @@ function LoginPage() {
                         className="w-full rounded-md border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40"
                       />
                     </Field>
-                    <SubmitBtn busy={busy} label="Activate account" />
+                    <SubmitBtn busy={busy} label={INITIAL_IS_RECOVERY ? "Save new password" : "Activate account"} />
                   </form>
                 )}
+              </>
+            )}
+
+            {mode === "forgot" && (
+              <>
+                <h1 className="mt-8 font-serif text-3xl text-foreground">Reset password</h1>
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                  Enter your staff email. If it belongs to an active account, we will send a secure link to choose a new password.
+                </p>
+                {resetSent ? (
+                  <div className="mt-6 rounded-md border border-success/30 bg-success/5 p-4 text-sm text-foreground">
+                    If an active staff account exists for <strong>{email}</strong>, a reset link is on its way. The link expires after one hour.
+                  </div>
+                ) : (
+                  <form onSubmit={submitForgot} className="mt-6 space-y-4">
+                    <Field label="Email">
+                      <input
+                        type="email"
+                        autoComplete="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full rounded-md border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40"
+                        placeholder="you@example.com"
+                      />
+                    </Field>
+                    <SubmitBtn busy={busy} label="Send reset link" />
+                  </form>
+                )}
+                <button
+                  type="button"
+                  onClick={() => { setMode("signin"); setResetSent(false); }}
+                  className="mt-6 block w-full text-center text-xs text-muted-foreground hover:text-foreground"
+                >
+                  ← Back to sign in
+                </button>
               </>
             )}
 
@@ -223,6 +282,13 @@ function LoginPage() {
                   </Field>
                   <SubmitBtn busy={busy} label="Sign in" />
                 </form>
+                <button
+                  type="button"
+                  onClick={() => setMode("forgot")}
+                  className="mt-3 block w-full text-center text-xs text-accent hover:underline"
+                >
+                  Forgot password?
+                </button>
                 <p className="mt-6 text-center text-[11px] text-muted-foreground">
                   Staff accounts are created by invitation only.
                 </p>

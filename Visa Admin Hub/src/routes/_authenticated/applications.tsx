@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search, Download, Loader2, Eye, Copy, ChevronDown, ChevronRight, X, RotateCcw, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PaymentRef } from "@/components/admin/PaymentRef";
-import { DateRangePresets } from "@/components/admin/DateRangePresets";
+import { DateRangeFilter } from "@/components/admin/DateRangePresets";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ALL_STATUSES, formatMoney, isPlaceholderDob, isPlaceholderNationality, isRefundedOrDenied, statusLabels, docTypeLabels, waLink, type AppDocument, type AppStatus, type Application, type DocType } from "@/lib/applications";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -195,10 +195,7 @@ function ApplicationsPage() {
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="uppercase tracking-wider">Date range</span>
-            <DateRangePresets from={dateFrom} to={dateTo} onChange={(f, t) => { setDateFrom(f); setDateTo(t); }} />
-            <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="rounded-sm border border-input bg-background px-2 py-1 text-sm" />
-            <span>to</span>
-            <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="rounded-sm border border-input bg-background px-2 py-1 text-sm" />
+            <DateRangeFilter from={dateFrom} to={dateTo} onChange={(f, t) => { setDateFrom(f); setDateTo(t); }} />
           </div>
           {hasFilters && (
             <button onClick={clearFilters} className="inline-flex items-center gap-1 rounded-sm border border-border px-2.5 py-1 text-[11px] uppercase tracking-wider text-muted-foreground hover:border-destructive hover:text-destructive">

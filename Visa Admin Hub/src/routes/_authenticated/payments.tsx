@@ -1,3 +1,4 @@
+import { QUICK_RANGES, quickRange, type QuickRangeKey } from "@/components/admin/DateRangePresets";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Search, X, Download } from "lucide-react";
@@ -14,28 +15,16 @@ export const Route = createFileRoute("/_authenticated/payments")({
   component: PaymentsPage,
 });
 
-type Period = "today" | "last7" | "last30" | "this_month" | "last_month" | "this_year";
+type Period = QuickRangeKey | "custom";
 
 const PERIODS: { key: Period; label: string; sublabel: string }[] = [
-  { key: "today",      label: "Today",        sublabel: new Date().toLocaleDateString("en", { weekday: "long", month: "short", day: "numeric" }) },
-  { key: "last7",      label: "Last 7 Days",  sublabel: "Rolling week" },
-  { key: "last30",     label: "Last 30 Days", sublabel: "Rolling month" },
-  { key: "this_month", label: "This Month",   sublabel: new Date().toLocaleDateString("en", { month: "long", year: "numeric" }) },
-  { key: "last_month", label: "Last Month",   sublabel: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleDateString("en", { month: "long", year: "numeric" }) },
-  { key: "this_year",  label: "This Year",    sublabel: new Date().getFullYear().toString() },
+  ...QUICK_RANGES.map(r => ({ key: r.key as Period, label: r.label, sublabel: r.description })),
+  { key: "custom", label: "Custom Date Range", sublabel: "Pick dates" },
 ];
 
-function inPeriod(d: Date, period: Period): boolean {
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  switch (period) {
-    case "today":      return d >= today;
-    case "last7":      { const c = new Date(today); c.setDate(c.getDate() - 6);  return d >= c; }
-    case "last30":     { const c = new Date(today); c.setDate(c.getDate() - 29); return d >= c; }
-    case "this_month": return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-    case "last_month": { const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1); return d.getFullYear() === lm.getFullYear() && d.getMonth() === lm.getMonth(); }
-    case "this_year":  return d.getFullYear() === now.getFullYear();
-  }
+function inPeriod(d: Date, range: { from: string; to: string }): boolean {
+  const k = localDateKey(d);
+  return (range.from === "" || k >= range.from) && (range.to === "" || k <= range.to);
 }
 
 function localDateKey(d: Date): string {
@@ -50,7 +39,10 @@ function PaymentsPage() {
 function PaymentsContent() {
   const [apps, setApps] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
-  const [period, setPeriod] = useState<Period>("this_month");
+  const [period, setPeriod] = useState<Period>("last_month");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
+  const range = period === "custom" ? { from: customFrom, to: customTo } : quickRange(period);
   const [q, setQ] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "standard" | "express">("all");
 
@@ -78,8 +70,8 @@ function PaymentsContent() {
 
   // Active period transactions (all paid, by paid_at)
   const activeItems = useMemo(() =>
-    paidAll.filter(a => inPeriod(new Date(a.paid_at!), period)),
-  [paidAll, period]);
+    paidAll.filter(a => inPeriod(new Date(a.paid_at!), range)),
+  [paidAll, range.from, range.to]);
 
   // Gross revenue for active period. Fees can be charged in more than one currency
   // (Option 1/3 = GBP, Option 2 = USD), so totals are grouped per currency rather
@@ -91,9 +83,9 @@ function PaymentsContent() {
     apps.filter(a =>
       a.refund_status === "refunded" &&
       a.refund_processed_at &&
-      inPeriod(new Date(a.refund_processed_at), period)
+      inPeriod(new Date(a.refund_processed_at), range)
     ),
-  [apps, period]);
+  [apps, range.from, range.to]);
 
   const activeRefundByCurrency = useMemo(() =>
     sumByCurrency(activeRefunds, a => Number(a.refund_amount ?? a.fee), a => a.currency),
@@ -120,9 +112,9 @@ function PaymentsContent() {
   const hasAnyRefunds = Object.values(activeRefundByCurrency).some(v => v > 0);
   const hasAnyAllTimeRefunds = Object.values(allTimeRefundByCurrency).some(v => v > 0);
 
-  // For "Last 7" and "Last 30" views, group by local date for the sub-grid
+  // For "Last Week" and "Last Month" views, group by local date for the sub-grid
   const dateBuckets = useMemo(() => {
-    if (period !== "last7" && period !== "last30") return [];
+    if (period !== "last_week" && period !== "last_month") return [];
     const map = new Map<string, { label: string; count: number; totals: Record<string, number> }>();
     for (const a of activeItems) {
       const d = new Date(a.paid_at!);
@@ -158,7 +150,7 @@ function PaymentsContent() {
       <PageHeader eyebrow="Finance · Reconciliation" title="Payments" />
 
       {/* Period selector dropdown (#28) */}
-      <div className="mt-6 flex items-center gap-3">
+      <div className="mt-6 flex flex-wrap items-center gap-3">
         <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Period</label>
         <select
           value={period}
@@ -169,6 +161,13 @@ function PaymentsContent() {
             <option key={p.key} value={p.key}>{p.label} — {p.sublabel}</option>
           ))}
         </select>
+        {period === "custom" && (
+          <>
+            <input type="date" value={customFrom} max={customTo || undefined} onChange={(e) => setCustomFrom(e.target.value)} className="rounded-sm border border-input bg-background px-2 py-1.5 text-sm" />
+            <span className="text-xs text-muted-foreground">to</span>
+            <input type="date" value={customTo} min={customFrom || undefined} onChange={(e) => setCustomTo(e.target.value)} className="rounded-sm border border-input bg-background px-2 py-1.5 text-sm" />
+          </>
+        )}
       </div>
 
       {/* Summary row */}

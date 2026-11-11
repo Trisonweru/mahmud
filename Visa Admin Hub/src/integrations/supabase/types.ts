@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_audit_log: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          details: Json
+          id: string
+          ip: string | null
+          target_email: string | null
+          target_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          ip?: string | null
+          target_email?: string | null
+          target_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          ip?: string | null
+          target_email?: string | null
+          target_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       application_documents: {
         Row: {
           application_id: string
@@ -265,6 +304,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          deleted_at: string | null
+          deleted_by: string | null
+          status: string
           created_at: string
           department: string | null
           email: string
@@ -276,6 +318,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          deleted_at?: string | null
+          deleted_by?: string | null
+          status?: string
           created_at?: string
           department?: string | null
           email: string
@@ -287,6 +332,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          deleted_at?: string | null
+          deleted_by?: string | null
+          status?: string
           created_at?: string
           department?: string | null
           email?: string

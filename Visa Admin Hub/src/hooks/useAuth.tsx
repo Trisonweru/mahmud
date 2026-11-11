@@ -53,6 +53,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", uid),
     ]);
+    // Suspended or deleted accounts lose console access immediately, even with a still-valid session.
+    if (p && p.status && p.status !== "active") {
+      setProfile(null);
+      setRoles([]);
+      toast.error(p.status === "suspended" ? "Your account has been suspended." : "Your account is no longer active.", { id: "account-inactive" });
+      await supabase.auth.signOut();
+      return;
+    }
     setProfile(p ?? null);
     setRoles(((r ?? []) as { role: AppRole }[]).map((x) => x.role));
   };
