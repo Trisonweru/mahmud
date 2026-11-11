@@ -36,3 +36,15 @@ supabase/.temp/
 # Logs
 *.log
 *.gz
+
+# Supabase CLI local state (any project)
+**/supabase/.temp/
+
+# Deploy bundles and stray local files
+*.zip
+*.pkg
+deno.lock
+
+# Local screenshots / email previews
+screenshots/
+email-previews/
