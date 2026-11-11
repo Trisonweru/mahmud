@@ -65,26 +65,13 @@ describe("Status page", () => {
     expect(screen.getByText(/notification has been sent/i)).toBeTruthy();
   });
 
-  it("displays Info Required from us (additional_info) with amber 'From Us' badge", async () => {
-    mockFetch("additional_info");
+  it.each(["additional_info", "government_info_required"])("shows one neutral Info Required state for %s", async (status) => {
+    mockFetch(status);
     renderStatus();
     await search();
     await waitFor(() => expect(screen.getByText("Info Required")).toBeTruthy());
-    // Correct message wording
-    expect(screen.getByText(/from our team/i)).toBeTruthy();
-    // Badge clearly labels the source
-    expect(screen.getByText(/from us/i)).toBeTruthy();
-  });
-
-  it("displays Government Info Required with distinct indigo 'Government' badge", async () => {
-    mockFetch("government_info_required");
-    renderStatus();
-    await search();
-    await waitFor(() => expect(screen.getByText("Government Info Required")).toBeTruthy());
-    // Distinct message mentioning the government
-    expect(screen.getByText(/somali government/i)).toBeTruthy();
-    // Badge says Government, not From Us
-    expect(screen.getByText(/^government$/i)).toBeTruthy();
+    expect(screen.getByText(/check your email/i)).toBeTruthy();
+    expect(screen.queryByText(/government/i)).toBeNull();
     expect(screen.queryByText(/from us/i)).toBeNull();
   });
 

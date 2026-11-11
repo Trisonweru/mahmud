@@ -357,7 +357,7 @@ const Apply = () => {
                 Consent required to continue
               </div>
               <Check2
-                label="I request immediate performance of services and consent to the processing of my passport photo (biometric data) for my eTAS application. *"
+                label="I request immediate performance of services and consent to the processing of my passport photo (biometric data) for my eVisa application. *"
                 checked={form.selfieConsent}
                 onChange={(v) => { set("selfieConsent", v); set("immediatePerformance", v); }}
                 error={errors.selfieConsent}

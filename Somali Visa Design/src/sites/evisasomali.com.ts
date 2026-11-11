@@ -14,7 +14,7 @@ const content: SiteContent = {
     seoTitle: `Apply for Somalia eVisa Online | Fast & Secure | ${SITE.brand}`,
     seoDescription: `Get your Somalia eVisa in 60 seconds. Upload your passport and photo — our specialists handle the rest. From ${standardFee}, with 5-6hr Express available. WhatsApp updates. 24/7 support.`,
     serviceDescription:
-      "Apply for your Somalia eVisa online. Upload your passport and photo — our specialists prepare and submit your application in 60 seconds.",
+      "Apply for your Somalia eVisa online. Upload your passport and photo — apply in 60 seconds and our specialists handle the rest.",
     heroImageAlt: "Somalia eVisa online application — passport and airplane ready for travel",
     heroBadge: "Somalia eVisa Application · Apply Online",
     heroTitle: { before: "Choose your ", highlight: "application", after: " type" },
@@ -53,7 +53,7 @@ const content: SiteContent = {
       title: "Transparent Pricing",
       description: "No hidden fees. Choose the processing speed that suits your travel plans.",
       standardBody: (time) =>
-        `${time} processing. All-inclusive — covers specialist application assistance, document review, and submission through the official Somalia eTAS portal.`,
+        `${time} processing. All-inclusive — covers specialist application assistance, document review and processing.`,
       expressBody: (time) => `${time} processing. Priority rush handling for urgent travel.`,
       ajnabiNote: (fee, time) =>
         `Foreign nationals (Ajnabi) completing the guided sponsor-required application (Option 3) pay ${fee}, ${time} processing. All fees are displayed clearly before payment is completed.`,
@@ -114,12 +114,12 @@ const content: SiteContent = {
     heroEyebrow: "About Us",
     heroTitle: "A trusted partner for your journey.",
     heroBody:
-      "We are an independent service helping travellers — especially Somali diaspora applicants — prepare and submit Somalia eVisa applications accurately and with care.",
+      "We are an independent service helping travellers — especially Somali diaspora applicants — get their Somalia eVisa accurately and with care.",
     whoEyebrow: "Who We Are",
     whoTitle: "Independent specialists, not a government agency.",
     whoParagraphs: [
-      "Somalia opened its electronic visa system to make entry simpler for international visitors and returning diaspora. However, navigating the official portal, uploading documents correctly, and ensuring every field is filled accurately can be challenging — especially for first-time applicants or those unfamiliar with online government systems. That is the gap we fill.",
-      "Our specialists review every application before submission. We catch errors, missing documents, and formatting issues that commonly cause delays or rejections. The result is a faster, smoother experience for our clients — with WhatsApp updates at every step of the way.",
+      "Somalia opened its electronic visa system to make entry simpler for international visitors and returning diaspora. However, uploading documents correctly, and ensuring every field is filled accurately can be challenging — especially for first-time applicants or those unfamiliar with online visa systems. That is the gap we fill.",
+      "Our specialists review every application before it is processed. We catch errors, missing documents, and formatting issues that commonly cause delays or rejections. The result is a faster, smoother experience for our clients — with WhatsApp updates at every step of the way.",
     ],
     whatEyebrow: "What We Do",
     whatTitle: "From application to approval — we handle it.",
@@ -129,12 +129,12 @@ const content: SiteContent = {
         body: "Submit your passport scan, passport-size photo, and travel details through our secure online form. The entire process takes under five minutes.",
       },
       {
-        title: "Our specialists review and submit",
-        body: "A trained specialist reviews your application for errors and completeness, then submits it directly to the official Somalia eTAS portal on your behalf.",
+        title: "Our specialists review and process",
+        body: "A trained specialist reviews your application for errors and completeness, then processes it for you.",
       },
       {
         title: "You receive your eVisa",
-        body: "Once approved by the Somali authorities, your eVisa is sent directly to your email address. Most approvals are issued within 72 hours of submission.",
+        body: "Once approved, your eVisa is sent directly to your email address. Most approvals are issued within 72 hours.",
       },
     ],
     eligibilityEyebrow: "Eligibility",
@@ -151,7 +151,7 @@ const content: SiteContent = {
     values: [
       { label: "Trusted", body: "Hundreds of applications processed with a near-perfect approval rate." },
       { label: "Personal", body: "Every application reviewed by a real human specialist, not a bot." },
-      { label: "Expert", body: "Deep knowledge of Somalia eTAS requirements and common rejection reasons." },
+      { label: "Expert", body: "Deep knowledge of Somalia eVisa requirements and common rejection reasons." },
       { label: "Global", body: "Supporting applicants from over 50 countries across 6 continents." },
     ],
     ctaTitle: "Ready to apply?",
@@ -173,7 +173,7 @@ const content: SiteContent = {
       },
       {
         q: "How much does the Somalia eVisa cost?",
-        a: "We offer three processing options: Option 1 Standard (£66, 24–72 hours), Option 2 Express ($150 USD, 5–6 hours), and Option 3 the guided foreigner (Ajnabi) application (£66, 24–72 hours). Each includes the official government eTAS fee, our specialist preparation, submission and document review service, and a £2 payment processing fee (Standard and Ajnabi only), for a single-entry eVisa valid for up to 180 days.",
+        a: "We offer three processing options: Option 1 Standard (£66, 24–72 hours), Option 2 Express ($150 USD, 5–6 hours), and Option 3 the guided foreigner (Ajnabi) application (£66, 24–72 hours). Each is all-inclusive: our specialist preparation, processing and document review, and a £2 payment processing fee (Standard and Ajnabi only), for a single-entry eVisa valid for up to 180 days.",
       },
       {
         q: "What documents do I need for a Somalia eVisa?",
@@ -185,11 +185,11 @@ const content: SiteContent = {
       },
       {
         q: "Can Somali diaspora (Qurba-Joog) use this service?",
-        a: "Yes — our Standard and Express services are designed specifically for the Somali diaspora holding a foreign passport. You apply in under 60 seconds by uploading your passport and photo. Our specialists handle the entire form preparation and submission on your behalf.",
+        a: "Yes — our Standard and Express services are designed specifically for the Somali diaspora holding a foreign passport. You apply in under 60 seconds by uploading your passport and photo. Our specialists handle everything else.",
       },
       {
         q: "Is this an official government website?",
-        a: `No. ${SITE.brand} is an independent specialist service that assists travellers with preparing and submitting their eVisa applications. We are not affiliated with the Somali government.`,
+        a: `No. ${SITE.brand} is an independent private eVisa service. We are not affiliated with the Somali government.`,
       },
       {
         q: "How will I receive my Somalia eVisa?",
@@ -197,7 +197,7 @@ const content: SiteContent = {
       },
       {
         q: "Can I track my Somalia eVisa application status?",
-        a: "Yes. Visit the Status page on this website and enter your application reference number. You will see real-time updates at every stage — from submission through to approval.",
+        a: "Yes. Visit the Status page on this website and enter your application reference number. You will see real-time updates at every stage — from payment through to approval.",
       },
       {
         q: "What happens if my application is denied?",
@@ -260,11 +260,11 @@ const content: SiteContent = {
     details: [
       {
         title: "Processing Time",
-        body: `Most applications are reviewed and submitted within ${AJNABI_OPTION.processingTime} of receiving your complete documents. Express (5-6hr) processing is also available.`,
+        body: `Most applications are reviewed and processed within ${AJNABI_OPTION.processingTime} of receiving your complete documents. Express (5-6hr) processing is also available.`,
       },
       {
         title: "Visa Fee",
-        body: `${ajnabiFee}, all-inclusive — covers the official government eTAS fee and our specialist service. No hidden charges.`,
+        body: `${ajnabiFee}, all-inclusive. No hidden charges.`,
       },
       { title: "Validity", body: "Single or multiple-entry options available, valid for up to 180 days from the date of issue." },
     ],
@@ -285,15 +285,15 @@ const content: SiteContent = {
     faqs: [
       {
         q: `Do ${d.demonym} citizens need a visa for Somalia?`,
-        a: `Yes. ${d.demonym} passport holders must obtain an approved eVisa before travelling to Somalia. ${SITE.brand} helps you prepare and submit this application online.`,
+        a: `Yes. ${d.demonym} passport holders must obtain an approved eVisa before travelling to Somalia. ${SITE.brand} handles this application for you online.`,
       },
       {
         q: "How long does processing take?",
-        a: `Most applications are reviewed by our specialists and submitted to the official Somalia eTAS portal within ${AJNABI_OPTION.processingTime} of receiving your complete documents. A 5-6 hour Express option is also available for urgent travel.`,
+        a: `Most applications are reviewed and processed by our specialists within ${AJNABI_OPTION.processingTime} of receiving your complete documents. A 5-6 hour Express option is also available for urgent travel.`,
       },
       {
         q: `What does the ${ajnabiFee} fee cover?`,
-        a: `The ${ajnabiFee} fee is all-inclusive: it covers the official government eTAS fee as well as our specialist review, document checks, and submission service. No hidden charges.`,
+        a: `The ${ajnabiFee} fee is all-inclusive: specialist review, document checks and processing. No hidden charges.`,
       },
       {
         q: `Can I apply from ${d.country}?`,

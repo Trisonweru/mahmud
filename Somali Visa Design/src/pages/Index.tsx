@@ -652,7 +652,7 @@ const Index = () => {
                 <input type="checkbox" required className="mt-1 accent-[hsl(var(--accent))]" />
                 <span>
                   I request immediate performance of services and consent to the processing of my
-                  passport photo (biometric data) for my eTAS application.
+                  passport photo (biometric data) for my eVisa application.
                   <span className="block mt-1 italic text-muted-foreground">
                     By checking this box, you confirm that you have read and agree to our{" "}
                     <Link to="/terms" className="text-accent underline">Terms of Service</Link>,{" "}
