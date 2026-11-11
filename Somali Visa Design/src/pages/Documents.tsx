@@ -36,7 +36,7 @@ const Documents = () => (
       jsonLd={documentsJsonLd}
     />
   <section className="container py-20">
-    <SectionHeading eyebrow="Required Documents" title="What you need to apply." description="Have these ready before you start so we can review your application quickly." />
+    <SectionHeading as="h1" eyebrow="Required Documents" title="What you need to apply." description="Have these ready before you start so we can review your application quickly." />
     <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
       {docs.map((d) => (
         <div key={d.title} className="bg-card border border-border rounded-sm p-8 shadow-card hover:shadow-elegant transition-smooth">

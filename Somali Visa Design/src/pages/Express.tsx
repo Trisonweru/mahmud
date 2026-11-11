@@ -118,7 +118,7 @@ const Express = () => {
       canonical={`${SITE.url}/express`}
     />
     <section className="container py-20 max-w-3xl">
-      <SectionHeading
+      <SectionHeading as="h1"
         eyebrow="Express Application"
         title="Skip the form. We'll handle it."
         description="For travellers who'd rather not fill out the application themselves. Send us just two things — your passport page and a passport-size photo — and our specialists will prepare your eVisa application for you."

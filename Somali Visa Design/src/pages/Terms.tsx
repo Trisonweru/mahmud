@@ -11,7 +11,7 @@ const Terms = () => (
     canonical={`${SITE.url}/terms`}
   />
   <section className="container py-20 max-w-3xl">
-    <SectionHeading eyebrow="Legal" title="Terms of Service" />
+    <SectionHeading as="h1" eyebrow="Legal" title="Terms of Service" />
     <p className="mt-6 text-sm text-muted-foreground">Last Updated: 10 March 2026</p>
 
     <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground/85">

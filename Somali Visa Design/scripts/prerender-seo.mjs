@@ -4,9 +4,9 @@
 // pointed at the homepage, so Google treated the other pages as duplicates.
 //
 // How: serve dist/ locally, load each route in headless Chrome, copy the tags
-// react-helmet-async rendered (marked data-rh="true") into a copy of
-// index.html, and write it to dist/<route>.html. Only <head> changes; the app
-// still renders the body as before. Apache maps /about -> _seo/about.html via .htaccess.
+// react-helmet-async rendered (marked data-rh="true") and the rendered page
+// content into a copy of index.html, and write it to _seo/<route>.html. The app
+// re-renders the body once its JS loads. Apache maps /about -> _seo/about.html via .htaccess.
 //
 // Usage: npm run build (runs automatically after vite build).
 
@@ -60,6 +60,21 @@ const OVERRIDDEN = [
 ];
 
 const template = await readFile(path.join(DIST, "index.html"), "utf8");
+if (!template.includes('<div id="root"></div>')) throw new Error('prerender-seo: index.html has no empty <div id="root"></div>');
+
+/** Inner HTML of <div id="root"> in a dumped DOM (balanced <div> matching). */
+function rootContent(dom) {
+  const open = '<div id="root">';
+  const start = dom.indexOf(open);
+  if (start < 0) return "";
+  const re = /<div\b|<\/div>/g;
+  re.lastIndex = start + open.length;
+  for (let depth = 1, m; (m = re.exec(dom)); ) {
+    depth += m[0] === "</div>" ? -1 : 1;
+    if (depth === 0) return dom.slice(start + open.length, m.index).trim();
+  }
+  return "";
+}
 const MIME = { ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png", ".json": "application/json" };
 
 const server = createServer(async (req, res) => {
@@ -108,6 +123,13 @@ try {
     let html = template;
     for (const pattern of OVERRIDDEN) html = html.replace(pattern, "");
     html = html.replace("</head>", `    ${pageTags.join("\n    ")}\n  </head>`);
+
+    // Ship the page's rendered content too, so search engines see real text, headings
+    // and links in the first response instead of an empty <div id="root">. The app
+    // mounts with createRoot, which simply replaces this markup once the JS loads.
+    const body = rootContent(stdout);
+    if (body) html = html.replace('<div id="root"></div>', `<div id="root">${body}</div>`);
+    else console.warn(`prerender-seo: ${route} rendered no page content`);
 
     // Kept under _seo/ so /apply and /apply/start can't collide as file vs directory.
     const out = route === "/" ? path.join(DIST, "index.html") : path.join(DIST, "_seo", `${route.slice(1)}.html`);

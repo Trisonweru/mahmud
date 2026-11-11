@@ -73,7 +73,7 @@ const FAQs = () => (
       jsonLd={faqJsonLd}
     />
     <section className="container py-20 max-w-3xl">
-      <SectionHeading eyebrow="FAQs" title="Frequently asked questions" description="Answers to the questions our applicants ask most often." />
+      <SectionHeading as="h1" eyebrow="FAQs" title="Frequently asked questions" description="Answers to the questions our applicants ask most often." />
       <Accordion type="single" collapsible className="mt-12 space-y-3">
         {faqs.map((f, i) => (
           <AccordionItem key={i} value={`item-${i}`} className="border border-border rounded-sm bg-card px-6 shadow-card">

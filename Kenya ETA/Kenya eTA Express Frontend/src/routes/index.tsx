@@ -23,7 +23,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Apply online for the Kenya eTA (the Kenya eVisa replacement) from any country — Tourism, Friends and Family or Transit. Guided form, document check and support, $70 all inclusive.",
+          "Apply online for the Kenya eTA, which replaced the Kenya eVisa. Tourism, Family Visit or Transit: guided form, document check and support. $70 all inclusive.",
       },
       {
         property: "og:title",

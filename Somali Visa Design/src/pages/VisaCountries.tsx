@@ -25,7 +25,7 @@ const VisaCountries = () => {
   return (
     <>
       <PageSEO
-        title={`Somalia Visa by Nationality — eVisa Requirements for Every Country | ${SITE.brand}`}
+        title={`Somalia Visa by Nationality — Requirements by Country | ${SITE.brand}`}
         description={`Somalia eVisa requirements for all ${visaCountriesSorted.length} nationalities. Find the documents, processing time and fees for your passport — from the United States, United Kingdom, Sweden, Kenya and more.`}
         canonical={`${SITE.url}/visa`}
         jsonLd={[

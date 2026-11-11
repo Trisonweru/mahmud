@@ -79,7 +79,7 @@ const Status = () => {
         canonical={`${SITE.url}/status`}
       />
       <section className="container py-20 max-w-2xl">
-        <SectionHeading
+        <SectionHeading as="h1"
           eyebrow="Track"
           title="Check your application status"
           description="Enter your email address and reference number to see the latest update on your eVisa."

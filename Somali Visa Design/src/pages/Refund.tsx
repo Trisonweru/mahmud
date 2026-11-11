@@ -11,7 +11,7 @@ const Refund = () => (
     canonical={`${SITE.url}/refund`}
   />
   <section className="container py-20 max-w-3xl">
-    <SectionHeading eyebrow="Legal" title="Refund Policy" />
+    <SectionHeading as="h1" eyebrow="Legal" title="Refund Policy" />
     <p className="mt-6 text-sm text-muted-foreground">Last Updated: 10 March 2026</p>
 
     <p className="mt-8 text-sm leading-relaxed text-foreground/85">

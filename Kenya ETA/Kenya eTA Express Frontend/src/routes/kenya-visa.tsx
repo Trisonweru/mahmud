@@ -68,7 +68,7 @@ export const Route = createFileRoute("/kenya-visa")({
       {
         name: "description",
         content:
-          "Kenya visa requirements explained: the eTA replaced the Kenya visa and eVisa. Compare Tourism, Family Visit and Transit applications, fees from $70 and processing times.",
+          "Kenya visa requirements explained: the eTA replaced the Kenya visa and eVisa. Compare Tourism, Family Visit and Transit, fees from $70 and processing times.",
       },
       { property: "og:title", content: "Kenya Visa Requirements — Apply for the Kenya eTA" },
       {
