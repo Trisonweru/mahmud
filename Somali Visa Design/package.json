@@ -5,12 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/generate-sitemap.mjs && vite build && node scripts/prerender-seo.mjs",
+    "build": "vite build && node scripts/generate-sitemap.mjs && node scripts/prerender-seo.mjs",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "build:evisasomalia": "VITE_SITE=evisasomalia.com npm run build",
+    "build:somaliavisa": "VITE_SITE=somaliavisa.net npm run build",
+    "build:all": "npm run build && npm run build:evisasomalia && npm run build:somaliavisa"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

@@ -5,6 +5,7 @@ import { PageSEO } from "@/components/PageSEO";
 import { CheckCircle2, Clock, CreditCard, Globe2, ArrowRight } from "lucide-react";
 import { visaCountries, visaCountriesSorted } from "@/data/visaCountries";
 import { AJNABI_OPTION, formatCheckoutTotal } from "@/lib/pricing";
+import { SITE } from "@/config/site";
 
 const requirements = [
   "A valid passport with at least 6 months' validity remaining from your travel date",
@@ -26,7 +27,7 @@ const VisaCountry = () => {
   const faqs = [
     {
       q: `Do ${data.demonym} citizens need a visa for Somalia?`,
-      a: `Yes. ${data.demonym} passport holders must obtain an approved eVisa before travelling to Somalia. eVisaSomali helps you prepare and submit this application online.`,
+      a: `Yes. ${data.demonym} passport holders must obtain an approved eVisa before travelling to Somalia. ${SITE.brand} helps you prepare and submit this application online.`,
     },
     {
       q: "How long does processing take?",
@@ -45,9 +46,9 @@ const VisaCountry = () => {
   return (
     <>
       <PageSEO
-        title={`Somalia eVisa for ${data.demonym} Citizens | eVisaSomali`}
+        title={`Somalia eVisa for ${data.demonym} Citizens | ${SITE.brand}`}
         description={`Apply for your Somalia eVisa from ${data.country}. ${data.intro}`}
-        canonical={`https://www.evisasomali.com/visa/${data.slug}`}
+        canonical={`${SITE.url}/visa/${data.slug}`}
         jsonLd={[
           {
             "@type": "FAQPage",
@@ -60,9 +61,9 @@ const VisaCountry = () => {
           {
             "@type": "BreadcrumbList",
             "itemListElement": [
-              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.evisasomali.com/" },
-              { "@type": "ListItem", "position": 2, "name": "Visas by Nationality", "item": "https://www.evisasomali.com/visa" },
-              { "@type": "ListItem", "position": 3, "name": `Somalia Visa for ${data.country}`, "item": `https://www.evisasomali.com/visa/${data.slug}` },
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE.url}/` },
+              { "@type": "ListItem", "position": 2, "name": "Visas by Nationality", "item": `${SITE.url}/visa` },
+              { "@type": "ListItem", "position": 3, "name": `Somalia Visa for ${data.country}`, "item": `${SITE.url}/visa/${data.slug}` },
             ],
           },
         ]}

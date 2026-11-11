@@ -17,9 +17,10 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { SITE, OUT_DIR } from "./site.mjs";
 
 const run = promisify(execFile);
-const DIST = path.resolve("dist");
+const DIST = OUT_DIR;
 const PORT = 4319;
 const CHROME =
   process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -139,7 +140,7 @@ try {
   for (const pattern of OVERRIDDEN) fallback = fallback.replace(pattern, "");
   fallback = fallback.replace(
     "</head>",
-    '    <title>Page not found | eVisaSomali</title>\n    <meta name="robots" content="noindex" />\n  </head>',
+    `    <title>Page not found | ${SITE.brand}</title>\n    <meta name="robots" content="noindex" />\n  </head>`,
   );
   await writeFile(path.join(DIST, "404.html"), fallback);
 } finally {

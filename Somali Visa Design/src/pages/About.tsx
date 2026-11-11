@@ -2,25 +2,26 @@ import { Link } from "react-router-dom";
 import { SectionHeading } from "@/components/SectionHeading";
 import { Globe2, Shield, Heart, Award, CheckCircle2, ArrowRight } from "lucide-react";
 import { PageSEO } from "@/components/PageSEO";
+import { SITE } from "@/config/site";
 
 const About = () => (
   <>
     <PageSEO
-      title="About eVisaSomali — Trusted Visa Application Specialists"
+      title={`About ${SITE.brand} — Trusted Visa Application Specialists`}
       description="We are an independent Somalia eVisa service helping diaspora travellers and international visitors apply accurately and with confidence. Specialist-assisted, secure, 24/7."
-      canonical="https://www.evisasomali.com/about"
+      canonical={`${SITE.url}/about`}
       jsonLd={{
         "@context": "https://schema.org",
         "@type": "AboutPage",
-        "url": "https://www.evisasomali.com/about",
-        "name": "About eVisaSomali",
+        "url": `${SITE.url}/about`,
+        "name": `About ${SITE.brand}`,
         "description": "An independent Somalia eVisa application service helping diaspora travellers and international visitors apply accurately and with confidence.",
         "publisher": {
           "@type": "Organization",
-          "@id": "https://www.evisasomali.com/#org",
-          "name": "eVisaSomali",
-          "url": "https://www.evisasomali.com",
-          "email": "support@evisasomali.com",
+          "@id": `${SITE.url}/#org`,
+          "name": `${SITE.brand}`,
+          "url": `${SITE.url}`,
+          "email": `${SITE.email}`,
         }
       }}
     />
@@ -43,7 +44,7 @@ const About = () => (
       <SectionHeading eyebrow="Who We Are" title="Independent specialists, not a government agency." />
       <div className="mt-8 space-y-5 text-foreground/85 leading-relaxed">
         <p>
-          <strong>eVisaSomali.com</strong> is an independent visa application assistance service,
+          <strong>{SITE.domain}</strong> is an independent visa application assistance service,
           a trading name of Passkey Technologies Limited, registered in England &amp; Wales
           (Company No. 16877709), with its registered office at 71–75 Shelton Street, Covent Garden,
           London WC2H 9JQ, United Kingdom.

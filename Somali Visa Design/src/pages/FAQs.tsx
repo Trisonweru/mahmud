@@ -1,6 +1,7 @@
 import { SectionHeading } from "@/components/SectionHeading";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PageSEO } from "@/components/PageSEO";
+import { SITE } from "@/config/site";
 
 const faqs = [
   {
@@ -25,7 +26,7 @@ const faqs = [
   },
   {
     q: "Is this an official government website?",
-    a: "No. eVisaSomali is an independent specialist service that assists travellers with preparing and submitting their eVisa applications. We are not affiliated with the Somali government.",
+    a: `No. ${SITE.brand} is an independent specialist service that assists travellers with preparing and submitting their eVisa applications. We are not affiliated with the Somali government.`,
   },
   {
     q: "How will I receive my Somalia eVisa?",
@@ -68,7 +69,7 @@ const FAQs = () => (
     <PageSEO
       title="Somalia eVisa FAQ — Costs, Requirements & Processing Time"
       description="Answers to the most common questions about the Somalia eVisa — fees, required documents, processing times, eligibility, diaspora applications, and more."
-      canonical="https://www.evisasomali.com/faqs"
+      canonical={`${SITE.url}/faqs`}
       jsonLd={faqJsonLd}
     />
     <section className="container py-20 max-w-3xl">

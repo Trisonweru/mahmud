@@ -4,6 +4,7 @@ import { PageSEO } from "@/components/PageSEO";
 import { SectionHeading } from "@/components/SectionHeading";
 import { Search, Loader2, CheckCircle2, AlertTriangle, XCircle, Clock, Landmark, Banknote } from "lucide-react";
 import { API_URL } from "@/lib/api";
+import { SITE } from "@/config/site";
 
 type AppStatus = "pending_payment" | "awaiting_etas" | "submitted" | "in_review" | "additional_info" | "government_info_required" | "approved" | "rejected" | "refunded";
 
@@ -73,9 +74,9 @@ const Status = () => {
   return (
     <>
       <PageSEO
-        title="Check Somalia eVisa Application Status | eVisaSomali"
+        title={`Check Somalia eVisa Application Status | ${SITE.brand}`}
         description="Track your Somalia eVisa application status. Enter your email address and reference number to check where your application stands."
-        canonical="https://www.evisasomali.com/status"
+        canonical={`${SITE.url}/status`}
       />
       <section className="container py-20 max-w-2xl">
         <SectionHeading

@@ -13,6 +13,7 @@ import { DateDropdown } from "@/components/DateDropdown";
 import { fileSizeError, monthsBetween } from "@/lib/validation";
 import { extractPassport, hasExtractedData, matchNationality, UnsupportedImageError } from "@/lib/passportOcr";
 import { PRICING_TIERS, AJNABI_OPTION, formatCheckoutTotal, getCheckoutTotal, type ProcessingSpeed } from "@/lib/pricing";
+import { SITE } from "@/config/site";
 import {
   ArrowRight, ShieldCheck, Clock4, FileCheck2, Headphones, Lock, Sparkles,
   CheckCircle2, FileText, BadgeCheck, Plane, UploadCloud, Zap, PenLine,
@@ -154,29 +155,29 @@ const Index = () => {
   const homepageJsonLd = [
     {
       "@type": "Organization",
-      "@id": "https://www.evisasomali.com/#org",
-      "name": "eVisaSomali",
-      "url": "https://www.evisasomali.com",
-      "logo": { "@type": "ImageObject", "url": "https://www.evisasomali.com/og-image.jpg", "width": 1200, "height": 630 },
-      "email": "support@evisasomali.com",
+      "@id": `${SITE.url}/#org`,
+      "name": `${SITE.brand}`,
+      "url": `${SITE.url}`,
+      "logo": { "@type": "ImageObject", "url": `${SITE.url}/og-image.jpg`, "width": 1200, "height": 630 },
+      "email": `${SITE.email}`,
       "telephone": "+252613886027",
       "address": { "@type": "PostalAddress", "streetAddress": "71-75 Shelton Street, Covent Garden", "addressLocality": "London", "postalCode": "WC2H 9JQ", "addressCountry": "GB" },
-      "contactPoint": { "@type": "ContactPoint", "telephone": "+252613886027", "email": "support@evisasomali.com", "contactType": "customer support", "availableLanguage": ["English", "Somali"] },
+      "contactPoint": { "@type": "ContactPoint", "telephone": "+252613886027", "email": `${SITE.email}`, "contactType": "customer support", "availableLanguage": ["English", "Somali"] },
       "openingHoursSpecification": { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "00:00", "closes": "23:59" },
       "sameAs": []
     },
     {
       "@type": "WebSite",
-      "@id": "https://www.evisasomali.com/#website",
-      "name": "eVisaSomali",
-      "url": "https://www.evisasomali.com",
-      "publisher": { "@id": "https://www.evisasomali.com/#org" }
+      "@id": `${SITE.url}/#website`,
+      "name": `${SITE.brand}`,
+      "url": `${SITE.url}`,
+      "publisher": { "@id": `${SITE.url}/#org` }
     },
     {
       "@type": "Service",
       "name": "Somalia eVisa Application Service",
       "description": "Apply for your Somalia eVisa online. Upload your passport and photo — our specialists prepare and submit your application in 60 seconds.",
-      "provider": { "@id": "https://www.evisasomali.com/#org" },
+      "provider": { "@id": `${SITE.url}/#org` },
       "areaServed": { "@type": "Country", "name": "Somalia" },
       "serviceType": "Visa Application Assistance",
       "offers": { "@type": "Offer", "price": String(getCheckoutTotal(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)), "priceCurrency": "GBP" }
@@ -186,9 +187,9 @@ const Index = () => {
   return (
     <>
       <PageSEO
-        title="Apply for Somalia eVisa Online | Fast & Secure | eVisaSomali"
+        title={`Apply for Somalia eVisa Online | Fast & Secure | ${SITE.brand}`}
         description={`Get your Somalia eVisa in 60 seconds. Upload your passport and photo — our specialists handle the rest. From ${formatCheckoutTotal(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}, with 5-6hr Express available. WhatsApp updates. 24/7 support.`}
-        canonical="https://www.evisasomali.com/"
+        canonical={`${SITE.url}/`}
         jsonLd={homepageJsonLd}
       />
       {/* HERO — choice first */}

@@ -2,6 +2,7 @@ import { PageSEO } from "@/components/PageSEO";
 import { SectionHeading } from "@/components/SectionHeading";
 import { FileText, Camera, CreditCard, FileSignature, Calendar } from "lucide-react";
 import { PRICING_TIERS, formatCheckoutTotal } from "@/lib/pricing";
+import { SITE } from "@/config/site";
 
 const docs = [
   { icon: FileText, title: "Valid Passport", body: "Valid for at least 6 months from your arrival date, with two blank pages." },
@@ -29,9 +30,9 @@ const documentsJsonLd = {
 const Documents = () => (
   <>
     <PageSEO
-      title="Somalia eVisa Requirements — Documents You Need | eVisaSomali"
+      title={`Somalia eVisa Requirements — Documents You Need | ${SITE.brand}`}
       description="Find out exactly what documents you need for a Somalia eVisa: valid passport, digital photo, travel date and (for foreign applicants) a sponsor document. Apply online in minutes."
-      canonical="https://www.evisasomali.com/documents"
+      canonical={`${SITE.url}/documents`}
       jsonLd={documentsJsonLd}
     />
   <section className="container py-20">

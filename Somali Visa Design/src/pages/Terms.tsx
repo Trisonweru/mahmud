@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
 import { SectionHeading } from "@/components/SectionHeading";
 import { PageSEO } from "@/components/PageSEO";
+import { SITE } from "@/config/site";
 
 const Terms = () => (
   <>
   <PageSEO
     title="Terms & Conditions — Somalia eVisa Application Service"
-    description="Read the terms and conditions governing use of the eVisaSomali specialist application service."
-    canonical="https://www.evisasomali.com/terms"
+    description={`Read the terms and conditions governing use of the ${SITE.brand} specialist application service.`}
+    canonical={`${SITE.url}/terms`}
   />
   <section className="container py-20 max-w-3xl">
     <SectionHeading eyebrow="Legal" title="Terms of Service" />
@@ -15,7 +16,7 @@ const Terms = () => (
 
     <div className="mt-10 space-y-8 text-sm leading-relaxed text-foreground/85">
       <Block n="1" title="Service Provider">
-        This service is provided by <strong>eVisaSomali.com</strong> ("we," "us," or "our"),
+        This service is provided by <strong>{SITE.domain}</strong> ("we," "us," or "our"),
         a trading name of Passkey Technologies Limited registered in England &amp; Wales (Company No. 16877709),
         registered office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom.
         We are not affiliated with, endorsed by,
@@ -108,15 +109,15 @@ const Terms = () => (
         <h2 className="font-serif text-2xl text-primary">Contact Us</h2>
         <p className="mt-3">
           Email:{" "}
-          <a href="mailto:support@evisasomali.com" className="text-accent underline">
-            support@evisasomali.com
+          <a href={`mailto:${SITE.email}`} className="text-accent underline">
+            {SITE.email}
           </a>
           <br />
           Phone / WhatsApp: +252 61 3886027
           <br />
           Registered Office: 71–75 Shelton Street, Covent Garden, London WC2H 9JQ, United Kingdom
           <br />
-          Company Name: Passkey Technologies Limited (trading as eVisaSomali.com)
+          Company Name: Passkey Technologies Limited (trading as {SITE.domain})
           <br />
           Company No.: 16877709
         </p>

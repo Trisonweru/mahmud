@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Search } from "lucide-react";
 import { PageSEO } from "@/components/PageSEO";
 import { visaCountriesByRegion, visaCountriesSorted } from "@/data/visaCountries";
+import { SITE } from "@/config/site";
 
-const SITE = "https://www.evisasomali.com";
 
 const VisaCountries = () => {
   const [q, setQ] = useState("");
@@ -25,9 +25,9 @@ const VisaCountries = () => {
   return (
     <>
       <PageSEO
-        title="Somalia Visa by Nationality — eVisa Requirements for Every Country | eVisaSomali"
+        title={`Somalia Visa by Nationality — eVisa Requirements for Every Country | ${SITE.brand}`}
         description={`Somalia eVisa requirements for all ${visaCountriesSorted.length} nationalities. Find the documents, processing time and fees for your passport — from the United States, United Kingdom, Sweden, Kenya and more.`}
-        canonical={`${SITE}/visa`}
+        canonical={`${SITE.url}/visa`}
         jsonLd={[
           {
             "@type": "ItemList",
@@ -37,14 +37,14 @@ const VisaCountries = () => {
               "@type": "ListItem",
               position: i + 1,
               name: `Somalia Visa for ${c.country}`,
-              url: `${SITE}/visa/${c.slug}`,
+              url: `${SITE.url}/visa/${c.slug}`,
             })),
           },
           {
             "@type": "BreadcrumbList",
             itemListElement: [
-              { "@type": "ListItem", position: 1, name: "Home", item: `${SITE}/` },
-              { "@type": "ListItem", position: 2, name: "Visas by Nationality", item: `${SITE}/visa` },
+              { "@type": "ListItem", position: 1, name: "Home", item: `${SITE.url}/` },
+              { "@type": "ListItem", position: 2, name: "Visas by Nationality", item: `${SITE.url}/visa` },
             ],
           },
         ]}

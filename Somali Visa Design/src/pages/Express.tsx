@@ -9,6 +9,7 @@ import { FUNCTIONS_URL, fnHeaders } from "@/lib/api";
 import { extractPassport, hasExtractedData, UnsupportedImageError } from "@/lib/passportOcr";
 import { fileSizeError, isEmail } from "@/lib/validation";
 import { PRICING_TIERS, formatCheckoutTotal } from "@/lib/pricing";
+import { SITE } from "@/config/site";
 
 const Express = () => {
   const navigate = useNavigate();
@@ -112,9 +113,9 @@ const Express = () => {
   return (
     <>
     <PageSEO
-      title="Somalia eVisa Express Service — Skip the Form | eVisaSomali"
+      title={`Somalia eVisa Express Service — Skip the Form | ${SITE.brand}`}
       description={`Don't want to fill out the application? Send us your passport page and photo — our specialists prepare your Somalia eVisa application for you. From ${formatCheckoutTotal(PRICING_TIERS.standard.fee, PRICING_TIERS.standard.currency)}, 24/7 support.`}
-      canonical="https://www.evisasomali.com/express"
+      canonical={`${SITE.url}/express`}
     />
     <section className="container py-20 max-w-3xl">
       <SectionHeading
