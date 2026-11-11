@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { verifyStripeSignature } from "../_shared/stripe.ts";
 import { sendEmail } from "../_shared/resend.ts";
 import { paymentConfirmationEmail, refundConfirmationEmail } from "../_shared/emailTemplates.ts";
+import { siteConfig } from "../_shared/sites.ts";
 
 const STRIPE_WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
 
@@ -49,7 +50,7 @@ serve(async (req) => {
         })
         .eq("stripe_payment_intent_id", paymentIntentId)
         .or("refund_status.is.null,refund_status.neq.refunded")
-        .select("id, email, full_name, reference");
+        .select("id, email, full_name, reference, source_site");
 
       if (updated && updated.length > 0) {
         const app = updated[0];
@@ -63,7 +64,9 @@ serve(async (req) => {
           await sendEmail({
             to: app.email,
             subject: `Refund processed — Application ${app.reference}`,
-            html: refundConfirmationEmail({ fullName: app.full_name, reference: app.reference }),
+            html: refundConfirmationEmail({ fullName: app.full_name, reference: app.reference, site: app.source_site }),
+            from: siteConfig(app.source_site).from,
+            replyTo: siteConfig(app.source_site).replyTo,
           });
         }
       }
@@ -90,7 +93,7 @@ serve(async (req) => {
         })
         .eq("id", applicationId)
         .eq("paid", false)
-        .select("id, email, full_name, reference, processing_speed");
+        .select("id, email, full_name, reference, processing_speed, source_site");
 
       if (updated && updated.length > 0) {
         await supabase.from("application_notes").insert({
@@ -104,7 +107,9 @@ serve(async (req) => {
           await sendEmail({
             to: app.email,
             subject: `Payment confirmed — Application ${app.reference}`,
-            html: paymentConfirmationEmail({ fullName: app.full_name, reference: app.reference, processingSpeed: app.processing_speed }),
+            html: paymentConfirmationEmail({ fullName: app.full_name, reference: app.reference, processingSpeed: app.processing_speed, site: app.source_site }),
+            from: siteConfig(app.source_site).from,
+            replyTo: siteConfig(app.source_site).replyTo,
           });
         }
       }

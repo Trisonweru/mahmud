@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { applicationRejectedEmail } from "../_shared/emailTemplates.ts";
 import { sendEmail } from "../_shared/resend.ts";
+import { siteConfig } from "../_shared/sites.ts";
 
 // Called by the admin hub (not the public site) after staff reject an application.
 const ALLOWED_ORIGINS = new Set([
@@ -44,7 +45,7 @@ serve(async (req) => {
 
   const { data: app } = await admin
     .from("applications")
-    .select("id, email, full_name, reference, status, paid, refund_status")
+    .select("id, email, full_name, reference, status, paid, refund_status, source_site")
     .eq("id", applicationId)
     .maybeSingle();
   if (!app) return Response.json({ error: "Application not found" }, { status: 404, headers: cors });
@@ -68,7 +69,10 @@ serve(async (req) => {
       fullName: app.full_name,
       reference: app.reference,
       refundRequested: !!app.paid || app.refund_status !== null,
+      site: app.source_site,
     }),
+    from: siteConfig(app.source_site).from,
+    replyTo: siteConfig(app.source_site).replyTo,
   });
   if (!sent) return Response.json({ error: "Email could not be sent" }, { status: 502, headers: cors });
   await admin.from("application_notes").insert({ application_id: app.id, author_id: user.id, body: SENT_NOTE });

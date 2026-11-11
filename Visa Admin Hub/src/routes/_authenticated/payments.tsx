@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { AccessDenied } from "@/components/admin/AccessDenied";
 import { PageShell, PageHeader } from "@/components/admin/PageShell";
 import { PaymentRef } from "@/components/admin/PaymentRef";
+import { SiteBadge, SiteSelect } from "@/components/admin/SiteBadge";
+import { siteInfo, type SiteFilterValue } from "@/lib/sites";
 import type { Application } from "@/lib/applications";
 import { formatMoney, processingLabel, sumByCurrency, formatCurrencyTotals } from "@/lib/applications";
 
@@ -45,6 +47,7 @@ function PaymentsContent() {
   const range = period === "custom" ? { from: customFrom, to: customTo } : quickRange(period);
   const [q, setQ] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "standard" | "express">("all");
+  const [site, setSite] = useState<SiteFilterValue>("all");
 
   useEffect(() => {
     let on = true;
@@ -59,14 +62,17 @@ function PaymentsContent() {
     return () => { on = false; supabase.removeChannel(ch); };
   }, []);
 
+  // Every total, list and refund on this page follows the selected website.
+  const siteApps = useMemo(() => (site === "all" ? apps : apps.filter(a => a.source_site === site)), [apps, site]);
+
   // All paid, filtered by type + search
-  const paidAll = useMemo(() => apps.filter(a => {
+  const paidAll = useMemo(() => siteApps.filter(a => {
     if (!a.paid || !a.paid_at) return false;
     return (
       (typeFilter === "all" || a.processing_speed === typeFilter) &&
       (q === "" || `${a.full_name} ${a.reference} ${a.email} ${a.nationality}`.toLowerCase().includes(q.toLowerCase()))
     );
-  }), [apps, typeFilter, q]);
+  }), [siteApps, typeFilter, q]);
 
   // Active period transactions (all paid, by paid_at)
   const activeItems = useMemo(() =>
@@ -80,12 +86,12 @@ function PaymentsContent() {
 
   // Refunds processed in active period (by refund_processed_at)
   const activeRefunds = useMemo(() =>
-    apps.filter(a =>
+    siteApps.filter(a =>
       a.refund_status === "refunded" &&
       a.refund_processed_at &&
       inPeriod(new Date(a.refund_processed_at), range)
     ),
-  [apps, range.from, range.to]);
+  [siteApps, range.from, range.to]);
 
   const activeRefundByCurrency = useMemo(() =>
     sumByCurrency(activeRefunds, a => Number(a.refund_amount ?? a.fee), a => a.currency),
@@ -100,7 +106,7 @@ function PaymentsContent() {
   // All-time totals (independent of the selected period), refund-aware to stay
   // consistent with the period figures above.
   const allTimeGrossByCurrency = useMemo(() => sumByCurrency(paidAll, a => Number(a.fee), a => a.currency), [paidAll]);
-  const allTimeRefunds = useMemo(() => apps.filter(a => a.refund_status === "refunded"), [apps]);
+  const allTimeRefunds = useMemo(() => siteApps.filter(a => a.refund_status === "refunded"), [siteApps]);
   const allTimeRefundByCurrency = useMemo(() =>
     sumByCurrency(allTimeRefunds, a => Number(a.refund_amount ?? a.fee), a => a.currency),
   [allTimeRefunds]);
@@ -128,13 +134,13 @@ function PaymentsContent() {
   }, [activeItems, period]);
 
   // Pending refund requests
-  const pendingRefunds = useMemo(() => apps.filter(a => a.refund_status === "requested"), [apps]);
+  const pendingRefunds = useMemo(() => siteApps.filter(a => a.refund_status === "requested"), [siteApps]);
   const [showRefundPanel, setShowRefundPanel] = useState(false);
 
   const exportCsv = () => {
-    const rows: string[][] = [["Reference", "Payment ID", "Applicant", "Email", "Nationality", "Processing", "Amount", "Currency", "Paid at", "Refund Status", "Refund Amount", "Refund Processed At"]];
+    const rows: string[][] = [["Reference", "Website", "Payment ID", "Applicant", "Email", "Nationality", "Processing", "Amount", "Currency", "Paid at", "Refund Status", "Refund Amount", "Refund Processed At"]];
     activeItems.forEach(a => rows.push([
-      a.reference, a.stripe_payment_intent_id ?? "", a.full_name, a.email, a.nationality, processingLabel(a), String(a.fee), a.currency, a.paid_at ?? "",
+      a.reference, siteInfo(a.source_site).label, a.stripe_payment_intent_id ?? "", a.full_name, a.email, a.nationality, processingLabel(a), String(a.fee), a.currency, a.paid_at ?? "",
       a.refund_status ?? "", a.refund_amount != null ? String(a.refund_amount) : "", a.refund_processed_at ?? "",
     ]));
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
@@ -224,6 +230,7 @@ function PaymentsContent() {
                 <tr key={a.id} className="border-b border-destructive/10 last:border-0">
                   <td className="px-5 py-3">
                     <Link to="/applications/$id" params={{ id: a.id }} className="font-mono text-xs text-primary hover:text-accent">{a.reference}</Link>
+                    <div className="mt-1"><SiteBadge site={a.source_site} /></div>
                   </td>
                   <td className="max-w-[140px] truncate px-5 py-3 text-foreground">{a.full_name}</td>
                   <td className="px-5 py-3 text-right font-medium">{formatMoney(Number(a.refund_amount ?? a.fee), a.currency)}</td>
@@ -256,8 +263,9 @@ function PaymentsContent() {
             <option value="standard">Standard</option>
             <option value="express">Express</option>
           </select>
-          {(q || typeFilter !== "all") && (
-            <button onClick={() => { setQ(""); setTypeFilter("all"); }}
+          <SiteSelect value={site} onChange={setSite} />
+          {(q || typeFilter !== "all" || site !== "all") && (
+            <button onClick={() => { setQ(""); setTypeFilter("all"); setSite("all"); }}
               className="inline-flex items-center gap-1 rounded-sm border border-border px-2.5 py-1 text-[11px] uppercase tracking-wider text-muted-foreground hover:border-destructive hover:text-destructive">
               <X className="h-3 w-3" /> Clear
             </button>

@@ -131,6 +131,7 @@ export type Database = {
       }
       applications: {
         Row: {
+          source_site: string
           address_in_somalia: string
           applicant_type: string | null
           arrival_date: string
@@ -174,6 +175,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          source_site?: string
           address_in_somalia: string
           applicant_type?: string | null
           arrival_date: string
@@ -217,6 +219,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          source_site?: string
           address_in_somalia?: string
           applicant_type?: string | null
           arrival_date?: string
