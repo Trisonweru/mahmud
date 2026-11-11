@@ -49,8 +49,7 @@ const About = () => (
           (Company No. 16877709), with its registered office at 71–75 Shelton Street, Covent Garden,
           London WC2H 9JQ, United Kingdom.
           We are not affiliated with, endorsed by, or connected to the Somali government or any of its
-          departments. We are a third-party service that guides applicants through the Somalia eTAS
-          (Electronic Travel Authorisation System) process.
+          departments.
         </p>
         {a.whoParagraphs.map((p) => (
           <p key={p}>{p}</p>

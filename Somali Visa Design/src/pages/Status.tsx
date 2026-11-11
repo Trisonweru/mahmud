@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { PageSEO } from "@/components/PageSEO";
 import { SectionHeading } from "@/components/SectionHeading";
-import { Search, Loader2, CheckCircle2, AlertTriangle, XCircle, Clock, Landmark, Banknote } from "lucide-react";
+import { Search, Loader2, CheckCircle2, AlertTriangle, XCircle, Clock, Banknote } from "lucide-react";
 import { API_URL } from "@/lib/api";
 import { SITE } from "@/config/site";
 
@@ -22,8 +22,8 @@ const STATUS_UI: Record<AppStatus, { label: string; message: string; icon: typeo
   awaiting_etas:    { label: "Pending",      message: "Your application is pending review. We will notify you when a decision is made.", icon: Clock,         color: "text-amber-600",  bg: "bg-amber-50 border-amber-200"  },
   submitted:        { label: "Pending",      message: "Your application is pending review. We will notify you when a decision is made.", icon: Clock,         color: "text-blue-600",   bg: "bg-blue-50 border-blue-200"    },
   in_review:        { label: "Pending",      message: "Your application is pending review. We will notify you when a decision is made.", icon: Clock,         color: "text-blue-600",   bg: "bg-blue-50 border-blue-200"    },
-  additional_info:          { label: "Info Required",            message: "Additional information is required by our team. Please check your email for instructions.",                                                     icon: AlertTriangle, color: "text-amber-700",   bg: "bg-amber-50 border-amber-300"    },
-  government_info_required: { label: "Government Info Required", message: "Additional information has been requested by the Government. Please check your email for instructions.",                                          icon: Landmark,      color: "text-indigo-700",  bg: "bg-indigo-50 border-indigo-300"  },
+  additional_info:          { label: "Info Required",            message: "We need a little more information to complete your application. Please check your email for instructions.",                                                     icon: AlertTriangle, color: "text-amber-700",   bg: "bg-amber-50 border-amber-300"    },
+  government_info_required: { label: "Info Required",            message: "We need a little more information to complete your application. Please check your email for instructions.", icon: AlertTriangle,      color: "text-indigo-700",  bg: "bg-indigo-50 border-indigo-300"  },
   approved:                 { label: "Approved",                 message: "Your eVisa has been sent to your email address.",                                                                                                 icon: CheckCircle2,  color: "text-green-700",   bg: "bg-green-50 border-green-200"    },
   rejected:         { label: "Denied",       message: "A notification has been sent to your email with further information.",            icon: XCircle,       color: "text-red-700",    bg: "bg-red-50 border-red-200"      },
   refunded:         { label: "Refunded",     message: "Your payment for this application has been refunded. Please allow a few business days for it to appear on your statement.", icon: Banknote, color: "text-violet-700", bg: "bg-violet-50 border-violet-200" },
@@ -133,16 +133,6 @@ const Status = () => {
                   <div className={`mt-0.5 font-serif text-2xl ${ui.color}`}>{ui.label}</div>
                 </div>
               </div>
-              {result.status === "government_info_required" && (
-                <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-indigo-100 border border-indigo-300 px-3 py-1 text-[10px] uppercase tracking-widest text-indigo-700 font-semibold">
-                  <Landmark className="h-3 w-3" /> Government
-                </span>
-              )}
-              {result.status === "additional_info" && (
-                <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-amber-100 border border-amber-300 px-3 py-1 text-[10px] uppercase tracking-widest text-amber-700 font-semibold">
-                  <AlertTriangle className="h-3 w-3" /> From Us
-                </span>
-              )}
             </div>
             <p className="mt-4 text-sm leading-relaxed text-foreground/80">{ui.message}</p>
           </div>

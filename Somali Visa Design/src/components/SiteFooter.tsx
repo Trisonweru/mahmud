@@ -20,12 +20,12 @@ export const SiteFooter = () => {
             </div>
           </div>
           <p className="mt-6 text-sm leading-relaxed text-primary-foreground/70">
-            An independent service helping travellers prepare and submit their
-            eVisa applications with clarity and care.
+            An independent service helping travellers get their Somalia
+            eVisa with clarity and care.
           </p>
           <div className="mt-6 flex items-center gap-2 text-xs text-primary-foreground/60">
             <Shield className="h-3.5 w-3.5 text-accent" />
-            Independent third-party service — not a government agency
+            Independent private service — not a government agency
           </div>
         </div>
 
@@ -85,7 +85,7 @@ export const SiteFooter = () => {
       <div className="border-t border-primary-foreground/10">
         <div className="container py-4 text-[11px] text-center text-primary-foreground/70">
           <span className="text-accent font-medium">Disclaimer:</span>{" "}
-          Independent third-party service. Not a government agency.
+          Independent private service. Not a government agency.
         </div>
       </div>
 

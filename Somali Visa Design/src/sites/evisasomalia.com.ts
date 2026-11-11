@@ -38,10 +38,10 @@ const regionNote: Record<VisaRegion, string> = {
 
 const country = (d: VisaCountryInfo) => {
   const intro = pick(d.slug, [
-    `Planning a trip to Somalia on a ${d.demonym} passport? You need an approved Somalia eVisa (issued through the eTAS system) before you travel. This guide explains what to prepare, what it costs and how ${SITE.brand} can submit it for you.`,
-    `${d.demonym} citizens cannot board a flight to Somalia without an approved eVisa. Here is a clear checklist for applicants in ${d.country}, plus the simplest way to get your application checked and submitted.`,
+    `Planning a trip to Somalia on a ${d.demonym} passport? You need an approved Somalia eVisa (issued through the eTAS system) before you travel. This guide explains what to prepare, what it costs and how ${SITE.brand} can handle it for you.`,
+    `${d.demonym} citizens cannot board a flight to Somalia without an approved eVisa. Here is a clear checklist for applicants in ${d.country}, plus the simplest way to get your application checked and processed.`,
     `Travelling from ${d.country} to Somalia? The entry permit is an electronic visa issued online through the Somalia eTAS. Below we cover the documents, fees and timings that apply to ${d.demonym} passport holders.`,
-    `If you hold a ${d.demonym} passport, Somalia requires you to obtain an eVisa in advance. We walk you through each requirement and can prepare and lodge the application on your behalf from ${d.country}.`,
+    `If you hold a ${d.demonym} passport, Somalia requires you to obtain an eVisa in advance. We walk you through each requirement and can handle the whole application for you from ${d.country}.`,
   ]);
   const highlight = pick(d.slug + "h", [
     `${regionNote[d.region]} Our team double-checks your passport scan, photo and travel date so the application isn't sent back for corrections.`,
@@ -63,7 +63,7 @@ const country = (d: VisaCountryInfo) => {
       },
       {
         title: "What you pay",
-        body: `${ajnabiFee} in total. That single price already includes the government eTAS fee and our checking and submission service.`,
+        body: `${ajnabiFee} in total. That single price covers everything, with nothing added later.`,
       },
       {
         title: "How long it lasts",
@@ -87,7 +87,7 @@ const country = (d: VisaCountryInfo) => {
     faqs: [
       {
         q: `Is a visa required for ${d.demonym} citizens visiting Somalia?`,
-        a: `It is. Every ${d.demonym} passport holder needs an approved Somalia eVisa before departure, whatever the purpose of the trip. ${SITE.brand} can prepare and submit it for you online.`,
+        a: `It is. Every ${d.demonym} passport holder needs an approved Somalia eVisa before departure, whatever the purpose of the trip. ${SITE.brand} can arrange it for you online.`,
       },
       {
         q: `How quickly can I get a Somalia eVisa from ${d.country}?`,
@@ -95,7 +95,7 @@ const country = (d: VisaCountryInfo) => {
       },
       {
         q: "Are there any extra charges on top of the price shown?",
-        a: `No. The ${ajnabiFee} you see covers the official eTAS fee plus our document checks and submission — nothing is added later.`,
+        a: `No. The ${ajnabiFee} you see covers everything, including our document checks and processing — nothing is added later.`,
       },
       {
         q: `Do I have to be in ${d.country} to apply?`,
@@ -115,14 +115,14 @@ const content: SiteContent = {
 
   home: {
     seoTitle: `Somalia eVisa Online: Requirements & Application | ${SITE.brand}`,
-    seoDescription: `A clear guide to the Somalia eVisa (eTAS) with an application checked by specialists before submission. From ${standardFee}, Express in about 5–6 hours.`,
+    seoDescription: `A clear guide to the Somalia eVisa (eTAS) with every application checked by specialists. From ${standardFee}, Express in about 5–6 hours.`,
     serviceDescription:
-      "Guided Somalia eVisa (eTAS) application service: requirements explained, documents checked by specialists and the application submitted for you.",
+      "Guided Somalia eVisa (eTAS) application service: requirements explained, documents checked by specialists and the application handled for you.",
     heroImageAlt: "Traveller preparing a Somalia eVisa application before a flight",
     heroBadge: "Somalia eTAS · Guided online application",
     heroTitle: { before: "Your Somalia eVisa, ", highlight: "explained", after: " and done for you" },
     heroSomali: "Fiisaha Soomaaliya — si fudud",
-    heroSub: "Pick the route that fits your passport and timeline. We check every document before it goes to the eTAS. ·",
+    heroSub: "Pick the route that fits your passport and timeline. We check every document before your application is processed. ·",
     heroSubSomali: " Dooro habka kugu habboon.",
     heroAlign: "left",
     cards: {
@@ -131,7 +131,7 @@ const content: SiteContent = {
         title: "Somali diaspora, foreign passport",
         somali: "Qurba-Joog baan ahay",
         body: `For travellers of Somali origin on a non-Somali passport. Upload your passport and a photo, confirm a few details and we prepare the rest. ${standardFee} · ${PRICING_TIERS.standard.processingTime}.`,
-        bullets: ["Takes about a minute", "Passport and photo upload", "We complete the eTAS form", "Progress by WhatsApp and email"],
+        bullets: ["Takes about a minute", "Passport and photo upload", "No long forms to fill in", "Progress by WhatsApp and email"],
         button: "Choose Standard",
       },
       express: {
@@ -154,9 +154,9 @@ const content: SiteContent = {
     pricing: {
       eyebrow: "Fees",
       title: "One price, no surprises",
-      description: "Each price below already includes the official eTAS fee. You see the total before you pay.",
+      description: "Each price below is all-inclusive. You see the total before you pay.",
       standardBody: (time) =>
-        `Decision usually within ${time}. Includes our document check, form preparation and submission to the Somalia eTAS.`,
+        `Decision usually within ${time}. Includes our document check, form preparation and processing.`,
       expressBody: () => "Moved to the front of the queue — typically about 5–6 hours on Somali working days.",
       ajnabiNote: (fee, time) =>
         `Non-Somali (Ajnabi) visitors who need a sponsor use the guided application (Option 3): ${fee}, around ${time}. The full amount is shown before checkout.`,
@@ -167,7 +167,7 @@ const content: SiteContent = {
       description: "The Somalia eTAS can be confusing the first time. Here is exactly what happens after you start.",
       steps: [
         { title: "1. Tell us about your trip", body: "Choose your route, add your travel date and upload a passport scan and photo." },
-        { title: "2. We check and submit", body: "A specialist reads every field, fixes common mistakes and lodges the application with the eTAS." },
+        { title: "2. We check and process", body: "A specialist reads every field, fixes common mistakes and processes your application." },
         { title: "3. Receive the approval", body: "Your eVisa is emailed to you and you get a WhatsApp message as soon as it is issued." },
       ],
     },
@@ -175,9 +175,9 @@ const content: SiteContent = {
       eyebrow: "Why travellers use us",
       title: "Fewer rejected applications, less stress.",
       description:
-        "Most refusals come from small errors — a cropped scan, a wrong date, a missing sponsor. We catch them before the government does.",
+        "Most refusals come from small errors — a cropped scan, a wrong date, a missing sponsor. We catch them before they cost you time.",
       points: [
-        "Every application read by a person before submission",
+        "Every application read by a person before processing",
         "Plain-English guidance in English and Somali",
         "Express handling for trips at short notice",
         "Encrypted uploads and secure payment",
@@ -188,11 +188,11 @@ const content: SiteContent = {
     },
     services: {
       eyebrow: "What's included",
-      title: "Everything the eTAS asks for, handled.",
+      title: "Everything the eVisa asks for, handled.",
       description: "You supply the passport and photo; we take care of the paperwork in between.",
       items: [
-        { title: "Requirement check", body: "We confirm your passport validity and photo meet the eTAS rules." },
-        { title: "Form completion", body: "Your details are entered carefully, in the format the portal expects." },
+        { title: "Requirement check", body: "We confirm your passport validity and photo meet the eVisa rules." },
+        { title: "Form completion", body: "Your details are entered carefully, in exactly the format required." },
         { title: "Urgent applications", body: "Express handling for flights in the next day or two." },
         { title: "Real people on WhatsApp", body: "Ask a question at any hour and get an answer from our team." },
         { title: "Data protection", body: "Documents are encrypted in transit and removed once your application is complete." },
@@ -210,9 +210,9 @@ const content: SiteContent = {
   about: {
     seoTitle: `About ${SITE.brand} — Somalia eTAS Application Help`,
     seoDescription:
-      "EvisaSomalia.com is an independent service that explains the Somalia eVisa process and checks and submits applications for travellers and the Somali diaspora.",
+      "EvisaSomalia.com is an independent service that explains the Somalia eVisa process and handles applications for travellers and the Somali diaspora.",
     schemaDescription:
-      "Independent guide and application service for the Somalia eVisa (eTAS), checking documents and submitting applications on travellers' behalf.",
+      "Independent guide and application service for the Somalia eVisa (eTAS), checking documents and handling the application for travellers.",
     heroEyebrow: "About EvisaSomalia",
     heroTitle: "We make the Somalia eTAS simple.",
     heroBody:
@@ -220,8 +220,8 @@ const content: SiteContent = {
     whoEyebrow: "Who we are",
     whoTitle: "An independent application service.",
     whoParagraphs: [
-      "The Somalia eTAS lets visitors and returning diaspora apply for entry online, but the portal expects documents and dates in a very particular format. A cropped passport scan or a mistyped date is enough to send an application back.",
-      "We read every application before it is submitted, correct the problems that cause delays and keep you updated on WhatsApp until your eVisa arrives.",
+      "The Somalia eTAS lets visitors and returning diaspora apply for entry online, but documents and dates must be in a very particular format. A cropped passport scan or a mistyped date is enough to send an application back.",
+      "We read every application before it is processed, correct the problems that cause delays and keep you updated on WhatsApp until your eVisa arrives.",
     ],
     whatEyebrow: "How we help",
     whatTitle: "Three stages, one point of contact.",
@@ -231,12 +231,12 @@ const content: SiteContent = {
         body: "You upload your passport, photo and travel date through our secure form — usually in under five minutes.",
       },
       {
-        title: "Check and lodge",
-        body: "A specialist checks completeness and accuracy, then lodges the application with the official Somalia eTAS.",
+        title: "Check and process",
+        body: "A specialist checks completeness and accuracy, then processes your application.",
       },
       {
         title: "Deliver",
-        body: "When the Somali authorities approve it, your eVisa comes straight to your inbox. Most are issued within 72 hours.",
+        body: "Once it is approved, your eVisa comes straight to your inbox. Most are issued within 72 hours.",
       },
     ],
     eligibilityEyebrow: "Who it's for",
@@ -252,7 +252,7 @@ const content: SiteContent = {
     valuesTitle: "Clear, careful and available.",
     values: [
       { label: "Clear", body: "Requirements explained without jargon, in English and Somali." },
-      { label: "Careful", body: "A person checks every application before submission." },
+      { label: "Careful", body: "A person checks every application before processing." },
       { label: "Quick", body: "Express handling when your trip can't wait." },
       { label: "Worldwide", body: "Helping applicants from all over the world." },
     ],
@@ -274,7 +274,7 @@ const content: SiteContent = {
       },
       {
         q: "How much will I pay in total?",
-        a: `Standard is ${standardFee} and Express is ${expressFee}. The guided application for non-Somali (Ajnabi) visitors is ${ajnabiFee}. Each price includes the government eTAS fee and our service; the £2 card processing fee is already included in the sterling prices.`,
+        a: `Standard is ${standardFee} and Express is ${expressFee}. The guided application for non-Somali (Ajnabi) visitors is ${ajnabiFee}. Each price is all-inclusive; the £2 card processing fee is already included in the sterling prices.`,
       },
       {
         q: "How long until my eVisa is approved?",
@@ -294,7 +294,7 @@ const content: SiteContent = {
       },
       {
         q: "Are you part of the Somali government?",
-        a: `No. ${SITE.brand} is an independent private service. We help you prepare and submit the application; the decision is made by the Somali authorities.`,
+        a: `No. ${SITE.brand} is an independent private visa service, not a government website.`,
       },
       {
         q: "How is the eVisa delivered?",
@@ -333,7 +333,7 @@ const content: SiteContent = {
       { title: "Photo", body: "Taken in the last six months: face forward, plain pale background, no filters." },
       { title: "Arrival date", body: "The day you expect to land in Somalia — it doesn't need to be exact to the hour." },
       { title: "Sponsor letter", body: "Only for visitors without Somali heritage (Ajnabi): an invitation or sponsor letter from your contact in Somalia." },
-      { title: "Card payment", body: `A debit or credit card for the fee, which starts at ${standardFee} including the government charge.` },
+      { title: "Card payment", body: `A debit or credit card for the fee, which starts at ${standardFee} all-inclusive.` },
     ],
   },
 

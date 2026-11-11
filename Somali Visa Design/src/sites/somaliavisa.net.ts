@@ -29,7 +29,7 @@ const regionLine: Record<VisaRegion, string> = {
 const country = (d: VisaCountryInfo) => {
   const intro = pick(d.slug, [
     `Yes — ${d.demonym} passport holders need a Somalia visa, and it is issued online. Send us your passport and a photo from ${d.country} and we handle the rest, usually within ${AJNABI_OPTION.processingTime}.`,
-    `Flying to Somalia from ${d.country}? Get your Somalia visa online before you travel. Upload your passport and photo in about a minute; our team checks it and submits it for you.`,
+    `Flying to Somalia from ${d.country}? Get your Somalia visa online before you travel. Upload your passport and photo in about a minute; our team checks it and handles the rest.`,
     `A Somalia visa for ${d.demonym} citizens takes minutes to request online. Choose Standard or Express, upload your documents, and track everything on WhatsApp.`,
   ]);
   const highlight = pick(d.slug + "x", [
@@ -47,7 +47,7 @@ const country = (d: VisaCountryInfo) => {
     detailsTitle: `Somalia visa from ${d.country} in brief`,
     details: [
       { title: "Speed", body: `Standard: ${AJNABI_OPTION.processingTime}. Express: about 5–6 hours on Somali working days (${expressFee}).` },
-      { title: "Price", body: `${ajnabiFee} all in — government fee and our service together. No extra charges at checkout.` },
+      { title: "Price", body: `${ajnabiFee} all in. No extra charges at checkout.` },
       { title: "Stay", body: "Valid for up to 180 days from the date it's issued." },
     ],
     requirementsEyebrow: "What to send",
@@ -67,7 +67,7 @@ const country = (d: VisaCountryInfo) => {
     faqs: [
       {
         q: `Can ${d.demonym} citizens get a Somalia visa online?`,
-        a: `Yes. The Somalia visa is issued electronically, so ${d.demonym} citizens apply online and receive it by email. We prepare and submit it for you.`,
+        a: `Yes. The Somalia visa is issued electronically, so ${d.demonym} citizens apply online and receive it by email. We take care of the whole process.`,
       },
       {
         q: "What's the fastest option?",
@@ -75,7 +75,7 @@ const country = (d: VisaCountryInfo) => {
       },
       {
         q: `Is ${ajnabiFee} the final price?`,
-        a: "Yes. It includes the government fee and our checking and submission service.",
+        a: "Yes. One price covers everything, with nothing added at checkout.",
       },
       {
         q: "Can I apply on my phone?",
@@ -134,8 +134,8 @@ const content: SiteContent = {
     pricing: {
       eyebrow: "Prices",
       title: "Simple prices",
-      description: "Government fee included. What you see is what you pay.",
-      standardBody: (time) => `${time}. Checked, completed and submitted for you.`,
+      description: "One all-in price. What you see is what you pay.",
+      standardBody: (time) => `${time}. Checked and processed for you.`,
       expressBody: () => "About 5–6 hours on Somali working days. For flights that can't wait.",
       ajnabiNote: (fee, time) =>
         `Non-Somali visitors with a sponsor: guided application (Option 3), ${fee}, ${time}.`,
@@ -146,7 +146,7 @@ const content: SiteContent = {
       description: "No account, no long forms — just your documents.",
       steps: [
         { title: "Upload", body: "Passport and photo, straight from your phone." },
-        { title: "We submit", body: "Our team checks it and sends it to the Somali eTAS." },
+        { title: "We process", body: "Our team checks it and processes your application." },
         { title: "Fly", body: "Your visa lands in your inbox, with a WhatsApp alert." },
       ],
     },
@@ -170,7 +170,7 @@ const content: SiteContent = {
       description: "One price covers all of it.",
       items: [
         { title: "Document check", body: "We make sure your passport and photo will be accepted." },
-        { title: "Form filled for you", body: "No need to learn the government portal." },
+        { title: "Forms handled", body: "No long forms to fill in yourself." },
         { title: "Express lane", body: "Priority handling for urgent trips." },
         { title: "WhatsApp support", body: "Message us any time — real people reply." },
         { title: "Privacy", body: "Your documents are encrypted and never shared." },
@@ -190,7 +190,7 @@ const content: SiteContent = {
     seoDescription:
       "SomaliaVisa.net helps Somali diaspora families and visitors get a Somalia visa online quickly, with WhatsApp support in English and Somali.",
     schemaDescription:
-      "Online Somalia visa service for diaspora families and visitors, with document checks, submission and WhatsApp support.",
+      "Online Somalia visa service for diaspora families and visitors, with document checks, fast processing and WhatsApp support.",
     heroEyebrow: "About",
     heroTitle: "Somalia visas, without the hassle.",
     heroBody:
@@ -198,14 +198,14 @@ const content: SiteContent = {
     whoEyebrow: "Our story",
     whoTitle: "A small team that knows the process inside out.",
     whoParagraphs: [
-      "Applying through the government eTAS on your own means learning a new portal, getting the scans exactly right and waiting to find out whether anything was wrong. We take that work off your hands.",
-      "You send your passport and photo; we check them, complete the form, submit it and message you on WhatsApp when the visa is approved.",
+      "Getting a Somalia visa should not mean long forms, rejected scans and waiting to find out whether anything was wrong. We take that work off your hands.",
+      "You send your passport and photo; we check them, process your application and message you on WhatsApp when the visa is approved.",
     ],
     whatEyebrow: "How it works",
-    whatTitle: "Upload, we submit, you fly.",
+    whatTitle: "Upload, we process, you fly.",
     whatSteps: [
       { title: "Upload", body: "Passport and photo from your phone or computer — about a minute." },
-      { title: "We submit", body: "Our team checks everything and submits it to the official Somalia eTAS." },
+      { title: "We process", body: "Our team checks everything and processes your application." },
       { title: "You fly", body: "The approved visa arrives by email. Most are issued within 72 hours." },
     ],
     eligibilityEyebrow: "Who can apply",
@@ -239,7 +239,7 @@ const content: SiteContent = {
     items: [
       {
         q: "How much is a Somalia visa?",
-        a: `${standardFee} for Standard, ${expressFee} for Express, and ${ajnabiFee} for the guided non-Somali (Ajnabi) application. Government fee included.`,
+        a: `${standardFee} for Standard, ${expressFee} for Express, and ${ajnabiFee} for the guided non-Somali (Ajnabi) application. All-in prices.`,
       },
       {
         q: "How fast can I get it?",
@@ -263,7 +263,7 @@ const content: SiteContent = {
       },
       {
         q: "Is this the government website?",
-        a: `No. ${SITE.brand} is an independent service that prepares and submits your application. The Somali authorities make the decision.`,
+        a: `No. ${SITE.brand} is an independent private visa service, not a government website.`,
       },
       {
         q: "What if I'm refused?",

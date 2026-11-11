@@ -242,7 +242,7 @@ const Express = () => {
       </form>
 
       <ul className="mt-10 grid sm:grid-cols-3 gap-4 text-sm text-muted-foreground">
-        {["No application form required","We prepare everything for you","Specialist review before submission"].map((t) => (
+        {["No application form required","We prepare everything for you","Specialist review before processing"].map((t) => (
           <li key={t} className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-accent mt-0.5" /> {t}</li>
         ))}
       </ul>
